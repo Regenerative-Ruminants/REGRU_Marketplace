@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food & Fibre Marketplace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Garamond:wght@400;700&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --main-color: #0d324a;
+            --secondary-color: #ffffff;
+            --border-color: #e0e0e0; /* Lighter border for delineation */
+            --font-oswald: 'Oswald', sans-serif;
+            --font-garamond: 'Garamond', serif;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-garamond);
+            color: #333;
+            background-color: #f4f6f8; /* Light grey background for the page */
+            height: 100vh;
+            overflow: hidden; /* Prevent body scroll, manage scrolling in panels */
+            display: flex;
+        }
+
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 1st Panel (Primary Navigation) */
+        .panel1 {
+            width: 80px;
+            background-color: var(--secondary-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; 
+            align-items: center;
+            padding: 0; 
+            transition: width 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .panel1-logo-area { 
+            padding-top: 15px; 
+            padding-bottom: 10px; 
+            width: 100%;
+            text-align: center;
+        }
+
+        .panel1-logo {
+            color: var(--main-color);
+            font-size: 28px; 
+            display: inline-block; 
+        }
+
+        .panel1-icons-top, .panel1-icons-bottom {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .panel1-icons-top {
+            padding-top: 10px; 
+        }
+        .panel1-icons-bottom {
+            padding-bottom: 20px; 
+        }
+
+
+        .panel1-icon {
+            color: var(--main-color);
+            margin-bottom: 25px;
+            cursor: pointer;
+            text-align: center; 
+            padding: 10px;
+            border-radius: 8px;
+            width: calc(100% - 20px); 
+            box-sizing: border-box;
+        }
+        .panel1-icon:hover, .panel1-icon.active {
+            background-color: #eef2f5; 
+        }
+        .panel1-icon i { 
+            font-size: 24px;
+            margin-bottom: 5px;
+            display: block; 
+        }
+        .panel1-icon span { 
+            font-family: var(--font-oswald);
+            font-size: 12px;
+            display: block; 
+        }
+
+        /* Wrapper for Heading and the rest of the content area */
+        .main-area-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%; 
+            overflow: hidden;
+        }
+
+        /* Heading Bar */
+        .heading-bar {
+            height: 60px;
+            background-color: var(--secondary-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center; 
+            padding: 0 20px;
+            flex-shrink: 0; 
+            width: 100%; 
+            box-sizing: border-box;
+        }
+        .heading-title { /* Restored title style */
+            font-family: var(--font-oswald);
+            color: var(--main-color);
+            font-size: 22px;
+            font-weight: 500;
+            flex-grow: 1; /* Allows title to take up space */
+        }
+        .heading-icons {
+            display: flex;
+            align-items: center;
+            margin-left: auto; /* Pushes icons to the right if title is present */
+        }
+        .heading-icon { 
+            color: var(--main-color);
+            font-size: 24px; 
+            margin-left: 20px;
+            cursor: pointer;
+        }
+        .heading-icon:hover {
+            opacity: 0.7;
+        }
+
+        /* Wrapper for content below heading (Panel2, ContentSection, InfoPanel) */
+        .content-below-heading {
+            display: flex;
+            flex-grow: 1; 
+            overflow: hidden; 
+            height: calc(100% - 60px); 
+        }
+
+        .center-content-area {
+            display: flex; 
+            flex-grow: 1; 
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* 2nd Panel (Secondary Navigation) */
+        .panel2 {
+            width: 280px;
+            background-color: var(--secondary-color);
+            /* border-right: 1px solid var(--border-color); Removed, toggle button will have border */
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; 
+            transition: width 0.3s ease, margin-left 0.3s ease, padding 0.3s ease;
+            flex-shrink: 0;
+        }
+        .panel2.hidden {
+            width: 0;
+            padding-left: 0;
+            padding-right: 0;
+            /* margin-left: -1px; No longer needed if toggle is between */
+            overflow: hidden;
+            border-right: none; /* Hide border when panel is hidden */
+        }
+        .panel2-search-bar {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: var(--font-garamond);
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .panel2-subsection-group h4 { 
+            font-family: var(--font-oswald);
+            color: var(--main-color);
+            font-size: 16px;
+            margin-top: 15px; 
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .panel2-subsection-group:first-child h4 {
+            margin-top: 0; 
+        }
+        .panel2-subsection-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        .panel2-subsection-list li a {
+            display: block;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: #333;
+            font-family: var(--font-garamond);
+            font-size: 15px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+        }
+        .panel2-subsection-list li a:hover, .panel2-subsection-list li a.active {
+            background-color: #eef2f5;
+            color: var(--main-color);
+        }
+
+        /* Content Section */
+        .content-section {
+            flex-grow: 1; 
+            background-color: var(--secondary-color);
+            padding: 20px;
+            overflow-y: auto; 
+            font-family: var(--font-garamond);
+            line-height: 1.6;
+            border-left: 1px solid var(--border-color); /* Add border now that toggle is between */
+        }
+         .panel2.hidden + .toggle-panel2-btn + .content-section {
+            border-left: none; /* Remove border if panel2 is hidden */
+        }
+        .content-section h2 { 
+            font-family: var(--font-oswald);
+            color: var(--main-color);
+            margin-top: 0;
+            font-size: 22px; 
+            margin-bottom: 15px; 
+        }
+        .content-placeholder {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #777;
+            font-size: 18px;
+        }
+
+        /* Filter UI for Notifications/Messages */
+        .filter-container { margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 8px; border: 1px solid var(--border-color); }
+        .filter-group { margin-bottom: 10px; }
+        .filter-group label { font-family: var(--font-oswald); margin-right: 10px; font-size: 14px; }
+        .filter-group select, .filter-group input[type="search"] { padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-family: var(--font-garamond); margin-right: 10px; }
+        .filter-group button { padding: 8px 12px; background-color: var(--main-color); color: var(--secondary-color); border: none; border-radius: 4px; cursor: pointer; font-family: var(--font-oswald); }
+        .filter-group button:hover { opacity: 0.9; }
+        .item-list { list-style: none; padding: 0; }
+        .item-list li { padding: 10px; border-bottom: 1px solid var(--border-color); }
+        .item-list li:last-child { border-bottom: none; }
+
+        /* Information Panel Wrapper (Toggle + Panel) */
+        .info-panel-wrapper {
+            display: flex; 
+            flex-shrink: 0; 
+            height: 100%; 
+        }
+        .info-panel {
+            width: 300px;
+            background-color: var(--secondary-color);
+            /* border-left: 1px solid var(--border-color); No, toggle button will have border */
+            padding: 20px;
+            overflow-y: auto; 
+            transition: width 0.3s ease, margin-right 0.3s ease, padding 0.3s ease;
+        }
+        .info-panel.hidden {
+            width: 0;
+            padding-left: 0;
+            padding-right: 0;
+            overflow: hidden;
+            border-left: none;
+        }
+         .info-panel.hidden + .toggle-info-panel-btn { /* This won't work as button is before */
+            /* border-left: none; */
+        }
+        .info-panel h3 {
+            font-family: var(--font-oswald);
+            color: var(--main-color);
+            margin-top: 0;
+        }
+
+        /* Toggle Buttons */
+        .toggle-button {
+            background-color: var(--main-color);
+            color: var(--secondary-color);
+            border: none; /* Base border */
+            border-top: 1px solid var(--border-color);   /* Add delineation */
+            border-bottom: 1px solid var(--border-color);/* Add delineation */
+            cursor: pointer;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 80px; 
+            padding: 0; 
+            width: 25px; /* Slightly narrower for a "strip" feel */
+            flex-shrink: 0;
+            transition: background-color 0.2s ease;
+            box-sizing: border-box;
+        }
+        .toggle-button:hover {
+            background-color: #0a283c; 
+        }
+        .toggle-button i { 
+            font-size: 18px; /* Adjusted for new button width */
+            line-height: 1; /* Helps ensure icon is centered if it has its own line height */
+        }
+
+        .toggle-panel2-btn {
+            /* border-radius: 0 5px 5px 0; No radius if it's a middle strip */
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+             /* Order is handled by HTML structure now */
+        }
+         .panel2.hidden + .toggle-panel2-btn {
+            border-left: none;
+        }
+
+
+        .toggle-info-panel-btn {
+            /* border-radius: 5px 0 0 5px; No radius */
+            order: -1; /* Places it to the left of info-panel content */
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+        }
+        .info-panel-wrapper .info-panel.hidden + .toggle-info-panel-btn {
+             /* This selector is tricky due to order:-1. Simpler to manage border on panel. */
+        }
+        .info-panel-wrapper > .toggle-info-panel-btn { /* Targeting the button when info panel is hidden */
+            /* border-right: none; /* Hide its own right border if panel is hidden */
+        }
+         .info-panel.hidden {
+            border-left: none;
+        }
+         .info-panel:not(.hidden) {
+            border-left: 1px solid var(--border-color);
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="panel1" id="panel1">
+            <div> <div class="panel1-logo-area">
+                    <i class="fas fa-seedling panel1-logo"></i> </div>
+                <div class="panel1-icons-top">
+                    <div class="panel1-icon" data-category="marketplace" title="Marketplace">
+                        <i class="fas fa-store"></i>
+                        <span>Marketplace</span>
+                    </div>
+                    <div class="panel1-icon" data-category="management" title="Management">
+                        <i class="fas fa-tasks"></i>
+                        <span>Management</span>
+                    </div>
+                    <div class="panel1-icon" data-category="community" title="Community">
+                        <i class="fas fa-users"></i>
+                        <span>Community</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel1-icons-bottom">
+                <div class="panel1-icon" data-category="help" title="Help">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Help</span>
+                </div>
+                <div class="panel1-icon" data-category="profile" title="Profile">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-area-wrapper">
+            <div class="heading-bar" id="headingBar">
+                <span class="heading-title" id="headingTitle">Welcome</span> <div class="heading-icons">
+                    <i class="fas fa-bell heading-icon" id="iconNotifications" title="Notifications"></i>
+                    <i class="fas fa-envelope heading-icon" id="iconMessages" title="Messages"></i>
+                    <i class="fas fa-shopping-cart heading-icon" id="iconCart" title="Shopping Cart"></i>
+                </div>
+            </div>
+
+            <div class="content-below-heading">
+                <div class="center-content-area">
+                    <div class="panel2 hidden" id="panel2">
+                        <input type="search" class="panel2-search-bar" id="panel2Search" placeholder="Search...">
+                        <div id="panel2Content">
+                            </div>
+                    </div>
+                    <button class="toggle-button toggle-panel2-btn" id="togglePanel2Btn">
+                        <i class="fas fa-chevron-right"></i> 
+                    </button>
+                    <div class="content-section" id="contentSection">
+                        <div class="content-placeholder">Welcome! Please select a category to get started.</div>
+                    </div>
+                </div>
+
+                <div class="info-panel-wrapper">
+                    <button class="toggle-button toggle-info-panel-btn" id="toggleInfoPanelBtn">
+                         <i class="fas fa-chevron-left"></i> 
+                    </button>
+                    <div class="info-panel hidden" id="infoPanel">
+                        <h3>Information</h3>
+                        <p id="infoPanelContent">Details related to the current content will appear here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const panel1Icons = document.querySelectorAll('.panel1-icon');
+            const panel2 = document.getElementById('panel2');
+            const panel2Search = document.getElementById('panel2Search');
+            const panel2Content = document.getElementById('panel2Content');
+            const headingTitle = document.getElementById('headingTitle'); // Restored
+            const contentSection = document.getElementById('contentSection');
+            const infoPanel = document.getElementById('infoPanel');
+            const infoPanelContent = document.getElementById('infoPanelContent');
+
+            const togglePanel2Btn = document.getElementById('togglePanel2Btn');
+            const toggleInfoPanelBtn = document.getElementById('toggleInfoPanelBtn');
+            const togglePanel2Icon = togglePanel2Btn.querySelector('i');
+            const toggleInfoPanelIcon = toggleInfoPanelBtn.querySelector('i');
+
+            const iconNotifications = document.getElementById('iconNotifications');
+            const iconMessages = document.getElementById('iconMessages');
+            const iconCart = document.getElementById('iconCart');
+
+            let currentMainCategory = null;
+            let currentSubCategory = null;
+
+            const panelData = {
+                marketplace: { name: "Marketplace", searchPlaceholder: "Search Marketplace", sections: { "Browse": ["All Products", "By Category", "By Seller", "By Provenance"], "My Buying": ["My Purchases", "Favourites"], "My Selling": ["Products", "My Orders", "Analytics", "Finance"] }},
+                management: { name: "Management", searchPlaceholder: "Search Management", sections: { "Time": ["Calendar", "Task List"], "Health": ["Medicines", "Records"], "Livestock": ["Animals", "Breeding", "Records"], "Grazing": ["Current", "Planning", "Records"], "Finances": ["Cashflow", "Planning", "Accounting"] }},
+                community: { name: "Community", searchPlaceholder: "Search Community", sections: { "Groups": ["All Groups", "By Category"], "Courses": ["All Courses", "By Category"] }},
+                help: { name: "Help", searchPlaceholder: "Search Help", sections: { "Support Options": ["Knowledge Library", "Report a Problem", "Talk to Our Team"] }},
+                profile: { name: "Profile", searchPlaceholder: "Search Profile", sections: { "My Account": ["View Profile", "Notifications", "Messages", "Activity Log", "Details and Addresses", "Payments", "Settings", "Sign out"] }}
+            };
+
+            // --- Panel 1 Interaction ---
+            panel1Icons.forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const category = icon.dataset.category;
+                    currentMainCategory = category;
+
+                    panel1Icons.forEach(i => i.classList.remove('active'));
+                    icon.classList.add('active');
+
+                    populatePanel2(category);
+                    if (panel2.classList.contains('hidden')) { 
+                        panel2.classList.remove('hidden');
+                        togglePanel2Icon.classList.remove('fa-chevron-right');
+                        togglePanel2Icon.classList.add('fa-chevron-left');
+                        contentSection.style.borderLeft = '1px solid var(--border-color)'; // Add border to content when panel2 opens
+                    }
+                });
+            });
+
+            // --- Populate Panel 2 ---
+            function populatePanel2(categoryKey) {
+                const data = panelData[categoryKey];
+                if (!data) {
+                    panel2Content.innerHTML = '<p>No subsections available.</p>';
+                    panel2Search.placeholder = 'Search...';
+                    return;
+                }
+
+                panel2Search.placeholder = data.searchPlaceholder;
+                let html = '';
+                for (const groupName in data.sections) {
+                    html += `<div class="panel2-subsection-group"><h4>${groupName}</h4>`;
+                    html += '<ul class="panel2-subsection-list">';
+                    data.sections[groupName].forEach(item => {
+                        html += `<li><a href="#" data-category="${categoryKey}" data-subsection="${item}">${item}</a></li>`;
+                    });
+                    html += '</ul></div>';
+                }
+                panel2Content.innerHTML = html;
+
+                panel2Content.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const subCategory = link.dataset.subsection;
+                        const mainCat = link.dataset.category;
+                        currentSubCategory = subCategory;
+
+                        panel2Content.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+                        link.classList.add('active');
+                        
+                        if (mainCat === "profile" && subCategory === "Notifications") {
+                            loadNotifications(); 
+                        } else if (mainCat === "profile" && subCategory === "Messages") {
+                            loadMessages(); 
+                        } else {
+                            updateContentPage(mainCat, subCategory); 
+                        }
+                    });
+                });
+            }
+
+            // --- Update Content Section (typically shows Info Panel) ---
+            function updateContentPage(mainCategory, subCategory) {
+                headingTitle.textContent = subCategory; // Restored
+                contentSection.innerHTML = `<h2>${subCategory}</h2><p>Content for ${mainCategory} - ${subCategory} goes here.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p> `.repeat(3);
+                infoPanelContent.textContent = `Detailed information related to ${subCategory}.`;
+                
+                if (infoPanel.classList.contains('hidden')) {
+                    infoPanel.classList.remove('hidden');
+                    toggleInfoPanelIcon.classList.remove('fa-chevron-left');
+                    toggleInfoPanelIcon.classList.add('fa-chevron-right');
+                }
+            }
+
+            // --- Heading Icons Interaction (do NOT show Info Panel automatically) ---
+            iconNotifications.addEventListener('click', () => loadNotifications());
+            iconMessages.addEventListener('click', () => loadMessages());
+            iconCart.addEventListener('click', () => {
+                currentMainCategory = "Marketplace"; 
+                currentSubCategory = "Shopping Cart";
+                headingTitle.textContent = "Shopping Cart"; // Restored
+                contentSection.innerHTML = `<h2>Shopping Cart</h2><p>Your shopping cart is currently empty. Add some wonderful farm products!</p>`;
+                panel2Content.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+            });
+
+            function loadNotifications() {
+                currentMainCategory = null; 
+                currentSubCategory = "Notifications";
+                headingTitle.textContent = "Notifications"; // Restored
+                contentSection.innerHTML = `
+                    <h2>Notifications</h2>
+                    <div class="filter-container">
+                        <div class="filter-group">
+                            <label for="notif-source">Source:</label>
+                            <select id="notif-source"><option>All</option><option>Marketplace</option><option>Management</option><option>Community</option></select>
+                            <label for="notif-status">Status:</label>
+                            <select id="notif-status"><option>All</option><option>Unread</option><option>Favourites</option></select>
+                            <input type="search" placeholder="Search notifications..."><button>Search</button>
+                        </div>
+                    </div>
+                    <ul class="item-list">
+                        <li>Notification 1: New order #12345 received (Marketplace) - <em>unread</em></li>
+                        <li>Notification 2: Task 'Repair Fence Section B' overdue (Management)</li>
+                        <li>Notification 3: User 'FarmFresh' commented on your post in 'Organic Growers Group' (Community) - <em>favourite</em></li>
+                        <li>Notification 4: Welcome to the Food & Fibre Hub! Explore and connect.</li>
+                    </ul>`;
+                panel2Content.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+            }
+
+            function loadMessages() {
+                currentMainCategory = null;
+                currentSubCategory = "Messages";
+                headingTitle.textContent = "Messages"; // Restored
+                contentSection.innerHTML = `
+                    <h2>Messages</h2>
+                    <div class="filter-container">
+                        <div class="filter-group">
+                            <label for="msg-source">Source:</label>
+                            <select id="msg-source"><option>All</option><option>Marketplace</option><option>Management</option><option>Community</option></select>
+                            <label for="msg-status">Status:</label>
+                            <select id="msg-status"><option>All</option><option>Unread</option><option>Favourites</option></select>
+                            <input type="search" placeholder="Search messages..."><button>Search</button>
+                        </div>
+                    </div>
+                    <ul class="item-list">
+                        <li>From: Farmer Giles (Re: Your query about wool quality) - <em>unread</em></li>
+                        <li>From: AgriSupplies Ltd. (Invoice #INV-0078 due)</li>
+                        <li>From: Community Admin (Upcoming webinar on soil health) - <em>favourite</em></li>
+                    </ul>`;
+                panel2Content.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+            }
+
+            // --- Toggle Panel 2 Visibility ---
+            togglePanel2Btn.addEventListener('click', () => {
+                panel2.classList.toggle('hidden');
+                if (panel2.classList.contains('hidden')) {
+                    togglePanel2Icon.classList.remove('fa-chevron-left');
+                    togglePanel2Icon.classList.add('fa-chevron-right'); 
+                    contentSection.style.borderLeft = 'none'; // Remove border from content when panel2 closes
+                } else {
+                    togglePanel2Icon.classList.remove('fa-chevron-right');
+                    togglePanel2Icon.classList.add('fa-chevron-left'); 
+                    contentSection.style.borderLeft = '1px solid var(--border-color)'; // Add border to content when panel2 opens
+                }
+            });
+
+            // --- Toggle Info Panel Visibility ---
+            toggleInfoPanelBtn.addEventListener('click', () => {
+                infoPanel.classList.toggle('hidden');
+                 if (infoPanel.classList.contains('hidden')) {
+                    toggleInfoPanelIcon.classList.remove('fa-chevron-right');
+                    toggleInfoPanelIcon.classList.add('fa-chevron-left'); 
+                } else {
+                    toggleInfoPanelIcon.classList.remove('fa-chevron-left');
+                    toggleInfoPanelIcon.classList.add('fa-chevron-right'); 
+                }
+            });
+
+            // Initial state
+            contentSection.innerHTML = '<div class="content-placeholder">Welcome to the Food & Fibre Hub! Please select a category from the left panel to get started.</div>';
+            headingTitle.textContent = 'Food & Fibre Hub'; // Restored
+            
+            togglePanel2Icon.classList.remove('fa-chevron-left');
+            togglePanel2Icon.classList.add('fa-chevron-right');
+            toggleInfoPanelIcon.classList.remove('fa-chevron-right');
+            toggleInfoPanelIcon.classList.add('fa-chevron-left');
+            contentSection.style.borderLeft = 'none'; // Initially no border as panel2 is hidden
+        });
+    </script>
+</body>
+</html>
