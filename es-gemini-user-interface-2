@@ -203,12 +203,29 @@
         .panel2-subsection-group:first-child h4 { margin-top: 0; }
         .panel2-subsection-list { list-style: none; padding-left: 0; margin: 0; }
         .panel2-subsection-list li a {
-            display: block; padding: 8px 12px; text-decoration: none; color: #333;
-            font-family: var(--font-garamond); font-size: 15px; border-radius: 6px; margin-bottom: 4px;
+            display: flex; /* For icon alignment */
+            align-items: center; /* Vertically align icon and text */
+            padding: 8px 12px; 
+            text-decoration: none; 
+            color: #333;
+            font-family: var(--font-garamond); 
+            font-size: 15px; 
+            border-radius: 6px; 
+            margin-bottom: 4px;
+        }
+        .panel2-subsection-list li a i { /* Style for icons in 2nd panel */
+            margin-right: 10px; /* Space between icon and text */
+            color: var(--main-color); /* Icon color */
+            width: 1.2em; /* Fixed width for alignment if icons vary */
+            text-align: center;
         }
         .panel2-subsection-list li a:hover, .panel2-subsection-list li a.active {
             background-color: var(--hover-bg-color); color: var(--main-color);
         }
+         .panel2-subsection-list li a.active i { /* Ensure icon color changes on active too if needed */
+            color: var(--main-color);
+        }
+
 
         .content-section {
             flex-grow: 1; 
@@ -396,12 +413,100 @@
             let currentMainCategory = null;
             let currentSubCategory = null;
 
+            // Data for 2nd Panel subsections with icons
             const panelData = {
-                marketplace: { name: "Marketplace", searchPlaceholder: "Search Marketplace", sections: { "Browse": ["All Products", "By Category", "By Seller", "By Provenance"], "My Buying": ["My Purchases", "Favourites"], "My Selling": ["Products", "My Orders", "Analytics", "Finance"] }},
-                management: { name: "Management", searchPlaceholder: "Search Management", sections: { "Time": ["Calendar", "Task List"], "Health": ["Medicines", "Records"], "Livestock": ["Animals", "Breeding", "Records"], "Grazing": ["Current", "Planning", "Records"], "Finances": ["Cashflow", "Planning", "Accounting"] }},
-                community: { name: "Community", searchPlaceholder: "Search Community", sections: { "Groups": ["All Groups", "By Category"], "Courses": ["All Courses", "By Category"] }},
-                help: { name: "Help", searchPlaceholder: "Search Help", sections: { "Support Options": ["Knowledge Library", "Report a Problem", "Talk to Our Team"] }},
-                profile: { name: "Profile", searchPlaceholder: "Search Profile", sections: { "My Account": ["View Profile", "Notifications", "Messages", "Activity Log", "Details and Addresses", "Payments", "Settings", "Sign out"] }}
+                marketplace: {
+                    name: "Marketplace",
+                    searchPlaceholder: "Search Marketplace",
+                    sections: {
+                        "Browse": [
+                            { name: "All Products", icon: "fas fa-th-large" },
+                            { name: "By Category", icon: "fas fa-tags" },
+                            { name: "By Seller", icon: "fas fa-store-alt" },
+                            { name: "By Provenance", icon: "fas fa-map-marker-alt" }
+                        ],
+                        "My Buying": [
+                            { name: "My Purchases", icon: "fas fa-receipt" },
+                            { name: "Favourites", icon: "fas fa-heart" }
+                        ],
+                        "My Selling": [
+                            { name: "Products", icon: "fas fa-boxes" },
+                            { name: "My Orders", icon: "fas fa-dolly" },
+                            { name: "Analytics", icon: "fas fa-chart-line" },
+                            { name: "Finance", icon: "fas fa-file-invoice-dollar" }
+                        ]
+                    }
+                },
+                management: {
+                    name: "Management",
+                    searchPlaceholder: "Search Management",
+                    sections: {
+                        "Time": [
+                            { name: "Calendar", icon: "fas fa-calendar-alt" },
+                            { name: "Task List", icon: "fas fa-clipboard-list" }
+                        ],
+                        "Health": [
+                            { name: "Medicines", icon: "fas fa-pills" },
+                            { name: "Records", icon: "fas fa-notes-medical" }
+                        ],
+                        "Livestock": [
+                            { name: "Animals", icon: "fas fa-paw" },
+                            { name: "Breeding", icon: "fas fa-dna" },
+                            { name: "Records", icon: "fas fa-book-medical" }
+                        ],
+                        "Grazing": [
+                            { name: "Current", icon: "fas fa-mountain" },
+                            { name: "Planning", icon: "fas fa-map-signs" },
+                            { name: "Records", icon: "fas fa-clipboard" }
+                        ],
+                        "Finances": [
+                            { name: "Cashflow", icon: "fas fa-hand-holding-usd" },
+                            { name: "Planning", icon: "fas fa-piggy-bank" },
+                            { name: "Accounting", icon: "fas fa-calculator" }
+                        ]
+                    }
+                },
+                community: {
+                    name: "Community",
+                    searchPlaceholder: "Search Community",
+                    sections: {
+                        "Groups": [
+                            { name: "All Groups", icon: "fas fa-object-group" },
+                            { name: "By Category", icon: "fas fa-folder-open" }
+                        ],
+                        "Courses": [
+                            { name: "All Courses", icon: "fas fa-graduation-cap" },
+                            { name: "By Category", icon: "fas fa-sitemap" }
+                        ]
+                    }
+                },
+                help: {
+                    name: "Help",
+                    searchPlaceholder: "Search Help",
+                    sections: {
+                        "Support Options": [
+                            { name: "Knowledge Library", icon: "fas fa-book" },
+                            { name: "Report a Problem", icon: "fas fa-exclamation-triangle" },
+                            { name: "Talk to Our Team", icon: "fas fa-headset" }
+                        ]
+                    }
+                },
+                profile: {
+                    name: "Profile",
+                    searchPlaceholder: "Search Profile",
+                    sections: {
+                        "My Account": [
+                            { name: "View Profile", icon: "fas fa-user-edit" },
+                            { name: "Notifications", icon: "fas fa-bell" },
+                            { name: "Messages", icon: "fas fa-envelope" },
+                            { name: "Activity Log", icon: "fas fa-history" },
+                            { name: "Details and Addresses", icon: "fas fa-address-card" },
+                            { name: "Payments", icon: "fas fa-credit-card" },
+                            { name: "Settings", icon: "fas fa-cog" },
+                            { name: "Sign out", icon: "fas fa-sign-out-alt" }
+                        ]
+                    }
+                }
             };
 
             // Detailed information for info panel
@@ -443,8 +548,12 @@
                 for (const groupName in data.sections) {
                     html += `<div class="panel2-subsection-group"><h4>${groupName}</h4>`;
                     html += '<ul class="panel2-subsection-list">';
-                    data.sections[groupName].forEach(item => {
-                        html += `<li><a href="#" data-category="${categoryKey}" data-subsection="${item}">${item}</a></li>`;
+                    data.sections[groupName].forEach(item => { // item is now an object {name: "...", icon: "..."}
+                        html += `<li><a href="#" data-category="${categoryKey}" data-subsection="${item.name}">`;
+                        if (item.icon) {
+                            html += `<i class="${item.icon}"></i>`;
+                        }
+                        html += `${item.name}</a></li>`;
                     });
                     html += '</ul></div>';
                 }
@@ -453,7 +562,7 @@
                 panel2Content.querySelectorAll('a').forEach(link => {
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
-                        const subCategory = link.dataset.subsection;
+                        const subCategory = link.dataset.subsection; // This is item.name
                         const mainCat = link.dataset.category;
                         currentSubCategory = subCategory;
 
@@ -461,9 +570,9 @@
                         link.classList.add('active');
                         
                         if (mainCat === "profile" && subCategory === "Notifications") {
-                            loadNotifications(true); // Pass true to show info panel
+                            loadNotifications(true); 
                         } else if (mainCat === "profile" && subCategory === "Messages") {
-                            loadMessages(true); // Pass true to show info panel
+                            loadMessages(true); 
                         } else {
                             updateContentPage(mainCat, subCategory); 
                         }
@@ -483,7 +592,7 @@
             function updateContentPage(mainCategory, subCategory) {
                 headingTitle.textContent = subCategory; 
                 contentSection.innerHTML = `<h2>${subCategory}</h2><p>Content for ${mainCategory} - ${subCategory} goes here.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p> `.repeat(3);
-                infoPanelContent.innerHTML = `Detailed information related to <strong>${subCategory}</strong>. <br>Explore various features and manage your activities efficiently. This section provides context for the currently selected item.`; // Default info for other sections
+                infoPanelContent.innerHTML = `Detailed information related to <strong>${subCategory}</strong>. <br>Explore various features and manage your activities efficiently. This section provides context for the currently selected item.`; 
                 showInfoPanel();
             }
 
@@ -494,8 +603,8 @@
                 currentSubCategory = "Shopping Cart";
                 headingTitle.textContent = "Shopping Cart"; 
                 contentSection.innerHTML = `<h2>Shopping Cart</h2><p>Your shopping cart is currently empty. Add some wonderful farm products!</p>`;
-                infoPanelContent.innerHTML = detailedInfo.shoppingCart; // Show detailed info for cart
-                showInfoPanel(); // Ensure info panel is visible
+                infoPanelContent.innerHTML = detailedInfo.shoppingCart; 
+                showInfoPanel(); 
                 panel2Content.querySelectorAll('a').forEach(a => a.classList.remove('active'));
             });
 
