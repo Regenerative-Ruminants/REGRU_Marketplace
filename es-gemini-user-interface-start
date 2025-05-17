@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food & Fibre Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Oswald:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Define custom properties for colors and fonts */
+        :root {
+            --main-color: #0d324a;
+            --secondary-color: #ffffff;
+            --tertiary-color: #ffffff;
+            --font-oswald: 'Oswald', sans-serif;
+            --font-garamond: 'Garamond', serif;
+        }
+
+        /* Apply base font to body */
+        body {
+            font-family: var(--font-garamond);
+            color: var(--main-color); /* Default text color */
+        }
+
+        /* Apply Oswald font to headings and specific elements */
+        h1, h2, h3, h4, h5, h6, .font-oswald {
+            font-family: var(--font-oswald);
+        }
+
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
+        }
+
+        /* Specific panel styling */
+        .panel-bg-tertiary { background-color: var(--tertiary-color); }
+        .content-bg-secondary { background-color: var(--secondary-color); }
+        .text-main-color { color: var(--main-color); }
+        .icon-main-color { color: var(--main-color); }
+
+        /* Ensure full height for scrollable areas */
+        .scrollable-area {
+            height: calc(100vh - 4rem);
+        }
+        .second-panel-scrollable {
+             height: calc(100vh - 4rem);
+        }
+        .content-section-scrollable{
+            height: calc(100vh - 4.5rem);
+        }
+        .info-panel-scrollable{
+             height: calc(100vh - 1rem);
+        }
+
+        /* Styling for active items */
+        .first-panel-item.active {
+            background-color: #e0e0e0;
+            border-left: 4px solid var(--main-color);
+        }
+         .first-panel-item.active i, .first-panel-item.active .first-panel-label {
+            color: var(--main-color);
+        }
+        .second-panel-item.active {
+            background-color: #e0e0e0;
+            font-weight: bold;
+            color: var(--main-color);
+        }
+        .second-panel-group-label {
+            font-family: var(--font-oswald);
+            color: var(--main-color);
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden bg-white">
+
+    <nav id="first-panel" class="panel-bg-tertiary w-20 flex flex-col items-center py-4 space-y-3 shadow-lg">
+        <div class="p-2 mb-4">
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="h-10 w-10 icon-main-color" fill="currentColor"><path d="M50,5A45,45,0,1,0,95,50,45,45,0,0,0,50,5Zm0,82A37,37,0,1,1,87,50,37,37,0,0,1,50,87Z"/><path d="M50,19.1a7.5,7.5,0,0,0-7.5,7.5V50a7.5,7.5,0,0,0,15,0V26.6A7.5,7.5,0,0,0,50,19.1Z"/><path d="M68.4,31.6a7.5,7.5,0,0,0-7.5-7.5H50a7.5,7.5,0,0,0,0,15h9.9A7.5,7.5,0,0,0,68.4,31.6Z"/><path d="M31.6,68.4a7.5,7.5,0,0,0,7.5,7.5H50a7.5,7.5,0,0,0,0-15H40.1A7.5,7.5,0,0,0,31.6,68.4Z"/></svg>
+        </div>
+        </nav>
+
+    <button id="toggle-second-panel" class="panel-bg-tertiary p-1 focus:outline-none hover:bg-gray-200 transition-colors z-10 self-center rounded-r-md shadow">
+        <svg id="toggle-second-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-main-color">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+    </button>
+
+    <aside id="second-panel" class="panel-bg-tertiary w-72 flex flex-col shadow-lg transition-all duration-300 ease-in-out">
+        <div class="p-4 border-b border-gray-200">
+            <input type="search" id="second-panel-search" placeholder="Search..." class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--main-color)] focus:border-transparent outline-none text-sm">
+        </div>
+        <div id="second-panel-content" class="flex-1 overflow-y-auto p-3 space-y-1 second-panel-scrollable">
+            </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header id="main-heading-container" class="content-bg-secondary p-4 shadow">
+            <h1 id="main-heading" class="font-oswald text-3xl text-main-color">Welcome</h1>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <section id="content-section" class="flex-1 content-bg-secondary p-6 overflow-y-auto content-section-scrollable">
+                <div id="content-placeholder" class="text-gray-600">
+                    <p class="text-lg">Please select an item from the navigation to see content here.</p>
+                    <p class="mt-2">The content will update based on your selection in the second panel.</p>
+                </div>
+            </section>
+
+            <button id="toggle-info-panel" class="panel-bg-tertiary p-1 focus:outline-none hover:bg-gray-200 transition-colors z-10 self-center rounded-l-md shadow">
+                 <svg id="toggle-info-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-main-color">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+            </button>
+
+            <aside id="info-panel" class="panel-bg-tertiary w-80 p-4 shadow-lg overflow-y-auto transition-all duration-300 ease-in-out info-panel-scrollable">
+                <h3 class="font-oswald text-xl text-main-color mb-3">Information</h3>
+                <div id="info-panel-content" class="text-sm text-gray-700 space-y-2">
+                    Select an item to see relevant information here.
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // Data for the platform UI
+        const platformData = {
+            home: {
+                label: "Home",
+                iconClass: "fas fa-home",
+                searchPlaceholder: "Search Home",
+                secondPanelContent: [
+                    { groupLabel: "General", items: [{ id: "key_updates", label: "Key Updates" }] },
+                    { groupLabel: "Buying", items: [
+                        { id: "search_buying", label: "Search" },
+                        { id: "favourites_buying", label: "Favourites" },
+                        { id: "past_purchases_buying", label: "Past Purchases" }
+                    ]},
+                    { groupLabel: "Selling", items: [
+                        { id: "products_selling", label: "Products" },
+                        { id: "orders_selling", label: "Orders" },
+                        { id: "analytics_selling", label: "Analytics" },
+                        { id: "finance_selling", label: "Finance" }
+                    ]}
+                ]
+            },
+            notifications: {
+                label: "Notifications",
+                iconClass: "fas fa-bell",
+                searchPlaceholder: "Search Notifications",
+                secondPanelContent: [
+                    { items: [
+                        { id: "all_notifications", label: "All" },
+                        { id: "unread_notifications", label: "Unread" },
+                        { id: "general_notifications", label: "General" },
+                        { id: "buying_notifications", label: "Buying" },
+                        { id: "selling_notifications", label: "Selling" },
+                        { id: "following_notifications", label: "Following" },
+                        { id: "priority_notifications", label: "Priority" }
+                    ]}
+                ]
+            },
+            messages: {
+                label: "Messages",
+                iconClass: "fas fa-comments",
+                searchPlaceholder: "Search Messages",
+                secondPanelContent: [
+                    { items: [
+                        { id: "all_messages", label: "All" },
+                        { id: "unread_messages", label: "Unread" },
+                        { id: "customers_messages", label: "Customers" },
+                        { id: "sellers_messages", label: "Sellers" }
+                    ]}
+                ]
+            },
+            knowledge: {
+                label: "Knowledge Library",
+                iconClass: "fas fa-book-open",
+                searchPlaceholder: "Search Knowledge Library",
+                secondPanelContent: [
+                    { items: [
+                        { id: "general_knowledge", label: "General Articles" },
+                        { id: "buying_knowledge", label: "Buying Guides" },
+                        { id: "selling_knowledge", label: "Selling Tips" },
+                        { id: "profile_knowledge", label: "Profile Help" }
+                    ]}
+                ]
+            },
+            help: {
+                label: "Help",
+                iconClass: "fas fa-question-circle",
+                searchPlaceholder: "Search Help",
+                secondPanelContent: [
+                    { items: [
+                        { id: "search_help_docs", label: "Search Help" },
+                        { id: "read_knowledge_help", label: "Read Knowledge Library" },
+                        { id: "report_problem_help", label: "Report a Problem" }
+                    ]}
+                ]
+            },
+            profile: {
+                label: "Profile",
+                iconClass: "fas fa-user-circle",
+                searchPlaceholder: "Search Profile Options",
+                secondPanelContent: [
+                    { items: [
+                        { id: "view_profile", label: "View Profile" },
+                        { id: "activity_log_profile", label: "Activity Log" },
+                        { id: "details_addresses_profile", label: "Details and Addresses" },
+                        { id: "payments_profile", label: "Payments" },
+                        { id: "settings_profile", label: "Settings" },
+                        { id: "switch_app_profile", label: "Switch to another App" },
+                        { id: "sign_out_profile", label: "Sign out" }
+                    ]}
+                ]
+            }
+        };
+
+        // Sample content for the main content area
+        const contentData = {
+            key_updates: { title: "Key Updates", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Platform Key Updates</h2><p>Welcome to the latest updates on our platform. We are constantly working to improve your experience.</p>" + "<p class='mt-2'>More news: ".repeat(30) + "</p>"},
+            search_buying: { title: "Search (Buying)", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Find What You Need</h2><p>Use the advanced search filters to find products and services from various farms and businesses.</p>" + "<p class='mt-2'>Search results details... ".repeat(20) + "</p>"},
+            favourites_buying: { title: "Favourites (Buying)", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Favourites</h2><p>Here are the items you've marked as favourites.</p><ul><li>Favourite Item 1</li><li>Favourite Item 2</li></ul>" },
+            past_purchases_buying: { title: "Past Purchases (Buying)", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Order History</h2><p>Review your past purchases and track their status.</p>" },
+            products_selling: { title: "Products (Selling)", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Manage Your Products</h2><p>Add, edit, or remove your product listings.</p>" + "<div>Product entry... </div>".repeat(15) },
+            orders_selling: { title: "Orders (Selling)", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Customer Orders</h2><p>View and manage incoming orders for your products.</p>" },
+            analytics_selling: { title: "Analytics (Selling)", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Sales Analytics</h2><p>Track your sales performance and customer engagement.</p>" },
+            finance_selling: { title: "Finance (Selling)", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Financial Overview</h2><p>Manage your earnings, payouts, and financial statements.</p>" },
+            all_notifications: { title: "All Notifications", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>All Notifications</h2><p>Notification 1: System update scheduled.</p><p>Notification 2: New message from Seller X.</p>" },
+            unread_notifications: { title: "Unread Notifications", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Unread Notifications</h2><p>You have <strong>2 unread</strong> notifications.</p>" },
+            general_notifications: { title: "General Notifications", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>General Notifications</h2><p>Platform announcements and general info.</p>" },
+            buying_notifications: { title: "Buying Notifications", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Buying Notifications</h2><p>Updates related to your purchases, watched items, etc.</p>" },
+            selling_notifications: { title: "Selling Notifications", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Selling Notifications</h2><p>Notifications about your listings, sales, and seller account.</p>" },
+            following_notifications: { title: "Following Notifications", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Following Notifications</h2><p>Updates from farms or businesses you follow.</p>" },
+            priority_notifications: { title: "Priority Notifications", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Priority Notifications</h2><p>Important alerts and urgent notifications.</p>" },
+            all_messages: { title: "All Messages", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>All Messages</h2><p>Conversation with User A...</p><p>Conversation with User B...</p>" },
+            unread_messages: { title: "Unread Messages", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Unread Messages</h2><p>You have <strong>1 unread</strong> message.</p>" },
+            customers_messages: { title: "Customer Messages", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Messages from Customers</h2><p>Inquiries and messages from your buyers.</p>" },
+            sellers_messages: { title: "Seller Messages", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Messages from Sellers</h2><p>Communications with sellers you've contacted.</p>" },
+            general_knowledge: { title: "General Articles", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>General Knowledge Base</h2><p>Learn about using the platform, account settings, and more.</p>" },
+            buying_knowledge: { title: "Buying Guides", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Guides for Buyers</h2><p>Tips for safe purchasing, understanding product quality, etc.</p>" },
+            selling_knowledge: { title: "Selling Tips", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Tips for Sellers</h2><p>How to create effective listings, manage inventory, and handle customers.</p>" },
+            profile_knowledge: { title: "Profile Help", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Managing Your Profile</h2><p>Information on updating your profile, privacy settings, and more.</p>" },
+            search_help_docs: { title: "Search Help Documentation", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Search Help</h2><p>Type your question or keywords to find help articles.</p><input type='search' placeholder='Search help...' class='w-full p-2 border rounded mt-2'>" },
+            read_knowledge_help: { title: "Read the Knowledge Library", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Knowledge Library Access</h2><p>Browse our comprehensive Knowledge Library for guides and tutorials. (Content will link to Knowledge section)</p>" },
+            report_problem_help: { title: "Report a Problem", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Report an Issue</h2><p>If you've encountered a problem, please let us know. Provide as much detail as possible.</p><textarea class='w-full p-2 border rounded mt-2' rows='4' placeholder='Describe the problem...'></textarea><button class='bg-[var(--main-color)] text-white py-2 px-4 rounded mt-2 hover:opacity-90'>Submit Report</button>" },
+            view_profile: { title: "View Profile", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Public Profile</h2><p>This is how others see your profile. (Display user profile details here)</p>" },
+            activity_log_profile: { title: "Activity Log", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Activity</h2><p>Recent actions and history on the platform.</p>" },
+            details_addresses_profile: { title: "Details and Addresses", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Personal Details & Addresses</h2><p>Manage your contact information and saved addresses.</p>" },
+            payments_profile: { title: "Payments", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Payment Methods</h2><p>Manage your payment options and billing history.</p>" },
+            settings_profile: { title: "Settings", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Account Settings</h2><p>Configure your notification preferences, privacy, and other account settings.</p>" },
+            switch_app_profile: { title: "Switch to another App", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Switch Application</h2><p>If you have access to multiple platform applications, switch here.</p>" },
+            sign_out_profile: { title: "Sign Out", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Sign Out</h2><p>You are about to be signed out.</p><button class='bg-red-600 text-white py-2 px-4 rounded mt-2 hover:bg-red-700'>Confirm Sign Out</button>" },
+            default_content: { title: "Welcome", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Welcome to the Marketplace</h2><p>Please select an option from the menu to get started. This platform connects farms and businesses for trading food and fibre products.</p>" }
+        };
+
+        const informationPanelData = {
+            key_updates: "<strong>About Key Updates:</strong> Stay informed about the latest platform enhancements, news, and important announcements.",
+            search_buying: "<strong>Effective Searching:</strong> Use specific keywords. Explore categories and apply filters for location, price, and certifications to narrow down your results.",
+            products_selling: "<strong>Product Management Tips:</strong> High-quality photos and detailed, accurate descriptions can significantly increase interest in your products. Keep your inventory up-to-date.",
+            all_notifications: "<strong>All Notifications Info:</strong> This feed shows a complete history of your notifications. Check regularly to stay updated.",
+            default_info: "This panel provides context or additional information related to the content you are viewing. Select an item from the main area to learn more."
+        };
+
+        const firstPanel = document.getElementById('first-panel');
+        const secondPanel = document.getElementById('second-panel');
+        const secondPanelSearch = document.getElementById('second-panel-search');
+        const secondPanelContent = document.getElementById('second-panel-content');
+        const mainHeading = document.getElementById('main-heading');
+        const contentSection = document.getElementById('content-section');
+        const infoPanel = document.getElementById('info-panel');
+        const infoPanelContent = document.getElementById('info-panel-content');
+        const toggleSecondPanelBtn = document.getElementById('toggle-second-panel');
+        const toggleInfoPanelBtn = document.getElementById('toggle-info-panel');
+        const toggleSecondIcon = document.getElementById('toggle-second-icon');
+        const toggleInfoIcon = document.getElementById('toggle-info-icon');
+
+        let activeFirstPanelKey = null;
+        let activeSecondPanelId = null;
+        let isSecondPanelOpen = true; // Keep track of 2nd panel state
+        let isInfoPanelOpen = true;   // Keep track of Info panel state
+
+        function renderFirstPanel() {
+            const existingItems = Array.from(firstPanel.children).slice(1);
+            existingItems.forEach(item => item.remove());
+
+            Object.keys(platformData).forEach(key => {
+                const item = platformData[key];
+                const button = document.createElement('button');
+                button.className = `first-panel-item group w-full flex flex-col items-center p-3 rounded-md hover:bg-gray-100 transition-colors focus:outline-none`;
+                button.setAttribute('data-key', key);
+                button.innerHTML = `
+                    <i class="${item.iconClass} text-2xl icon-main-color group-hover:text-[var(--main-color)]"></i>
+                    <span class="first-panel-label text-xs mt-1 text-main-color group-hover:text-[var(--main-color)] font-oswald">${item.label}</span>
+                `;
+                button.onclick = () => selectFirstPanelItem(key);
+                firstPanel.appendChild(button);
+            });
+        }
+
+        function renderSecondPanel(key) {
+            const itemData = platformData[key];
+            secondPanelSearch.placeholder = itemData.searchPlaceholder;
+            secondPanelContent.innerHTML = '';
+
+            itemData.secondPanelContent.forEach(group => {
+                if (group.groupLabel) {
+                    const groupLabelDiv = document.createElement('h3');
+                    groupLabelDiv.className = 'second-panel-group-label text-sm font-semibold my-2 px-2 uppercase tracking-wider';
+                    groupLabelDiv.textContent = group.groupLabel;
+                    secondPanelContent.appendChild(groupLabelDiv);
+                }
+                group.items.forEach(subItem => {
+                    const div = document.createElement('div');
+                    div.className = 'second-panel-item block w-full text-left p-2.5 text-sm rounded-md hover:bg-gray-100 cursor-pointer transition-colors';
+                    div.textContent = subItem.label;
+                    div.setAttribute('data-id', subItem.id);
+                    div.setAttribute('data-parent-key', key);
+                    div.onclick = () => selectSecondPanelItem(subItem.id, subItem.label, key);
+                    secondPanelContent.appendChild(div);
+                });
+            });
+            updateSecondPanelActiveState();
+        }
+
+        function updateMainContent(itemId, itemLabel) {
+            const content = contentData[itemId] || contentData['default_content'];
+            const info = informationPanelData[itemId] || informationPanelData['default_info'];
+
+            mainHeading.textContent = itemLabel || content.title;
+            contentSection.innerHTML = content.html;
+            if(document.getElementById('content-placeholder')) {
+                document.getElementById('content-placeholder').style.display = 'none';
+            }
+            infoPanelContent.innerHTML = info;
+        }
+
+        function selectFirstPanelItem(key) {
+            if (activeFirstPanelKey === key && activeSecondPanelId !== null) {
+                const currentSectionHasActiveSubItem = platformData[key].secondPanelContent.flatMap(g => g.items).some(i => i.id === activeSecondPanelId);
+                if(currentSectionHasActiveSubItem) {
+                     // If 2nd panel is closed, open it even if the same 1st panel item is clicked
+                    if (!isSecondPanelOpen) {
+                        toggleSecondPanelDisplay(true);
+                    }
+                    return;
+                }
+            }
+
+            activeFirstPanelKey = key;
+            renderSecondPanel(key);
+
+            Array.from(firstPanel.querySelectorAll('.first-panel-item')).forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-key') === key);
+            });
+
+            activeSecondPanelId = null;
+            const sectionDefaultTitle = platformData[key] ? `${platformData[key].label}` : "Welcome";
+            const sectionDefaultHtml = platformData[key] ? `<div id="content-placeholder" class="text-gray-600"><p class="text-lg">Please select an item from the list to explore ${platformData[key].label}.</p></div>` : `<div id="content-placeholder" class="text-gray-600"><p>Select an option.</p></div>`;
+            mainHeading.textContent = sectionDefaultTitle;
+            contentSection.innerHTML = sectionDefaultHtml;
+            infoPanelContent.innerHTML = informationPanelData['default_info'];
+            updateSecondPanelActiveState();
+
+            // Automatically open the 2nd panel if it's closed
+            if (!isSecondPanelOpen) {
+                toggleSecondPanelDisplay(true);
+            }
+        }
+
+        function selectSecondPanelItem(itemId, itemLabel, parentKey) {
+            activeSecondPanelId = itemId;
+            activeFirstPanelKey = parentKey;
+
+            updateMainContent(itemId, itemLabel);
+            updateSecondPanelActiveState();
+
+            Array.from(firstPanel.querySelectorAll('.first-panel-item')).forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-key') === parentKey);
+            });
+        }
+
+        function updateSecondPanelActiveState() {
+            Array.from(secondPanelContent.querySelectorAll('.second-panel-item')).forEach(div => {
+                div.classList.toggle('active', div.getAttribute('data-id') === activeSecondPanelId);
+            });
+        }
+
+        function toggleSecondPanelDisplay(forceOpen) {
+            const openState = forceOpen !== undefined ? forceOpen : !isSecondPanelOpen;
+            isSecondPanelOpen = openState;
+
+            secondPanel.classList.toggle('w-72', isSecondPanelOpen);
+            secondPanel.classList.toggle('w-0', !isSecondPanelOpen);
+            secondPanel.classList.toggle('p-0', !isSecondPanelOpen);
+            secondPanel.classList.toggle('overflow-hidden', !isSecondPanelOpen);
+
+            secondPanelSearch.style.display = isSecondPanelOpen ? 'block' : 'none';
+            secondPanelContent.style.display = isSecondPanelOpen ? 'block' : 'none';
+
+            toggleSecondIcon.innerHTML = isSecondPanelOpen ?
+                `<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />` :
+                `<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />`;
+        }
+
+        toggleSecondPanelBtn.addEventListener('click', () => toggleSecondPanelDisplay());
+
+
+        function toggleInfoPanelDisplay(forceOpen) {
+            const openState = forceOpen !== undefined ? forceOpen : !isInfoPanelOpen;
+            isInfoPanelOpen = openState;
+
+            infoPanel.classList.toggle('w-80', isInfoPanelOpen);
+            infoPanel.classList.toggle('w-0', !isInfoPanelOpen);
+            infoPanel.classList.toggle('p-0', !isInfoPanelOpen);
+            infoPanel.classList.toggle('overflow-hidden', !isInfoPanelOpen);
+
+            infoPanel.querySelector('h3').style.display = isInfoPanelOpen ? 'block' : 'none';
+            infoPanelContent.style.display = isInfoPanelOpen ? 'block' : 'none';
+
+            toggleInfoIcon.innerHTML = isInfoPanelOpen ?
+                `<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />` :
+                `<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />`;
+        }
+        toggleInfoPanelBtn.addEventListener('click', () => toggleInfoPanelDisplay());
+
+
+        function initializeApp() {
+            renderFirstPanel();
+            if (Object.keys(platformData).length > 0) {
+                const firstKey = Object.keys(platformData)[0];
+                selectFirstPanelItem(firstKey); // This will also open the second panel by default due to the new logic
+
+                const firstSectionData = platformData[firstKey];
+                if (firstSectionData && firstSectionData.secondPanelContent.length > 0 && firstSectionData.secondPanelContent[0].items.length > 0) {
+                    const firstSubItemId = firstSectionData.secondPanelContent[0].items[0].id;
+                    const firstSubItemLabel = firstSectionData.secondPanelContent[0].items[0].label;
+                    selectSecondPanelItem(firstSubItemId, firstSubItemLabel, firstKey);
+                }
+            } else {
+                 updateMainContent('default_content', 'Welcome');
+            }
+            // Ensure panels are in their default open state visually if isSecondPanelOpen/isInfoPanelOpen is true
+            toggleSecondPanelDisplay(isSecondPanelOpen);
+            toggleInfoPanelDisplay(isInfoPanelOpen);
+        }
+
+        initializeApp();
+
+    </script>
+</body>
+</html>
