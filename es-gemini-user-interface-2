@@ -158,7 +158,7 @@
             flex-grow: 1; 
             overflow: hidden; 
             height: calc(100% - 60px); 
-            align-items: center; /* Vertically center toggle buttons if they are shorter */
+            align-items: center; 
         }
 
         .center-content-area {
@@ -166,7 +166,7 @@
             flex-grow: 1; 
             height: 100%;
             overflow: hidden;
-            align-items: center; /* Vertically center toggle button if it's shorter */
+            align-items: center; 
         }
 
         .panel2 {
@@ -178,7 +178,7 @@
             overflow-y: auto; 
             transition: width 0.3s ease, margin-left 0.3s ease, padding 0.3s ease;
             flex-shrink: 0;
-            height: 100%; /* Ensure it takes full height */
+            height: 100%; 
             border-right: 1px solid var(--border-color); 
         }
         .panel2.hidden {
@@ -189,7 +189,6 @@
             border-right: none; 
         }
         .panel2.hidden + .toggle-panel2-btn {
-             /* border-left: none; /* If panel2 is hidden, toggle button might not need left border */
         }
 
 
@@ -218,8 +217,7 @@
             overflow-y: auto; 
             font-family: var(--font-garamond);
             line-height: 1.6;
-            height: 100%; /* Ensure it takes full height */
-            /* border-left: 1px solid var(--border-color); /* Managed by JS or panel2 border */
+            height: 100%; 
         }
         .content-section h2 { 
             font-family: var(--font-oswald); color: var(--main-color); margin-top: 0;
@@ -244,7 +242,7 @@
             display: flex; 
             flex-shrink: 0; 
             height: 100%; 
-            align-items: center; /* Vertically center toggle button */
+            align-items: center; 
         }
         .info-panel {
             width: 300px;
@@ -253,7 +251,7 @@
             overflow-y: auto; 
             transition: width 0.3s ease, padding 0.3s ease;
             flex-shrink: 0;
-            height: 100%; /* Ensure it takes full height */
+            height: 100%; 
             border-left: 1px solid var(--border-color);
         }
         .info-panel.hidden {
@@ -269,37 +267,36 @@
 
         /* Toggle Buttons - Updated Styles */
         .toggle-button {
-            background-color: var(--secondary-color); /* New: white background */
-            color: var(--main-color); /* New: main color for icon */
+            background-color: var(--secondary-color); 
+            color: var(--main-color); 
             cursor: pointer;
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            padding: 0.5rem; /* New: p-1 equivalent (Tailwind p-1 is 0.25rem, p-2 is 0.5rem. Using 0.5rem for better touch target) */
+            padding: 0.5rem; 
             flex-shrink: 0;
             transition: background-color 0.2s ease;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* shadow equivalent */
-            height: auto; /* Adjust height to content */
-            width: auto;  /* Adjust width to content */
-            border: none; /* Remove previous borders */
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); 
+            height: auto; 
+            width: auto;  
+            border: none; 
         }
         .toggle-button:hover {
-            background-color: #e5e7eb; /* hover:bg-gray-200 */
+            background-color: #e5e7eb; 
         }
         .toggle-button i { 
-            font-size: 20px; /* New: w-6 h-6 is ~24px, using 20px for FA */
+            font-size: 20px; 
             line-height: 1; 
         }
 
         .toggle-panel2-btn {
-            border-top-right-radius: 0.375rem; /* rounded-r-md */
+            border-top-right-radius: 0.375rem; 
             border-bottom-right-radius: 0.375rem;
-            /* Positioned by HTML structure now */
         }
         
         .toggle-info-panel-btn {
             order: -1; 
-            border-top-left-radius: 0.375rem; /* rounded-l-md */
+            border-top-left-radius: 0.375rem; 
             border-bottom-left-radius: 0.375rem;
         }
 
@@ -407,6 +404,14 @@
                 profile: { name: "Profile", searchPlaceholder: "Search Profile", sections: { "My Account": ["View Profile", "Notifications", "Messages", "Activity Log", "Details and Addresses", "Payments", "Settings", "Sign out"] }}
             };
 
+            // Detailed information for info panel
+            const detailedInfo = {
+                notifications: "<strong>About Notifications:</strong><br>Stay updated with important alerts from across the platform. Notifications cover new orders, task reminders, community updates, and system messages. You can filter them by source (Marketplace, Management, Community) and status (All, Unread, Favourites) to quickly find what matters most. Don't miss out on crucial information!",
+                messages: "<strong>About Messages:</strong><br>Connect directly with other users, sellers, or support. Your messages are organized here, allowing you to filter by source and status. Use this section for inquiries, discussions, and managing communications related to your activities on the platform. Secure and direct communication is key.",
+                shoppingCart: "<strong>About Your Shopping Cart:</strong><br>Review items you've added from the Marketplace. You can adjust quantities, remove items, or proceed to checkout. The cart saves your selections, making it easy to complete purchases at your convenience. Ensure your order details are correct before finalizing."
+            };
+
+
             panel1Icons.forEach(icon => {
                 icon.addEventListener('click', () => {
                     const category = icon.dataset.category;
@@ -419,7 +424,7 @@
                     if (panel2.classList.contains('hidden')) { 
                         panel2.classList.remove('hidden');
                         panel2.style.borderRight = '1px solid var(--border-color)';
-                        contentSection.style.borderLeft = 'none'; // Toggle button is now the border
+                        contentSection.style.borderLeft = 'none'; 
                         togglePanel2Icon.classList.remove('fa-chevron-right');
                         togglePanel2Icon.classList.add('fa-chevron-left');
                     }
@@ -456,9 +461,9 @@
                         link.classList.add('active');
                         
                         if (mainCat === "profile" && subCategory === "Notifications") {
-                            loadNotifications(); 
+                            loadNotifications(true); // Pass true to show info panel
                         } else if (mainCat === "profile" && subCategory === "Messages") {
-                            loadMessages(); 
+                            loadMessages(true); // Pass true to show info panel
                         } else {
                             updateContentPage(mainCat, subCategory); 
                         }
@@ -466,11 +471,7 @@
                 });
             }
 
-            function updateContentPage(mainCategory, subCategory) {
-                headingTitle.textContent = subCategory; 
-                contentSection.innerHTML = `<h2>${subCategory}</h2><p>Content for ${mainCategory} - ${subCategory} goes here.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p> `.repeat(3);
-                infoPanelContent.textContent = `Detailed information related to ${subCategory}.`;
-                
+            function showInfoPanel() {
                 if (infoPanel.classList.contains('hidden')) {
                     infoPanel.classList.remove('hidden');
                     infoPanel.style.borderLeft = '1px solid var(--border-color)';
@@ -479,17 +480,26 @@
                 }
             }
 
-            iconNotifications.addEventListener('click', () => loadNotifications());
-            iconMessages.addEventListener('click', () => loadMessages());
+            function updateContentPage(mainCategory, subCategory) {
+                headingTitle.textContent = subCategory; 
+                contentSection.innerHTML = `<h2>${subCategory}</h2><p>Content for ${mainCategory} - ${subCategory} goes here.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p> `.repeat(3);
+                infoPanelContent.innerHTML = `Detailed information related to <strong>${subCategory}</strong>. <br>Explore various features and manage your activities efficiently. This section provides context for the currently selected item.`; // Default info for other sections
+                showInfoPanel();
+            }
+
+            iconNotifications.addEventListener('click', () => loadNotifications(true));
+            iconMessages.addEventListener('click', () => loadMessages(true));
             iconCart.addEventListener('click', () => {
                 currentMainCategory = "Marketplace"; 
                 currentSubCategory = "Shopping Cart";
                 headingTitle.textContent = "Shopping Cart"; 
                 contentSection.innerHTML = `<h2>Shopping Cart</h2><p>Your shopping cart is currently empty. Add some wonderful farm products!</p>`;
+                infoPanelContent.innerHTML = detailedInfo.shoppingCart; // Show detailed info for cart
+                showInfoPanel(); // Ensure info panel is visible
                 panel2Content.querySelectorAll('a').forEach(a => a.classList.remove('active'));
             });
 
-            function loadNotifications() {
+            function loadNotifications(showDetailedInfo = false) {
                 currentMainCategory = null; 
                 currentSubCategory = "Notifications";
                 headingTitle.textContent = "Notifications"; 
@@ -510,10 +520,14 @@
                         <li>Notification 3: User 'FarmFresh' commented on your post in 'Organic Growers Group' (Community) - <em>favourite</em></li>
                         <li>Notification 4: Welcome to the Food & Fibre Hub! Explore and connect.</li>
                     </ul>`;
+                if (showDetailedInfo) {
+                    infoPanelContent.innerHTML = detailedInfo.notifications;
+                    showInfoPanel();
+                }
                 panel2Content.querySelectorAll('a').forEach(a => a.classList.remove('active'));
             }
 
-            function loadMessages() {
+            function loadMessages(showDetailedInfo = false) {
                 currentMainCategory = null;
                 currentSubCategory = "Messages";
                 headingTitle.textContent = "Messages"; 
@@ -533,6 +547,10 @@
                         <li>From: AgriSupplies Ltd. (Invoice #INV-0078 due)</li>
                         <li>From: Community Admin (Upcoming webinar on soil health) - <em>favourite</em></li>
                     </ul>`;
+                if (showDetailedInfo) {
+                    infoPanelContent.innerHTML = detailedInfo.messages;
+                    showInfoPanel();
+                }
                 panel2Content.querySelectorAll('a').forEach(a => a.classList.remove('active'));
             }
 
@@ -573,7 +591,6 @@
             toggleInfoPanelIcon.classList.remove('fa-chevron-right');
             toggleInfoPanelIcon.classList.add('fa-chevron-left');
             
-            // Initial border setup
             if (panel2.classList.contains('hidden')) {
                 panel2.style.borderRight = 'none';
                 contentSection.style.borderLeft = '1px solid var(--border-color)';
