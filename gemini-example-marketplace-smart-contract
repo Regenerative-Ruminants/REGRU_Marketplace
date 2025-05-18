@@ -1,0 +1,338 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+
+/**
+ * @title RegenerativeMarketplace
+ * @dev An ERC-1155 contract for tracking regenerative products through a supply chain.
+ * This contract allows for the creation of unique tokens (e.g., for animals, specific batches)
+ * and fungible tokens (e.g., for kilograms of wool, liters of milk, units of processed goods).
+ * It includes role-based access control and a basic fee mechanism.
+ *
+ * Token IDs can represent:
+ * - Unique Animals (supply of 1)
+ * - Unique Batches of Raw Materials (supply of 1, metadata links to contributing animals)
+ * - Fungible portions of Raw Materials (e.g., 1kg Wool from Batch X)
+ * - Unique Batches of Processed Goods (supply of 1, metadata links to input batches)
+ * - Fungible units of Processed Goods (e.g., 1 Butter unit from Production Run Y)
+ */
+contract RegenerativeMarketplace is ERC1155, AccessControlEnumerable {
+    using Counters for Counters.Counter;
+
+    // Roles
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE"); // Can mint any new token
+    bytes32 public constant PROCESSOR_ROLE = keccak256("PROCESSOR_ROLE"); // Can execute processing functions
+    bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE"); // Can update URIs
+    bytes32 public constant FEE_MANAGER_ROLE = keccak256("FEE_MANAGER_ROLE"); // Can manage fee settings
+
+    // Counter for generating unique token IDs for assets that need distinct IDs
+    // For fungible representations of batches, the ID might be predetermined or derived.
+    Counters.Counter private _uniqueAssetIdCounter;
+
+    // Base URI for all token metadata. The URI for a specific token ID will be baseURI + {id}.json
+    string private _baseURIString;
+
+    // Marketplace fee parameters
+    uint256 public feePercentage; // e.g., 250 for 2.5%
+    address payable public feeRecipient;
+
+    // Events
+    event AssetMinted(
+        uint256 indexed id,
+        address indexed minter,
+        address indexed to,
+        uint256 amount,
+        string initialURI // URI for the token's metadata
+    );
+
+    event BatchProcessed(
+        bytes32 indexed processingBatchId, // An off-chain ID for this specific processing event
+        address indexed processor,
+        uint256[] inputTokenIds,
+        uint256[] inputAmounts,
+        uint256[] outputTokenIds,
+        uint256[] outputAmounts,
+        string[] outputURIs
+    );
+
+    event FeeRecipientChanged(address indexed newFeeRecipient);
+    event FeePercentageChanged(uint256 indexed newFeePercentage);
+    event BaseURIChanged(string newBaseURI);
+    event TokenURIUpdated(uint256 indexed tokenId, string newURI);
+
+    /**
+     * @dev Constructor
+     * @param initialBaseURI The base URI for token metadata.
+     * @param initialFeeRecipient The address that will receive marketplace fees.
+     * @param initialFeePercentage The initial fee percentage (e.g., 250 for 2.5%).
+     */
+    constructor(
+        string memory initialBaseURI,
+        address payable initialFeeRecipient,
+        uint256 initialFeePercentage
+    ) ERC1155(initialBaseURI) { // Pass initialBaseURI to ERC1155 constructor
+        _baseURIString = initialBaseURI; // Also store it locally if needed for setBaseURI
+
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(MINTER_ROLE, msg.sender); // Admin can mint by default
+        _grantRole(PROCESSOR_ROLE, msg.sender); // Admin can process by default
+        _grantRole(URI_SETTER_ROLE, msg.sender); // Admin can set URIs
+        _grantRole(FEE_MANAGER_ROLE, msg.sender); // Admin can manage fees
+
+        require(initialFeeRecipient != address(0), "RegenerativeMarketplace: Fee recipient is zero address");
+        feeRecipient = initialFeeRecipient;
+        feePercentage = initialFeePercentage; // e.g., 250 for 2.5%
+
+        // Initialize unique asset ID counter (e.g., start from 1, or a higher number to avoid clashes if you have predefined IDs)
+        // _uniqueAssetIdCounter.increment(); // If starting from 1
+    }
+
+    /**
+     * @dev See {IERC1155MetadataURI-uri}.
+     * Returns the URI for a token type.
+     * It appends the token ID to the base URI.
+     * For example, if base URI is "https://api.example.com/items/" and token ID is 1,
+     * the URI will be "https://api.example.com/items/1.json".
+     * The metadata JSON at this URI should conform to ERC-1155 metadata standards.
+     * It should include details like name, description, image, and custom attributes
+     * such as parent_ids, processing_details, regenerative_practices_verified, etc.
+     */
+    function uri(uint256 id) public view override returns (string memory) {
+        return string(abi.encodePacked(_baseURIString, Strings.toString(id), ".json"));
+    }
+
+    /**
+     * @dev Sets the base URI for all token types.
+     * Only callable by an account with URI_SETTER_ROLE.
+     */
+    function setBaseURI(string memory newBaseURI) public virtual onlyRole(URI_SETTER_ROLE) {
+        _baseURIString = newBaseURI;
+        // Note: The ERC1155 standard itself doesn't have a _setBaseURI internal function.
+        // The URI is typically passed in the constructor or managed per-token.
+        // This function updates our local _baseURIString which is used by our overridden uri() function.
+        // If you need to emit an event for base URI changes for off-chain systems:
+        emit BaseURIChanged(newBaseURI);
+    }
+
+    /**
+     * @dev Updates the URI for a specific token ID.
+     * This is a non-standard function but useful for evolving metadata.
+     * In ERC1155, `uri(tokenId)` is usually derived. If you want per-token distinct URIs
+     * not following the baseURI + id pattern, you'd need to store them in a mapping
+     * and override `uri(tokenId)` to read from that mapping.
+     * For this example, we assume the metadata file at `baseURI + id + .json` can be updated.
+     * This function is more of a conceptual placeholder for "metadata update authority".
+     * A true per-token URI update would require more storage.
+     * This function will emit an event that off-chain indexers can use.
+     */
+    function updateTokenURI(uint256 tokenId, string memory newTokenURIHostAndPath) public virtual onlyRole(URI_SETTER_ROLE) {
+        // This function doesn't change on-chain URI storage in this simplified example,
+        // as ERC1155's uri() is usually derived.
+        // It signals that the metadata at the existing URI for `tokenId` should be considered updated
+        // or that off-chain systems should now look for metadata for `tokenId` at `newTokenURIHostAndPath/{id}.json`
+        // For a true on-chain per-token URI, you'd need:
+        // mapping(uint256 => string) private _tokenURIs;
+        // And then uri() would check this map. _setTokenURI would update it.
+        // For simplicity, we just emit an event.
+        emit TokenURIUpdated(tokenId, newTokenURIHostAndPath); // The `newTokenURIHostAndPath` would be the new base for this specific token if you implement per-token URIs
+    }
+
+
+    /**
+     * @dev Mints a new unique asset (e.g., an animal, a specific unique batch).
+     * Supply will be 1.
+     * Requires MINTER_ROLE.
+     * @param to The address to mint the token to.
+     * @param id The token ID for this unique asset. Ensure it's unique.
+     * @param initialMetadataURI The URI pointing to the initial metadata for this asset.
+     * This URI is what `uri(id)` will effectively return.
+     * The content at this URI (e.g. ipfs://hash/{id}.json) should contain all details.
+     * @param data Optional data.
+     */
+    function mintUniqueAsset(address to, uint256 id, string memory initialMetadataURI, bytes memory data)
+        public
+        onlyRole(MINTER_ROLE)
+    {
+        // In a real system, you might want to check if the ID is already in use if not using a counter.
+        _mint(to, id, 1, data); // Supply is 1 for unique assets
+        // The initialMetadataURI is not stored on-chain directly here,
+        // it's assumed that the `uri(id)` function correctly resolves to it.
+        // If `initialMetadataURI` was a full URI, not just a path part, you'd handle it in `updateTokenURI` or a similar mechanism.
+        emit AssetMinted(id, msg.sender, to, 1, initialMetadataURI);
+    }
+
+    /**
+     * @dev Mints fungible assets (e.g., kg of wool, liters of milk, units of processed goods).
+     * This function is payable to collect a marketplace fee on primary sale/mint.
+     * Requires MINTER_ROLE.
+     * @param to The address to mint the tokens to.
+     * @param id The token ID for this type of fungible asset.
+     * @param amount The quantity of tokens to mint.
+     * @param initialMetadataURI The URI for this token type's metadata.
+     * @param data Optional data.
+     */
+    function mintFungibleAsset(address to, uint256 id, uint256 amount, string memory initialMetadataURI, bytes memory data)
+        public
+        payable
+        onlyRole(MINTER_ROLE)
+    {
+        if (feePercentage > 0 && feeRecipient != address(0)) {
+            uint256 feeAmount = (msg.value * feePercentage) / 10000;
+            if (feeAmount > 0) {
+                payable(feeRecipient).transfer(feeAmount);
+            }
+            require(msg.value >= feeAmount, "RegenerativeMarketplace: Insufficient payment for fee");
+            // In a real scenario, msg.value would likely be for the price of the assets,
+            // and the fee is a portion of that price. This example simplifies it to msg.value being the total payment.
+            // You might also want to refund excess payment:
+            // uint256 pricePerToken = ...; uint256 totalPrice = pricePerToken * amount;
+            // require(msg.value >= totalPrice + feeAmount, "...");
+            // if (msg.value > totalPrice + feeAmount) payable(msg.sender).transfer(msg.value - totalPrice - feeAmount);
+        }
+
+        _mint(to, id, amount, data);
+        emit AssetMinted(id, msg.sender, to, amount, initialMetadataURI);
+    }
+
+
+    /**
+     * @dev Simulates processing a batch of input tokens to create output tokens.
+     * In a real system, input tokens might be burned, locked, or their metadata updated.
+     * Here, we primarily focus on minting the output tokens and emitting an event
+     * that links inputs to outputs for off-chain traceability systems.
+     * The metadata of the outputTokenIds should reference the inputTokenIds.
+     * Requires PROCESSOR_ROLE.
+     *
+     * @param processingBatchId An off-chain generated unique ID for this specific processing event/batch.
+     * @param inputTokenIds Array of token IDs being processed/consumed.
+     * @param inputAmounts Array of amounts for each corresponding inputTokenId.
+     * @param outputTokenIds Array of token IDs for the new products being created.
+     * @param outputAmounts Array of amounts for each corresponding outputTokenId.
+     * @param outputTokenMetadataURIs Array of metadata URIs for each new outputTokenId.
+     * These URIs should point to metadata that includes linkage to inputTokenIds.
+     * @param data Optional data.
+     */
+    function processInputsToOutputs(
+        bytes32 processingBatchId,
+        uint256[] calldata inputTokenIds,
+        uint256[] calldata inputAmounts,
+        uint256[] calldata outputTokenIds,
+        uint256[] calldata outputAmounts,
+        string[] calldata outputTokenMetadataURIs, // URIs for the new output tokens
+        bytes memory data
+    ) public virtual onlyRole(PROCESSOR_ROLE) {
+        require(inputTokenIds.length == inputAmounts.length, "Inputs: IDs and amounts length mismatch");
+        require(outputTokenIds.length == outputAmounts.length, "Outputs: IDs and amounts length mismatch");
+        require(outputTokenIds.length == outputTokenMetadataURIs.length, "Outputs: IDs and URIs length mismatch");
+
+        // --- Input Token Handling (Simplified) ---
+        // In a full system, you would:
+        // 1. Verify the caller (msg.sender or an approved address) owns sufficient input tokens.
+        // 2. Burn the input tokens: _burnBatch(owner, inputTokenIds, inputAmounts);
+        // OR Lock input tokens in an escrow contract.
+        // OR Update metadata of input tokens to mark them as "processed".
+        // For this example, we'll assume the processor has authority and we just log the intent.
+        for (uint i = 0; i < inputTokenIds.length; i++) {
+            // Example check (would need owner of inputs to be msg.sender or approved)
+            // require(balanceOf(msg.sender, inputTokenIds[i]) >= inputAmounts[i], "Insufficient input balance");
+            // _burn(msg.sender, inputTokenIds[i], inputAmounts[i]); // If burning
+        }
+
+        // --- Output Token Minting ---
+        for (uint i = 0; i < outputTokenIds.length; i++) {
+            _mint(msg.sender, outputTokenIds[i], outputAmounts[i], data); // Mint to the processor
+            // The outputTokenMetadataURIs[i] is what uri(outputTokenIds[i]) should effectively map to.
+            // As in mintUniqueAsset, this is conceptual for this example's URI management.
+            emit AssetMinted(outputTokenIds[i], msg.sender, msg.sender, outputAmounts[i], outputTokenMetadataURIs[i]);
+        }
+
+        emit BatchProcessed(
+            processingBatchId,
+            msg.sender,
+            inputTokenIds,
+            inputAmounts,
+            outputTokenIds,
+            outputAmounts,
+            outputTokenMetadataURIs
+        );
+    }
+
+    // --- Fee Management Functions ---
+    function setFeeRecipient(address payable newFeeRecipient) public onlyRole(FEE_MANAGER_ROLE) {
+        require(newFeeRecipient != address(0), "RegenerativeMarketplace: New fee recipient is zero address");
+        feeRecipient = newFeeRecipient;
+        emit FeeRecipientChanged(newFeeRecipient);
+    }
+
+    function setFeePercentage(uint256 newFeePercentage) public onlyRole(FEE_MANAGER_ROLE) {
+        // e.g., 250 for 2.5%. Max 10000 (100%)
+        require(newFeePercentage <= 10000, "RegenerativeMarketplace: Fee percentage too high");
+        feePercentage = newFeePercentage;
+        emit FeePercentageChanged(newFeePercentage);
+    }
+
+    function withdrawFees() public {
+        require(msg.sender == feeRecipient || hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "RegenerativeMarketplace: Not authorized to withdraw");
+        uint256 balance = address(this).balance;
+        require(balance > 0, "RegenerativeMarketplace: No fees to withdraw");
+        (bool success, ) = feeRecipient.call{value: balance}("");
+        require(success, "RegenerativeMarketplace: Fee withdrawal failed");
+    }
+
+    // --- Role Management (Exposed for Admin) ---
+    function grantMinter(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(MINTER_ROLE, account);
+    }
+
+    function revokeMinter(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        revokeRole(MINTER_ROLE, account);
+    }
+
+    function grantProcessor(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(PROCESSOR_ROLE, account);
+    }
+
+    function revokeProcessor(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        revokeRole(PROCESSOR_ROLE, account);
+    }
+
+    function grantUriSetter(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(URI_SETTER_ROLE, account);
+    }
+
+    function revokeUriSetter(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        revokeRole(URI_SETTER_ROLE, account);
+    }
+
+    function grantFeeManager(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(FEE_MANAGER_ROLE, account);
+    }
+
+    function revokeFeeManager(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        revokeRole(FEE_MANAGER_ROLE, account);
+    }
+
+
+    // --- Standard ERC1155/AccessControl Overrides ---
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC1155, AccessControlEnumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+    // --- Helper to generate next unique ID ---
+    // Not strictly necessary if IDs are managed externally or derived,
+    // but can be useful for minting truly unique "instance" NFTs.
+    function getNextUniqueAssetId() public returns (uint256) {
+        _uniqueAssetIdCounter.increment();
+        return _uniqueAssetIdCounter.current();
+    }
+}
+
