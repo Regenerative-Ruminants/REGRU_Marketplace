@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farm & Business Marketplace</title>
+    <title>The REGRU Marketplace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Oswald:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -90,7 +90,8 @@
             background-color: #e0e0e0;
             border-left: 4px solid var(--main-color);
         }
-         .first-panel-item.active i, .first-panel-item.active .first-panel-label {
+         .first-panel-item.active i, .first-panel-item.active .first-panel-label,
+         .first-panel-item.active .logo-text { /* Ensure active logo text color matches */
             color: var(--main-color);
         }
         .second-panel-item.active {
@@ -111,7 +112,7 @@
             transition: box-shadow 0.3s ease;
             display: flex; 
             flex-direction: column; 
-            /* min-width is now applied via Tailwind class in HTML */
+            /* min-width removed to allow natural shrinking with grid columns */
         }
         .product-card:hover {
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -204,13 +205,27 @@
             background-color: var(--accent-color) !important; 
             color: white;
         }
+        .logo-container { /* Container for the logo text */
+            padding: 0.5rem; /* Equivalent to p-2 */
+            margin-bottom: 1rem; /* Equivalent to mb-4 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 2.5rem; /* Equivalent to h-10 */
+        }
+        .logo-text { /* Styling for the REGRU text */
+            font-family: var(--font-oswald);
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700; /* bold */
+            color: var(--main-color);
+        }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
 
     <nav id="first-panel" class="w-20 flex flex-col items-center py-4 shadow-lg">
-        <div class="p-2 mb-4">
-             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="h-10 w-10 icon-main-color" fill="currentColor"><path d="M50,5A45,45,0,1,0,95,50,45,45,0,0,0,50,5Zm0,82A37,37,0,1,1,87,50,37,37,0,0,1,50,87Z"/><path d="M50,19.1a7.5,7.5,0,0,0-7.5,7.5V50a7.5,7.5,0,0,0,15,0V26.6A7.5,7.5,0,0,0,50,19.1Z"/><path d="M68.4,31.6a7.5,7.5,0,0,0-7.5-7.5H50a7.5,7.5,0,0,0,0,15h9.9A7.5,7.5,0,0,0,68.4,31.6Z"/><path d="M31.6,68.4a7.5,7.5,0,0,0,7.5,7.5H50a7.5,7.5,0,0,0,0-15H40.1A7.5,7.5,0,0,0,31.6,68.4Z"/></svg>
+        <div class="logo-container">
+            <span class="logo-text">REGRU</span>
         </div>
         <div id="first-panel-main-icons" class="flex-1 flex flex-col items-center space-y-3 w-full overflow-y-auto first-panel-scrollable">
             </div>
@@ -300,8 +315,8 @@
 
         // --- Platform UI Data ---
         const platformData = {
-            home: {
-                label: "Home",
+            marketplace: { // Changed from 'home'
+                label: "Marketplace", // Changed from 'Home'
                 iconClass: "fas fa-store",
                 searchPlaceholder: "Search Marketplace...",
                 secondPanelContent: [
@@ -351,7 +366,6 @@
                     ]}
                 ]
             },
-            // shopping_cart_view is handled by its button, not as a panel item.
             profile: {
                 label: "Profile",
                 iconClass: "fas fa-user-circle",
@@ -364,6 +378,8 @@
                         { id: "activity_log_profile", label: "Activity Log", iconClass: "fas fa-list-alt" }, 
                         { id: "account_settings", label: "Account Settings", iconClass: "fas fa-cog" },
                         { id: "my_store_settings", label: "My Store (Seller)", iconClass: "fas fa-store-cog" },
+                        { id: "switch_community", label: "Switch to COMMUNITY", iconClass: "fas fa-users" }, // Added
+                        { id: "switch_management", label: "Switch to MANAGEMENT", iconClass: "fas fa-briefcase" }, // Added
                         { id: "sign_out", label: "Sign Out", iconClass: "fas fa-sign-out-alt" }
                     ]}
                 ]
@@ -386,7 +402,7 @@
         // --- Content Area Data ---
         const contentData = {
             browse_all_products: {
-                title: "All Products",
+                title: "All Products", 
                 htmlFactory: () => `
                     <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                         <h2 class='font-oswald text-2xl text-main-color'>Browse All Products</h2>
@@ -403,9 +419,9 @@
                             </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         ${sampleProducts.map(p => `
-                            <div class="product-card bg-white shadow-md rounded-lg overflow-hidden min-w-[270px]">
+                            <div class="product-card bg-white shadow-md rounded-lg overflow-hidden">
                                 <div class="relative">
                                     <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover">
                                     <button class="favourite-icon p-1.5 rounded-full bg-white shadow hover:text-red-500">
@@ -444,7 +460,7 @@
                     </div>
                 `
             },
-            browse_by_category: { title: "Browse by Category", htmlFactory: () => {
+            browse_by_category: { title: "By Category", htmlFactory: () => {
                 const categories = [...new Set(sampleProducts.map(p => p.category))];
                 let html = `<div class="flex justify-between items-center mb-6">
                                 <h2 class='font-oswald text-2xl text-main-color'>Browse by Category</h2>
@@ -455,9 +471,9 @@
                             </div>`;
                 categories.forEach(category => {
                     html += `<h3 class="font-oswald text-xl text-main-color mt-6 mb-3 border-b pb-1">${category}</h3>
-                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-6">`;
-                    sampleProducts.filter(p => p.category === category).slice(0,5).forEach(p => { 
-                         html += `<div class="product-card bg-white shadow-md rounded-lg overflow-hidden min-w-[270px]">
+                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">`;
+                    sampleProducts.filter(p => p.category === category).slice(0,4).forEach(p => { 
+                         html += `<div class="product-card bg-white shadow-md rounded-lg overflow-hidden">
                                     <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover">
                                     <div class="product-card-content">
                                         <h4 class="text-md font-semibold text-main-color mb-1 truncate">${p.name}</h4>
@@ -471,7 +487,7 @@
                 });
                 return html;
             }},
-            browse_by_seller: { title: "Browse by Seller", htmlFactory: () => {
+            browse_by_seller: { title: "By Seller", htmlFactory: () => {
                 const sellers = [...new Set(sampleProducts.map(p => p.seller))];
                  let html = `<div class="flex justify-between items-center mb-6">
                                 <h2 class='font-oswald text-2xl text-main-color'>Browse by Seller</h2>
@@ -482,9 +498,9 @@
                             </div>`;
                 sellers.forEach(seller => {
                     html += `<h3 class="font-oswald text-xl text-main-color mt-6 mb-3 border-b pb-1">${seller}</h3>
-                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-6">`;
-                    sampleProducts.filter(p => p.seller === seller).slice(0,5).forEach(p => {
-                         html += `<div class="product-card bg-white shadow-md rounded-lg overflow-hidden min-w-[270px]">
+                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">`;
+                    sampleProducts.filter(p => p.seller === seller).slice(0,4).forEach(p => {
+                         html += `<div class="product-card bg-white shadow-md rounded-lg overflow-hidden">
                                      <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover">
                                      <div class="product-card-content">
                                         <h4 class="text-md font-semibold text-main-color mb-1 truncate">${p.name}</h4>
@@ -498,7 +514,7 @@
                 });
                 return html;
             }},
-            browse_by_provenance: { title: "Browse by Provenance", htmlFactory: () => {
+            browse_by_provenance: { title: "By Provenance", htmlFactory: () => {
                 const provenances = [...new Set(sampleProducts.map(p => p.provenance))];
                  let html = `<div class="flex justify-between items-center mb-6">
                                 <h2 class='font-oswald text-2xl text-main-color'>Browse by Provenance</h2>
@@ -509,9 +525,9 @@
                             </div>`;
                 provenances.forEach(provenance => {
                     html += `<h3 class="font-oswald text-xl text-main-color mt-6 mb-3 border-b pb-1">${provenance}</h3>
-                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-6">`;
-                    sampleProducts.filter(p => p.provenance === provenance).slice(0,5).forEach(p => {
-                         html += `<div class="product-card bg-white shadow-md rounded-lg overflow-hidden min-w-[270px]">
+                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">`;
+                    sampleProducts.filter(p => p.provenance === provenance).slice(0,4).forEach(p => {
+                         html += `<div class="product-card bg-white shadow-md rounded-lg overflow-hidden">
                                      <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover">
                                      <div class="product-card-content">
                                         <h4 class="text-md font-semibold text-main-color mb-1 truncate">${p.name}</h4>
@@ -710,6 +726,8 @@
             activity_log_profile: { title: "Activity Log", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Activity Log</h2><p>A chronological list of your recent actions on the platform, such as products viewed, items favourited, messages sent, orders placed, or listings created (if a seller). Example: Viewed 'Organic Beef Mince' - 10 mins ago. Added 'Welsh Lamb Steaks' to Favourites - 1 hour ago.</p>" },
             account_settings: { title: "Account Settings", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Account Settings</h2><p>Manage your account preferences here. This includes options for changing your password, managing email notification preferences (e.g., for orders, messages, promotions), setting privacy options, and managing linked accounts. Example: Change Password, Notification Preferences (toggle switches), Privacy Settings.</p>" },
             my_store_settings: { title: "My Store Settings", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Store Management (Seller)</h2><p>If you are a registered seller, this section is for managing your storefront. Configure your store name, banner, business information, payment receiving details, shipping options and rates, and policies (e.g., return policy). Example: Store Name field, Shipping Zones setup, Payment Gateway integration.</p>" },
+            switch_community: { title: "Switch to Community", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Switching to Community View</h2><p>You are now switching to the community platform features. This might include forums, groups, and event listings.</p>" },
+            switch_management: { title: "Switch to Management", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Switching to Management View</h2><p>You are now switching to the management dashboard. This area is for platform administrators or business managers with specific operational roles.</p>" },
             sign_out: { title: "Sign Out", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Sign Out</h2><p>You are about to be signed out of your account.</p><button class='bg-red-600 text-white py-2 px-4 rounded mt-2 hover:bg-red-700'>Confirm Sign Out</button><p class='mt-2 text-sm text-gray-600'>Clicking 'Confirm Sign Out' will end your current session.</p>" },
             
             shopping_cart_view: { // This key is used by the shopping cart button, not by panel navigation
@@ -841,9 +859,10 @@
             updateSecondPanelActiveState();
         }
 
-        function updateMainContent(itemId, itemLabel) {
+        function updateMainContent(itemId, itemLabelFromSecondPanel) {
             const contentEntry = contentData[itemId] || contentData['default_content'];
-            mainHeading.textContent = itemLabel || contentEntry.title || "Marketplace";
+            
+            mainHeading.textContent = itemLabelFromSecondPanel || contentEntry.title || "Marketplace";
             
             if (typeof contentEntry.htmlFactory === 'function') {
                 contentSection.innerHTML = contentEntry.htmlFactory();
@@ -859,16 +878,6 @@
             if (itemId === 'view_profile') attachProfileTabListeners();
         }
         
-        function showPlaceholderForFirstPanelSection(key) {
-            const sectionData = platformData[key];
-            const title = sectionData ? sectionData.label : "Marketplace";
-            mainHeading.textContent = title;
-            contentSection.innerHTML = ''; 
-            contentPlaceholder.innerHTML = `<p class="text-lg">Please select an option from the menu on the left to explore ${title}.</p>`;
-            contentPlaceholder.style.display = 'block'; 
-            infoPanelContentEl.innerHTML = informationPanelData['default_info'];
-        }
-
 
         function attachProfileTabListeners() {
             const tabButtons = document.querySelectorAll('.profile-tabs button');
@@ -893,32 +902,34 @@
         }
 
         function selectFirstPanelItem(key) {
-            if (activeFirstPanelKey === key && activeSecondPanelId && platformData[key]?.secondPanelContent.flatMap(g => g.items).some(i => i.id === activeSecondPanelId)) {
-                 if (!isSecondPanelOpen) {
+            if (activeFirstPanelKey === key) {
+                if (!isSecondPanelOpen && platformData[key] && platformData[key].secondPanelContent) {
                     toggleSecondPanelDisplay(true);
                 }
-                return;
+                return; 
             }
             
-            activeFirstPanelKey = key;
+            activeFirstPanelKey = key; 
             renderSecondPanel(key); 
 
             document.querySelectorAll('#first-panel .first-panel-item').forEach(btn => {
                 btn.classList.toggle('active', btn.getAttribute('data-key') === key);
             });
             
-            let currentSecondPanelItemStillValid = false;
-            if (activeSecondPanelId && platformData[key]?.secondPanelContent) {
-                currentSecondPanelItemStillValid = platformData[key].secondPanelContent
+            // Main heading and content section are NOT changed here.
+            // They only change on selectSecondPanelItem or shoppingCartButton click.
+
+            let secondPanelItemStillValidForThisFirstPanel = false;
+            if (activeSecondPanelId && platformData[key] && platformData[key].secondPanelContent) {
+                secondPanelItemStillValidForThisFirstPanel = platformData[key].secondPanelContent
                     .flatMap(g => g.items)
                     .some(item => item.id === activeSecondPanelId);
             }
 
-            if (!currentSecondPanelItemStillValid) {
+            if (!secondPanelItemStillValidForThisFirstPanel) {
                 activeSecondPanelId = null; 
-                showPlaceholderForFirstPanelSection(key); 
             }
-
+            
             updateSecondPanelActiveState(); 
 
             if (!isSecondPanelOpen && platformData[key] && platformData[key].secondPanelContent) {
@@ -938,7 +949,9 @@
 
         function updateSecondPanelActiveState() {
             secondPanelContentEl.querySelectorAll('.second-panel-item').forEach(div => {
-                div.classList.toggle('active', div.getAttribute('data-id') === activeSecondPanelId);
+                const isCorrectParentActive = div.getAttribute('data-parent-key') === activeFirstPanelKey;
+                const isThisItemActive = div.getAttribute('data-id') === activeSecondPanelId;
+                div.classList.toggle('active', isCorrectParentActive && isThisItemActive);
             });
         }
 
@@ -986,7 +999,6 @@
         function removeFromCart(productId) {
             shoppingCart = shoppingCart.filter(item => item.id !== productId);
             updateCartDisplay();
-            // Check if the cart view is currently active before re-rendering
             if (activeSecondPanelId === 'shopping_cart_view') { 
                 updateMainContent('shopping_cart_view', contentData.shopping_cart_view.title);
             }
@@ -998,11 +1010,10 @@
             if (item && quantity > 0) {
                 item.quantity = quantity;
             } else if (item && quantity <= 0) { 
-                removeFromCart(productId); // This will also update display if cart is active
+                removeFromCart(productId); 
                 return; 
             }
             updateCartDisplay();
-             // Check if the cart view is currently active before re-rendering
              if (activeSecondPanelId === 'shopping_cart_view') {
                 updateMainContent('shopping_cart_view', contentData.shopping_cart_view.title);
             }
@@ -1025,13 +1036,11 @@
             document.querySelectorAll('#first-panel .first-panel-item.active').forEach(btn => btn.classList.remove('active'));
             secondPanelContentEl.querySelectorAll('.second-panel-item.active').forEach(div => div.classList.remove('active'));
             
-            // Close 2nd panel if it's open and would be empty for a "null" first panel key
-            // This condition might need refinement if platformData[null] is problematic
-            if(isSecondPanelOpen && (activeFirstPanelKey === null || !platformData[activeFirstPanelKey]?.secondPanelContent) ){ 
-                toggleSecondPanelDisplay(false);
+            if(isSecondPanelOpen){ 
+                // toggleSecondPanelDisplay(false); // Decide if 2nd panel should close
             }
 
-            updateMainContent('shopping_cart_view', contentData.shopping_cart_view.title); // Corrected to use contentData
+            updateMainContent('shopping_cart_view', contentData.shopping_cart_view.title);
         });
 
 
@@ -1041,10 +1050,25 @@
             const firstKey = Object.keys(platformData).find(k => platformData[k].label && !platformData[k].isBottomIcon && k !== 'shopping_cart_view') || 
                              Object.keys(platformData).find(k => platformData[k].label && k !== 'shopping_cart_view');
             
+            mainHeading.textContent = contentData.default_content.title || "Welcome";
+            contentSection.innerHTML = ''; 
+            contentPlaceholder.style.display = 'block'; 
+            infoPanelContentEl.innerHTML = informationPanelData['default_info'];
+
+
             if (firstKey && platformData[firstKey]) {
-                 selectFirstPanelItem(firstKey); 
+                activeFirstPanelKey = firstKey; 
+                renderSecondPanel(firstKey);
+                document.querySelectorAll('#first-panel .first-panel-item').forEach(btn => {
+                    btn.classList.toggle('active', btn.getAttribute('data-key') === firstKey);
+                });
+                activeSecondPanelId = null; 
+                updateSecondPanelActiveState(); 
             } else {
-                showPlaceholderForFirstPanelSection(null); 
+                activeFirstPanelKey = null;
+                activeSecondPanelId = null;
+                renderSecondPanel(null); 
+                updateSecondPanelActiveState();
             }
 
             toggleSecondPanelDisplay(isSecondPanelOpen);
