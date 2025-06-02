@@ -27,8 +27,8 @@ All catalogues, orders, media and receipts live on **Autonomi**; writes are paid
 ## 🚀 Quick-start
 
 ```bash
-git clone https://github.com/your-org/regenerative-market.git
-cd regenerative-market
+git clone https://github.com/Regenerative-Ruminants/REGRU_Marketplace.git
+cd REGRU_Marketplace
 
 # install front-end & Tauri CLI
 pnpm install
