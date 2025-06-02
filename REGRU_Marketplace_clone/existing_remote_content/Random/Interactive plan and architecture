@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REGRU Interactive Plan & Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Visualization & Content Choices:
+        - Report Text (Intro, Objectives, etc.): Goal: Inform. Method: Paragraphs, lists (HTML). Interaction: None. Justification: Direct presentation.
+        - Metadata Schema (JSON): Goal: Inform/Reference. Method: HTML <pre>/<code> block. Interaction: Click-to-copy. Justification: Easy reuse for developers.
+        - Technical Plan (Phases, Tasks): Goal: Organize/Inform. Method: Accordion/Tabs (HTML/JS). Interaction: Expand/collapse sections. Justification: Manages complexity, allows focus.
+        - System Architecture Diagram: Goal: Organize/Relationships. Method: Styled HTML <div> blocks with Tailwind (Flex/Grid) to represent components and basic lines/spacing for connections. Interaction: Hover tooltips on blocks. Justification: Visual overview without complex graphics. Library: Tailwind.
+        - Sequence Diagrams (Minting, Purchase, Data Access): Goal: Change/Organize. Method: Step-by-step textual lists or card-based flow (HTML/CSS/JS). Interaction: Sequential reveal (optional). Justification: Simplifies complex flows for readability. Library: Tailwind, Vanilla JS.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Tailwind's default is usually a good sans-serif stack */
+            background-color: #F5F5F5; /* Off-white/Very Light Gray */
+            color: #333333; /* Dark Gray */
+        }
+        .sidebar {
+            background-color: #FFFFFF;
+            border-right: 1px solid #D2B48C; /* Tan */
+        }
+        .sidebar-link {
+            color: #333333;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background-color: #F5F5F5; /* Light Gray */
+            color: #A0522D; /* Sienna */
+            border-left-color: #A0522D; /* Sienna */
+        }
+        .content-section {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .accent-color { color: #A0522D; }
+        .secondary-accent-color { color: #D2B48C; }
+        .bg-accent-color { background-color: #A0522D; }
+        .border-secondary-accent { border-color: #D2B48C; }
+
+        .accordion-header {
+            background-color: #F9FAFB; /* very light gray */
+            border: 1px solid #D2B48C;
+            transition: background-color 0.3s ease;
+        }
+        .accordion-header:hover {
+            background-color: #F3F4F6;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            border: 1px solid #D2B48C;
+            border-top: none;
+        }
+        .accordion-content.open {
+            /* max-height will be set by JS dynamically */
+            padding: 1rem;
+        }
+        .code-block {
+            background-color: #2D2D2D; /* Dark background for code */
+            color: #F5F5F5;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .flow-step {
+            border: 1px solid #D2B48C;
+            background-color: #FFFFFF;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .flow-step:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(160, 82, 45, 0.15);
+        }
+        .flow-arrow {
+            color: #A0522D;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: #333333;
+            color: #FFFFFF;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            pointer-events: none; /* Allow clicks to pass through */
+        }
+        .has-tooltip:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        .architecture-block {
+            border: 2px solid #A0522D;
+            background-color: #FFF8F0; /* Very light sienna */
+            position: relative; /* For tooltip positioning */
+        }
+        .architecture-block h3 {
+             color: #A0522D;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F5F5F5;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D2B48C; /* Tan */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #A0522D; /* Sienna */
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="sidebar w-64 min-w-[250px] h-full overflow-y-auto p-4 space-y-2">
+        <h1 class="text-2xl font-bold accent-color mb-6 text-center">REGRU Plan</h1>
+        <nav>
+            <a href="#introduction" class="sidebar-link block py-2.5 px-4 rounded-md font-medium">Introduction</a>
+            <a href="#core-tech" class="sidebar-link block py-2.5 px-4 rounded-md font-medium">Core Technology</a>
+            <a href="#metadata-schema" class="sidebar-link block py-2.5 px-4 rounded-md font-medium">Metadata Schema</a>
+            <a href="#technical-plan" class="sidebar-link block py-2.5 px-4 rounded-md font-medium">Technical Plan</a>
+            <a href="#architecture-flows" class="sidebar-link block py-2.5 px-4 rounded-md font-medium">Architecture & Flows</a>
+        </nav>
+        <div class="pt-6 mt-6 border-t border-secondary-accent text-xs text-gray-500 text-center">
+            Version 1.0 <br> May 29, 2025
+        </div>
+    </aside>
+
+    <main class="flex-1 h-full overflow-y-auto p-6 md:p-8 space-y-8">
+        
+        <section id="introduction" class="page-section content-section p-6">
+            <h2 class="text-3xl font-bold accent-color mb-4">1. Introduction</h2>
+            <p class="text-lg leading-relaxed mb-3">This document outlines the technical plan for integrating the Autonomi Network as the core storage and data permissioning layer for the REGRU marketplace. It also provides an architectural overview of the marketplace, illustrating key user flows and system interactions. </p>
+            <p class="text-lg leading-relaxed">The primary goal is to create a secure, transparent, and trustworthy platform for trading NFTs representing regenerative agricultural products, with robust verification of ecological outcomes.</p>
+            <div class="mt-6 p-4 bg-amber-50 border-l-4 border-amber-400 text-amber-700 rounded-md">
+                <h4 class="font-semibold">Document Context</h4>
+                <p class="text-sm"><strong>Author:</strong> AgriChain Advisor</p>
+                <p class="text-sm"><strong>Date:</strong> May 29, 2025</p>
+            </div>
+        </section>
+
+        <section id="core-tech" class="page-section content-section p-6" style="display:none;">
+            <h2 class="text-3xl font-bold accent-color mb-6">2. Core Technology Choices</h2>
+            <ul class="list-disc list-inside space-y-3 text-lg">
+                <li><strong>NFT Standard:</strong> ERC-1155 (Semi-Fungible Tokens) for batch and unique product representation.</li>
+                <li><strong>Verification Standard:</strong> Savory Institute's Ecological Outcome Verification (EOV), providing an <code>eov_score</code> (-140 to +120, mapped to 0-100 for UI) and <code>eov_trend</code>.</li>
+                <li><strong>Decentralized Storage:</strong> Autonomi Network for both public metadata and permissioned, sensitive verification documents (e.g., EOV summary reports).</li>
+                <li><strong>Metadata Schema:</strong> Version 1.2 (detailed in the next section).</li>
+            </ul>
+        </section>
+
+        <section id="metadata-schema" class="page-section content-section p-6" style="display:none;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold accent-color">3. Metadata Schema v1.2</h2>
+                <button id="copy-metadata-btn" class="bg-accent-color text-white py-2 px-4 rounded-md hover:opacity-90 text-sm flex items-center">
+                    <i class="fas fa-copy mr-2"></i>Copy JSON
+                </button>
+            </div>
+            <p class="mb-4 text-lg">The following JSON schema will be used for product NFTs. URIs will point to data stored on the Autonomi Network.</p>
+            <pre id="metadata-json-content" class="code-block text-sm"><code>
+{
+  "name": "Organic Beef Sirloin Steak",
+  "description": "250g sirloin steak from our 100% grass-fed, EOV-verified herd.",
+  "image": "autonomi://&lt;public_data_hash&gt;/product_image.jpg",
+  "farm_id": "FARM_042", 
+  "properties": {
+    "product_sku": "BS-250-001",
+    "weight": "250g",
+    "use_by_date": "2025-06-25",
+    "fulfillment_type": "Local Pickup | UK Shipping",
+    "redemption_policy_id": "RP_001"
+  },
+  "verification": {
+    "primary_verifier": "Savory Institute EOV",
+    "eov_status": "Regenerating",
+    "eov_score": 65,
+    "eov_trend": "Improving",
+    "eov_last_verified": "2025-04-10",
+    "eov_verifier_id": "SVRY-VFR-UK-08",
+    "eov_summary_uri": "autonomi://&lt;private_data_hash&gt;/eov_summary_2025.pdf"
+  },
+  "farm_story_uri": "https://market.place/farms/FARM_042"
+}
+            </code></pre>
+            <p class="mt-4 text-xs text-gray-600">
+                <strong>Note:</strong> <code>farm_id</code> links to an on-platform farm profile. <code>redemption_policy_id</code> links to terms for redemption. <code>eov_score</code> is the raw score from Savory; UI will map to 0-100. <code>eov_summary_uri</code> links to a permissioned EOV report.
+            </p>
+        </section>
+
+        <section id="technical-plan" class="page-section content-section p-6" style="display:none;">
+            <h2 class="text-3xl font-bold accent-color mb-6">4. Technical Plan: Autonomi Network Integration</h2>
+            <p class="mb-6 text-lg">This plan outlines a three-phase approach to integrate Autonomi as our core storage and data permissioning layer.</p>
+            
+            <div class="accordion-item mb-4">
+                <button class="accordion-header w-full text-left p-4 rounded-t-md font-semibold text-xl flex justify-between items-center">
+                    Phase 1: Environment Setup & Proof of Concept (PoC)
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content rounded-b-md">
+                    <p class="font-semibold mb-1">Objective:</p>
+                    <p class="mb-3">To validate core technical assumptions and establish a baseline for interaction with the Autonomi network.</p>
+                    <p class="font-semibold mb-1">Timeline:</p>
+                    <p class="mb-3">1-2 weeks</p>
+                    <h4 class="font-semibold text-md mt-3 mb-2 accent-color">Key Tasks:</h4>
+                    <ul class="list-disc list-inside space-y-2 pl-4">
+                        <li><strong>1.1. Developer Environment Setup:</strong> Install Autonomi SDK/CLI, configure testnet access, provision wallets, set up PoC repository.</li>
+                        <li><strong>1.2. PoC #1 (Public Data):</strong> Script to upload/retrieve sample Metadata JSON on Autonomi testnet, verify integrity. Success: Retrieved JSON matches original.</li>
+                        <li><strong>1.3. PoC #2 (Permissioned Data):</strong> Script to upload sample PDF, set wallet-specific read permissions, test access control (owner, permitted, unauthorized). Success: Access granted/denied as per permissions.</li>
+                    </ul>
+                     <h4 class="font-semibold text-md mt-4 mb-2 accent-color">Phase 1 Deliverables:</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li>Working PoC scripts (Node.js/Python).</li>
+                        <li>Report on testnet costs, performance, and developer experience.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="accordion-item mb-4">
+                <button class="accordion-header w-full text-left p-4 font-semibold text-xl flex justify-between items-center">
+                    Phase 2: Backend API & Smart Contract Integration
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content">
+                    <p class="font-semibold mb-1">Objective:</p>
+                    <p class="mb-3">To build robust server-side services bridging the front-end, Autonomi, and the blockchain.</p>
+                    <p class="font-semibold mb-1">Timeline:</p>
+                    <p class="mb-3">3-4 weeks</p>
+                    <h4 class="font-semibold text-md mt-3 mb-2 accent-color">Key Tasks:</h4>
+                    <ul class="list-disc list-inside space-y-2 pl-4">
+                        <li><strong>2.1. Design "Minting Service" API (<code>POST /api/v1/products/mint</code>):</strong> Handles metadata construction, Autonomi upload, and ERC-1155 mint call.</li>
+                        <li><strong>2.2. Design "Gated Content Service" API (<code>GET /api/v1/data/{data_hash}</code>):</strong> Secure proxy for Autonomi private files, verifying user wallet ownership and on-chain rights.</li>
+                        <li><strong>2.3. Smart Contract Refinement:</strong> Optimize ERC-1155 functions, implement <code>MINTER_ROLE</code>.</li>
+                    </ul>
+                    <h4 class="font-semibold text-md mt-4 mb-2 accent-color">Phase 2 Deliverables:</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li>OpenAPI (Swagger) specification for APIs.</li>
+                        <li>Deployed and tested API endpoints on staging (connected to Autonomi testnet).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <button class="accordion-header w-full text-left p-4 rounded-b-md font-semibold text-xl flex justify-between items-center">
+                    Phase 3: Front-End Implementation & End-to-End Testing
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content">
+                     <p class="font-semibold mb-1">Objective:</p>
+                    <p class="mb-3">To integrate backend services into the UI and verify the entire system.</p>
+                    <p class="font-semibold mb-1">Timeline:</p>
+                    <p class="mb-3">3-4 weeks</p>
+                    <h4 class="font-semibold text-md mt-3 mb-2 accent-color">Key Tasks:</h4>
+                    <ul class="list-disc list-inside space-y-2 pl-4">
+                        <li><strong>3.1. Build Farmer Minting Interface:</strong> UI form to call the Minting Service API.</li>
+                        <li><strong>3.2. Update Product Display Logic:</strong> Fetch metadata, map EOV score, display EOV trend.</li>
+                        <li><strong>3.3. Implement Permissioned File Access:</strong> "View EOV Report" button with wallet signature and Gated Content Service API call.</li>
+                        <li><strong>3.4. Conduct End-to-End (E2E) Testing:</strong> Comprehensive user journey testing on staging.</li>
+                    </ul>
+                    <h4 class="font-semibold text-md mt-4 mb-2 accent-color">Phase 3 Deliverables:</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li>Fully functional minting/viewing experience on staging.</li>
+                        <li>Successful User Acceptance Testing (UAT) report.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="architecture-flows" class="page-section content-section p-6" style="display:none;">
+            <h2 class="text-3xl font-bold accent-color mb-6">5. Marketplace Architecture & Flows</h2>
+
+            <div class="mb-8">
+                <h3 class="text-2xl font-semibold secondary-accent-color mb-4">5.1. High-Level System Architecture</h3>
+                 <p class="mb-4">This diagram illustrates the main components of the REGRU platform and their interactions.</p>
+                <div class="p-4 border border-secondary-accent rounded-lg bg-gray-50">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                        <div class="architecture-block p-3 rounded text-center has-tooltip">
+                            <i class="fas fa-users text-3xl mb-2"></i>
+                            <h3 class="font-semibold">User</h3>
+                            <p class="text-xs">(Farmer/Consumer)</p>
+                            <div class="tooltip bottom-full mb-2">Interacts via Browser</div>
+                        </div>
+                        <div class="text-center md:mt-10 flow-arrow text-2xl md:transform md:rotate-0 rotate-90">&rarr;</div>
+                        <div class="architecture-block p-3 rounded text-center has-tooltip">
+                             <i class="fas fa-desktop text-3xl mb-2"></i>
+                            <h3 class="font-semibold">REGRU Front-End</h3>
+                            <p class="text-xs">(regru-ui.html)</p>
+                            <div class="tooltip bottom-full mb-2">Handles user interface and interactions.</div>
+                        </div>
+                    </div>
+                    <div class="text-center my-2 flow-arrow text-2xl rotate-90 md:hidden">&darr;</div>
+                     <div class="hidden md:grid md:grid-cols-3 md:gap-4"> <div></div> <div class="text-center flow-arrow text-2xl">&darr;</div> <div></div> </div>
+
+
+                    <div class="architecture-block p-3 rounded text-center my-4 md:my-0 md:w-1/3 md:mx-auto has-tooltip">
+                        <i class="fas fa-server text-3xl mb-2"></i>
+                        <h3 class="font-semibold">REGRU Backend API</h3>
+                        <p class="text-xs">(API Gateway)</p>
+                        <div class="tooltip top-full mt-2">Orchestrates logic, interacts with blockchain and storage.</div>
+                    </div>
+
+                    <div class="text-center my-2 flow-arrow text-2xl rotate-90 md:hidden">&darr;</div>
+                    <div class="hidden md:grid md:grid-cols-3 md:gap-4">
+                        <div class="text-center flow-arrow text-2xl transform rotate-45">&searr;</div> <div></div> <div class="text-center flow-arrow text-2xl transform -rotate-45">&swarr;</div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                         <div class="architecture-block p-3 rounded text-center has-tooltip">
+                            <i class="fas fa-cubes text-3xl mb-2"></i>
+                            <h3 class="font-semibold">Smart Contract</h3>
+                            <p class="text-xs">(ERC-1155 on Blockchain)</p>
+                             <div class="tooltip top-full mt-2">Manages NFT minting, ownership, and metadata URIs.</div>
+                        </div>
+                        <div class="architecture-block p-3 rounded text-center has-tooltip">
+                             <i class="fas fa-database text-3xl mb-2"></i>
+                            <h3 class="font-semibold">Autonomi Network</h3>
+                            <p class="text-xs">(Decentralized Storage)</p>
+                            <div class="tooltip top-full mt-2">Stores public metadata and private/permissioned reports.</div>
+                        </div>
+                    </div>
+                     <p class="text-center text-xs text-gray-500 mt-4">Lines indicate primary data/interaction flow.</p>
+                </div>
+            </div>
+            
+            <div class="mb-8">
+                <h3 class="text-2xl font-semibold secondary-accent-color mb-4">5.2. Farmer: Product NFT Minting Flow</h3>
+                <p class="mb-4">Step-by-step process for a farmer to list a new product NFT.</p>
+                <div class="space-y-3">
+                    <div class="flow-step p-4 rounded-md"><strong>1. Farmer (UI):</strong> Enters Product Details & EOV Info into REGRU Front-End.</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>2. REGRU Front-End:</strong> Sends data to <code>POST /api/v1/products/mint</code> on REGRU Backend API.</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>3. REGRU Backend API:</strong>
+                        <ul class="list-disc list-inside text-sm ml-4 mt-1">
+                            <li>Constructs Metadata v1.2 JSON.</li>
+                            <li>Uploads Product Image (if new) to Autonomi, gets Image URI.</li>
+                            <li>Adds Image URI to Metadata JSON.</li>
+                            <li>Uploads Metadata JSON (Public) to Autonomi, gets Metadata URI.</li>
+                            <li>Uploads EOV Summary PDF (Private, Permissioned for farmer) to Autonomi, gets EOV URI.</li>
+                        </ul>
+                    </div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>4. REGRU Backend API:</strong> Calls <code>mint(farmerAddress, quantity, metadataAutonomiURI)</code> on ERC-1155 Smart Contract.</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>5. Smart Contract:</strong> Mints NFT, returns Transaction Hash / Token ID to API.</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>6. REGRU Backend API:</strong> Returns Success (Tx Hash, Token ID) to Front-End.</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>7. REGRU Front-End:</strong> Notifies Farmer: "Product Listed Successfully".</div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-2xl font-semibold secondary-accent-color mb-4">5.3. Consumer: Product Discovery & Purchase Flow</h3>
+                 <p class="mb-4">How a consumer finds and buys a product.</p>
+                <div class="space-y-3">
+                    <div class="flow-step p-4 rounded-md"><strong>1. Consumer (UI):</strong> Browses products on REGRU Front-End.</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>2. REGRU Front-End:</strong> Requests product listings from Backend API (e.g., <code>GET /api/v1/products</code>).</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>3. REGRU Backend API:</strong>
+                        <ul class="list-disc list-inside text-sm ml-4 mt-1">
+                            <li>Queries Smart Contract for listed token URIs.</li>
+                            <li>For each token, fetches its public Metadata JSON from Autonomi.</li>
+                        </ul>
+                    </div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>4. REGRU Backend API:</strong> Sends product listings (with metadata, EOV score/trend) to Front-End.</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>5. REGRU Front-End:</strong> Displays Product Cards to Consumer.</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>6. Consumer (UI):</strong> Selects a product and clicks "Buy".</div>
+                     <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>7. REGRU Front-End:</strong> Sends purchase request to Backend API (e.g., <code>POST /api/v1/purchase</code> with Token ID, quantity).</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>8. REGRU Backend API:</strong> Calls <code>safeTransferFrom(...)</code> on Smart Contract to transfer NFT.</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>9. Smart Contract:</strong> Confirms transaction to API.</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>10. REGRU Backend API:</strong> Notifies Front-End of successful purchase.</div>
+                    <div class="text-center flow-arrow text-xl">&darr;</div>
+                    <div class="flow-step p-4 rounded-md"><strong>11. REGRU Front-End:</strong> Shows confirmation to Consumer; NFT appears in "My Purchases".</div>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="text-2xl font-semibold secondary-accent-color mb-4">5.4. Consumer: Accessing Verification Data</h3>
+                <div class="mb-6">
+                    <h4 class="text-xl font-medium accent-color mb-2">5.4.1. Public EOV Data (Score/Trend on Product Card/Page)</h4>
+                     <p class="mb-3">Displaying readily available EOV metrics.</p>
+                    <div class="space-y-3">
+                        <div class="flow-step p-3 rounded-md"><strong>1. Consumer (UI):</strong> Views Product Detail Page on Front-End.</div>
+                        <div class="text-center flow-arrow text-lg">&darr;</div>
+                        <div class="flow-step p-3 rounded-md"><strong>2. Front-End:</strong> Requests product details (<code>GET /api/v1/products/{tokenID}</code>).</div>
+                         <div class="text-center flow-arrow text-lg">&darr;</div>
+                        <div class="flow-step p-3 rounded-md"><strong>3. Backend API:</strong> Fetches public Metadata JSON from Autonomi.</div>
+                         <div class="text-center flow-arrow text-lg">&darr;</div>
+                        <div class="flow-step p-3 rounded-md"><strong>4. Backend API:</strong> Returns full metadata (incl. <code>eov_score</code>, <code>eov_trend</code>) to Front-End.</div>
+                         <div class="text-center flow-arrow text-lg">&darr;</div>
+                        <div class="flow-step p-3 rounded-md"><strong>5. Front-End:</strong> Maps raw EOV score, displays score & trend to Consumer.</div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-xl font-medium accent-color mb-2">5.4.2. Private EOV Summary Report (Post-Purchase/Permissioned)</h4>
+                    <p class="mb-3">Accessing the detailed, permissioned EOV report.</p>
+                     <div class="space-y-3">
+                        <div class="flow-step p-3 rounded-md"><strong>1. Consumer (UI - NFT Owner):</strong> Clicks "View Full EOV Report" on owned NFT.</div>
+                        <div class="text-center flow-arrow text-lg">&darr;</div>
+                        <div class="flow-step p-3 rounded-md"><strong>2. Front-End:</strong> Requests Browser Wallet signature to prove wallet ownership.</div>
+                        <div class="text-center flow-arrow text-lg">&darr;</div>
+                        <div class="flow-step p-3 rounded-md"><strong>3. Front-End:</strong> Sends request to Backend API (Gated Content Service: <code>GET /api/v1/data/{eov_summary_data_hash}</code> with signed message).</div>
+                        <div class="text-center flow-arrow text-lg">&darr;</div>
+                        <div class="flow-step p-3 rounded-md"><strong>4. Backend API:</strong>
+                            <ul class="list-disc list-inside text-sm ml-4 mt-1">
+                                <li>Verifies signature against Consumer's wallet.</li>
+                                <li>Checks on-chain if Consumer's wallet owns the NFT (or has permission).</li>
+                            </ul>
+                        </div>
+                        <div class="text-center flow-arrow text-lg">&darr;</div>
+                        <div class="flow-step p-3 rounded-md"><strong>5. IF AUTHORIZED: Backend API:</strong> Fetches EOV Summary PDF from Autonomi and streams it to Front-End.</div>
+                        <div class="text-center flow-arrow text-lg">&darr;</div>
+                        <div class="flow-step p-3 rounded-md"><strong>6. Front-End:</strong> Displays/Downloads EOV Report for Consumer. (Else: Shows "Unauthorized" error).</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <footer class="h-16"></footer>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            const pageSections = document.querySelectorAll('.page-section');
+            const accordions = document.querySelectorAll('.accordion-item');
+            const copyMetadataButton = document.getElementById('copy-metadata-btn');
+            const metadataJsonContent = document.getElementById('metadata-json-content').innerText; // Get raw text
+
+            // Function to handle navigation
+            function navigateToSection(hash) {
+                pageSections.forEach(section => {
+                    section.style.display = 'none';
+                });
+                sidebarLinks.forEach(link => {
+                    link.classList.remove('active');
+                });
+
+                const targetSection = document.querySelector(hash);
+                const targetLink = document.querySelector(`.sidebar-link[href="${hash}"]`);
+
+                if (targetSection) {
+                    targetSection.style.display = 'block';
+                    // Scroll to the top of the main content area, then to the section
+                    document.querySelector('main').scrollTop = 0;
+                    // Smooth scroll not working well with display:none, direct scroll instead
+                    // targetSection.scrollIntoView({ behavior: 'smooth' }); 
+                }
+                if (targetLink) {
+                    targetLink.classList.add('active');
+                }
+            }
+
+            // Sidebar navigation
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const targetId = link.getAttribute('href');
+                    navigateToSection(targetId);
+                    // Update URL hash without page jump if desired, or use pushState for cleaner URLs
+                    if (history.pushState) {
+                        history.pushState(null, null, targetId);
+                    } else {
+                        location.hash = targetId;
+                    }
+                });
+            });
+
+            // Accordion functionality
+            accordions.forEach(accordion => {
+                const header = accordion.querySelector('.accordion-header');
+                const content = accordion.querySelector('.accordion-content');
+                const icon = header.querySelector('.accordion-icon');
+
+                header.addEventListener('click', () => {
+                    const isOpen = content.classList.contains('open');
+                    
+                    // Close all other accordions in the same parent, if desired
+                    // accordions.forEach(otherAccordion => {
+                    //     if (otherAccordion !== accordion) {
+                    //         otherAccordion.querySelector('.accordion-content').classList.remove('open');
+                    //         otherAccordion.querySelector('.accordion-content').style.maxHeight = null;
+                    //         otherAccordion.querySelector('.accordion-content').style.padding = "0";
+                    //         otherAccordion.querySelector('.accordion-icon').classList.remove('fa-chevron-up');
+                    //         otherAccordion.querySelector('.accordion-icon').classList.add('fa-chevron-down');
+                    //     }
+                    // });
+
+                    if (isOpen) {
+                        content.classList.remove('open');
+                        content.style.maxHeight = null;
+                         // content.style.padding = "0 1rem"; // Keep horizontal padding during close
+                        setTimeout(() => { content.style.padding = "0"; }, 500); // Remove padding after transition
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                    } else {
+                        content.classList.add('open');
+                        content.style.padding = "1rem"; // Add padding before calculating height
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                    }
+                });
+            });
+
+            // Copy metadata JSON
+            if (copyMetadataButton) {
+                copyMetadataButton.addEventListener('click', () => {
+                    navigator.clipboard.writeText(metadataJsonContent.trim())
+                        .then(() => {
+                            copyMetadataButton.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+                            setTimeout(() => {
+                                copyMetadataButton.innerHTML = '<i class="fas fa-copy mr-2"></i>Copy JSON';
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy: ', err);
+                            alert('Failed to copy JSON to clipboard.');
+                        });
+                });
+            }
+
+            // Handle initial page load (e.g. from a hash URL)
+            if (window.location.hash) {
+                navigateToSection(window.location.hash);
+            } else {
+                // Default to introduction section
+                navigateToSection('#introduction');
+            }
+            
+            // Handle back/forward browser navigation
+            window.addEventListener('popstate', () => {
+                 if (window.location.hash) {
+                    navigateToSection(window.location.hash);
+                } else {
+                    navigateToSection('#introduction');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

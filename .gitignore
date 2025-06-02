@@ -1,0 +1,35 @@
+# General
+.DS_Store
+*.log
+
+# Node
+node_modules/
+dist/
+
+# Rust / Cargo
+/target/
+Cargo.lock
+
+# Tauri
+src-tauri/target/
+src-tauri/Cargo.lock
+src-tauri/tauri.conf.json # Often machine-specific or generated, can be versioned if needed
+
+# Wallets - sensitive information
+wallets/
+
+# IDE specific
+.vscode/
+.idea/
+
+# Build artifacts
+*.msi
+*.dmg
+*.app
+*.AppImage
+*.deb
+
+# Environment files
+.env
+.env.*
+!/.env.example 
