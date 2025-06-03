@@ -1,3 +1,5 @@
+import './index.css';
+import './app.ts';
 import { invoke } from "@tauri-apps/api/tauri";
 
 async function greet() {

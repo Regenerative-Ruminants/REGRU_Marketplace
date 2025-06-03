@@ -1,0 +1,215 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --main-color: #0d324a; /* Deep Blue-Gray */
+    --secondary-color: #ffffff; /* White */
+    --tertiary-color: #f8f9fa; /* Light Gray */
+    --accent-color: #28a745; /* Green for cart/actions */
+    --border-color: #dee2e6; /* Standard border color */
+    --font-oswald: 'Oswald', sans-serif;
+    --font-garamond: 'Garamond', serif;
+}
+
+body {
+    font-family: var(--font-garamond);
+    color: var(--main-color);
+    background-color: var(--secondary-color);
+}
+
+h1, h2, h3, h4, h5, h6, .font-oswald {
+    font-family: var(--font-oswald);
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+#first-panel {
+    background-color: var(--tertiary-color);
+    border-right: 1px solid var(--border-color);
+}
+#second-panel {
+    background-color: var(--tertiary-color);
+    border-right: 1px solid var(--border-color);
+}
+#main-heading-container {
+    background-color: var(--secondary-color);
+    border-bottom: 1px solid var(--border-color);
+}
+#content-section {
+    background-color: var(--secondary-color);
+}
+#info-panel {
+    background-color: var(--tertiary-color);
+    border-left: 1px solid var(--border-color);
+}
+#toggle-second-panel-container {
+     background-color: var(--tertiary-color);
+     border-right: 1px solid var(--border-color);
+}
+
+.panel-bg-tertiary { background-color: var(--tertiary-color); }
+.content-bg-secondary { background-color: var(--secondary-color); }
+.text-main-color { color: var(--main-color); }
+.icon-main-color { color: var(--main-color); }
+
+.first-panel-scrollable {
+    height: calc(100vh - 8rem); 
+}
+.second-panel-scrollable {
+     height: calc(100vh - 6.5rem);
+}
+.content-section-scrollable{
+    height: calc(100vh - 4.5rem); 
+}
+.info-panel-scrollable{
+     height: calc(100vh - 4rem);
+}
+
+.first-panel-item.active {
+    background-color: #e0e0e0;
+    border-left: 4px solid var(--main-color);
+}
+ .first-panel-item.active i, .first-panel-item.active .first-panel-label,
+ .first-panel-item.active .logo-text { /* Ensure active logo text color matches */
+    color: var(--main-color);
+}
+.second-panel-item.active {
+    background-color: #e9ecef; 
+    font-weight: bold;
+    color: var(--main-color);
+    border-left: 3px solid var(--accent-color);
+    padding-left: calc(0.625rem - 3px); 
+}
+.second-panel-group-label {
+    font-family: var(--font-oswald);
+    color: var(--main-color);
+}
+
+.product-card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    transition: box-shadow 0.3s ease;
+    display: flex; 
+    flex-direction: column; 
+    /* min-width removed to allow natural shrinking with grid columns */
+}
+.product-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.product-card img {
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    object-fit: cover;
+    height: 180px; 
+    width: 100%;
+}
+.product-card .favourite-icon {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: rgba(255,255,255,0.7);
+    border-radius: 50%;
+    padding: 0.25rem;
+}
+.product-card-content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; 
+}
+.product-card-tags {
+    margin-bottom: 0.5rem;
+}
+.product-card-tags .tag {
+    background-color: #e9ecef;
+    color: var(--main-color);
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.25rem;
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+    display: inline-block;
+}
+
+
+.notification-item {
+    border-bottom: 1px solid var(--border-color);
+}
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.message-item {
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+.message-item:hover {
+    background-color: #f1f3f5;
+}
+.message-item.active-chat {
+    background-color: #e9ecef;
+}
+
+.profile-header {
+    background-image: url('https://placehold.co/1200x300/0d324a/ffffff?text=Profile+Banner');
+    background-size: cover;
+    background-position: center;
+    height: 250px;
+    border-radius: 0.5rem;
+}
+.profile-avatar {
+    border: 4px solid var(--secondary-color);
+    margin-top: -60px;
+    width: 120px;
+    height: 120px;
+}
+.profile-tabs button.active {
+    border-bottom-color: var(--main-color);
+    color: var(--main-color);
+    font-weight: 600;
+}
+
+.shopping-cart-count {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 50%;
+    padding: 0.1em 0.4em;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+.sent-message {
+    background-color: var(--accent-color) !important; 
+    color: white;
+}
+.logo-container { /* Container for the logo text */
+    padding: 0.5rem; /* Equivalent to p-2 */
+    margin-bottom: 1rem; /* Equivalent to mb-4 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 2.5rem; /* Equivalent to h-10 */
+}
+.logo-text { /* Styling for the REGRU text */
+    font-family: var(--font-oswald);
+    font-size: 1.5rem; /* text-2xl */
+    font-weight: 700; /* bold */
+    color: var(--main-color);
+} 
