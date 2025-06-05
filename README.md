@@ -52,7 +52,7 @@ Keys are age-encrypted; CI injects TAURI_PRIVATE_KEY_B64 (see WALLETS.md).
 
 ## 🧪 Tests
 ```bash
-cargo test                      # Rust logic
+cd src-tauri && cargo test      # Rust logic
 pnpm exec playwright test       # opens Tauri, adds item, pays ANT, verifies Scratchpad
 ```
 
