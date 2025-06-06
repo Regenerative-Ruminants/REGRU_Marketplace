@@ -8,6 +8,9 @@ async function greet() {
   console.log(await invoke("greet", { name: "World" }));
 }
 
-greet();
+// Only call greet if running in Tauri environment and IPC is available
+if (typeof window.__TAURI_IPC__ === 'function') {
+  greet();
+}
 
 console.log("Hello from frontend!"); 
