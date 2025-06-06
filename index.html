@@ -10,27 +10,27 @@
 </head>
 <body class="flex h-screen overflow-hidden">
 
-    <nav id="first-panel" class="w-20 flex flex-col items-center py-4 shadow-lg">
+    <nav id="first-panel" class="w-20 flex flex-col items-center py-4 shadow-lg rounded-lg">
         <div class="logo-container">
             <span class="logo-text">REGRU</span>
         </div>
-        <div id="first-panel-main-icons" class="flex-1 flex flex-col items-center space-y-3 w-full overflow-y-auto first-panel-scrollable">
+        <div id="first-panel-main-icons" class="flex-1 flex flex-col items-center space-y-4 w-full overflow-y-auto first-panel-scrollable">
             </div>
-        <div id="first-panel-bottom-icons" class="py-3 space-y-3 w-full border-t border-[var(--border-color)]">
+        <div id="first-panel-bottom-icons" class="py-3 space-y-4 w-full border-t border-[var(--border-color)]">
             </div>
     </nav>
 
-    <aside id="second-panel" class="panel-bg-tertiary w-72 flex flex-col shadow-lg transition-all duration-300 ease-in-out">
+    <aside id="second-panel" class="w-72 flex flex-col shadow-lg transition-all duration-300 ease-in-out rounded-lg">
         <div class="p-4 border-b border-[var(--border-color)]">
-            <input type="search" id="second-panel-search" placeholder="Search..." class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--main-color)] focus:border-transparent outline-none text-sm">
+            <input type="search" id="second-panel-search" placeholder="Search..." class="w-full p-2 rounded-md outline-none text-sm">
         </div>
-        <div id="second-panel-content" class="flex-1 overflow-y-auto p-3 space-y-1 second-panel-scrollable">
+        <div id="second-panel-content" class="flex-1 overflow-y-auto p-3 space-y-2 second-panel-scrollable">
             </div>
     </aside>
 
-    <div id="toggle-second-panel-container" class="flex items-center panel-bg-tertiary">
-        <button id="toggle-second-panel" class="p-1 focus:outline-none hover:bg-gray-200 transition-colors z-10 rounded-r-md shadow-md h-16">
-            <svg id="toggle-second-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-main-color">
+    <div id="toggle-second-panel-container" class="flex items-center">
+        <button id="toggle-second-panel" class="p-1 focus:outline-none hover:bg-gray-300 transition-colors z-10 rounded-r-md shadow-md h-16">
+            <svg id="toggle-second-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-main">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
         </button>
@@ -38,30 +38,30 @@
 
 
     <div class="flex-1 flex flex-col overflow-hidden">
-        <header id="main-heading-container" class="content-bg-secondary p-4 shadow flex justify-between items-center">
-            <h1 id="main-heading" class="font-oswald text-3xl text-main-color">Welcome</h1>
-            <button id="shopping-cart-button" class="p-2 rounded-full hover:bg-gray-100 focus:outline-none relative">
-                <i class="fas fa-shopping-cart text-2xl text-main-color"></i>
+        <header id="main-heading-container" class="p-4 shadow flex justify-between items-center rounded-lg">
+            <h1 id="main-heading" class="font-oswald text-3xl">Welcome</h1>
+            <button id="shopping-cart-button" class="p-2 rounded-full hover:bg-white/20 focus:outline-none relative">
+                <i class="fas fa-shopping-cart text-2xl"></i>
                 <span id="shopping-cart-count-display" class="shopping-cart-count hidden">0</span>
             </button>
         </header>
 
         <div class="flex flex-1 overflow-hidden">
-            <section id="content-section" class="flex-1 content-bg-secondary p-6 overflow-y-auto content-section-scrollable">
-                <div id="content-placeholder" class="text-gray-600">
+            <section id="content-section" class="flex-1 overflow-y-auto content-section-scrollable rounded-lg">
+                <div id="content-placeholder" class="text-gray-700">
                     <p class="text-lg">Please select an item from the navigation to see content here.</p>
                     <p class="mt-2">The content will update based on your selection in the second panel.</p>
                 </div>
                 </section>
 
-            <button id="toggle-info-panel" class="panel-bg-tertiary p-1 focus:outline-none hover:bg-gray-200 transition-colors z-10 self-center rounded-l-md shadow-md h-16">
-                 <svg id="toggle-info-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-main-color">
+            <button id="toggle-info-panel" class="bg-tertiary p-1 focus:outline-none hover:bg-gray-300 transition-colors z-10 self-center rounded-l-md shadow-md h-16">
+                 <svg id="toggle-info-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-main">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                 </svg>
             </button>
 
-            <aside id="info-panel" class="panel-bg-tertiary w-80 p-4 shadow-lg overflow-y-auto transition-all duration-300 ease-in-out info-panel-scrollable">
-                <h3 class="font-oswald text-xl text-main-color mb-3 border-b border-[var(--border-color)] pb-2">Information</h3>
+            <aside id="info-panel" class="w-80 p-4 shadow-lg overflow-y-auto transition-all duration-300 ease-in-out info-panel-scrollable rounded-lg">
+                <h3 class="font-oswald text-xl mb-3 border-b border-[var(--border-color)] pb-2">Information</h3>
                 <div id="info-panel-content" class="text-sm text-gray-700 space-y-2">
                     Select an item to see relevant information here.
                 </div>

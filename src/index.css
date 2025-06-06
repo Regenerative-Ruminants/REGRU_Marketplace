@@ -3,23 +3,57 @@
 @tailwind utilities;
 
 :root {
-    --main-color: #0d324a; /* Deep Blue-Gray */
-    --secondary-color: #ffffff; /* White */
-    --tertiary-color: #f8f9fa; /* Light Gray */
-    --accent-color: #28a745; /* Green for cart/actions */
-    --border-color: #dee2e6; /* Standard border color */
+    /* NEW Color Palette from Phase 3.1 */
+    --main-color: #0D324A;        /* Deep Sapphire Blue */
+    --secondary-color: #F0F4F8;    /* Light Sky Blue-Gray */
+    --accent-color: #28A745;       /* Vibrant Green */
+    --text-color: #333333;         /* Dark Gray */
+    --text-light-color: #F0F4F8;   /* For dark backgrounds - Light Sky Blue-Gray */
+    --text-on-accent-color: #FFFFFF;/* For text on accent-colored backgrounds */
+    --border-color: #CED4DA;       /* Light Gray */
+    --tertiary-color: #FFFFFF;      /* White */
+    --background-color: #F8F9FA;  /* Very Light Gray - for overall app background if needed */
+
+    /* Semantic Colors */
+    --info-color: #17A2B8;         /* Info Blue */
+    --warning-color: #FFC107;      /* Warning Yellow */
+    --danger-color: #DC3545;        /* Danger Red */
+    --success-color: #28A745;      /* Success Green (same as accent) */
+
+    /* Additional Grays if needed */
+    --gray-100: #F8F9FA;
+    --gray-200: #E9ECEF;
+    --gray-300: #DEE2E6;
+    --gray-400: #CED4DA; /* Same as border-color */
+    --gray-500: #ADB5BD;
+    --gray-600: #6C757D;
+    --gray-700: #495057;
+    --gray-800: #343A40;
+    --gray-900: #212529;
+
+    /* Existing Font variables - kept as they are not color-related */
     --font-oswald: 'Oswald', sans-serif;
     --font-garamond: 'Garamond', serif;
 }
 
 body {
     font-family: var(--font-garamond);
-    color: var(--main-color);
-    background-color: var(--secondary-color);
+    color: var(--text-color);
+    background-color: var(--background-color);
 }
 
 h1, h2, h3, h4, h5, h6, .font-oswald {
     font-family: var(--font-oswald);
+    color: var(--main-color);
+}
+
+a {
+    color: var(--main-color);
+    text-decoration: none;
+}
+a:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
 }
 
 ::-webkit-scrollbar {
@@ -27,39 +61,51 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     height: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--gray-200);
     border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb {
-    background: #ccc;
+    background: var(--gray-400);
     border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #aaa;
+    background: var(--gray-500);
+}
+
+#first-panel,
+#second-panel,
+#info-panel,
+#toggle-second-panel-container {
+    background-color: var(--secondary-color);
+    border-color: var(--border-color);
 }
 
 #first-panel {
-    background-color: var(--tertiary-color);
     border-right: 1px solid var(--border-color);
+    padding: 1rem 0.5rem;
 }
 #second-panel {
-    background-color: var(--tertiary-color);
     border-right: 1px solid var(--border-color);
 }
-#main-heading-container {
-    background-color: var(--secondary-color);
-    border-bottom: 1px solid var(--border-color);
-}
-#content-section {
-    background-color: var(--secondary-color);
-}
 #info-panel {
-    background-color: var(--tertiary-color);
     border-left: 1px solid var(--border-color);
 }
 #toggle-second-panel-container {
-     background-color: var(--tertiary-color);
-     border-right: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+}
+
+#main-heading-container {
+    background-color: var(--main-color);
+    color: var(--text-light-color);
+    border-bottom: 1px solid var(--border-color);
+}
+#main-heading-container h1, #main-heading-container i {
+    color: var(--text-light-color);
+}
+
+#content-section {
+    background-color: var(--secondary-color);
+    padding: 2rem;
 }
 
 .panel-bg-tertiary { background-color: var(--tertiary-color); }
@@ -80,16 +126,26 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
      height: calc(100vh - 4rem);
 }
 
+.first-panel-item {
+    margin-bottom: 0.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
 .first-panel-item.active {
-    background-color: #e0e0e0;
+    background-color: var(--gray-200);
     border-left: 4px solid var(--main-color);
 }
  .first-panel-item.active i, .first-panel-item.active .first-panel-label,
- .first-panel-item.active .logo-text { /* Ensure active logo text color matches */
+ .first-panel-item.active .logo-text {
     color: var(--main-color);
 }
+.second-panel-item {
+    margin-bottom: 0.125rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
 .second-panel-item.active {
-    background-color: #e9ecef; 
+    background-color: var(--gray-200);
     font-weight: bold;
     color: var(--main-color);
     border-left: 3px solid var(--accent-color);
@@ -102,14 +158,15 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 
 .product-card {
     border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    transition: box-shadow 0.3s ease;
+    background-color: var(--tertiary-color);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
     display: flex; 
     flex-direction: column; 
-    /* min-width removed to allow natural shrinking with grid columns */
 }
 .product-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
 }
 .product-card img {
     border-top-left-radius: 0.5rem;
@@ -136,7 +193,7 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     margin-bottom: 0.5rem;
 }
 .product-card-tags .tag {
-    background-color: #e9ecef;
+    background-color: var(--gray-200);
     color: var(--main-color);
     font-size: 0.7rem;
     padding: 0.1rem 0.4rem;
@@ -146,12 +203,14 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     display: inline-block;
 }
 
-
 .notification-item {
     border-bottom: 1px solid var(--border-color);
 }
 .notification-item:last-child {
     border-bottom: none;
+}
+.notification-item.unread {
+    background-color: var(--accent-color-light, #e6f7eb);
 }
 
 .message-item {
@@ -159,10 +218,10 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     transition: background-color 0.2s ease;
 }
 .message-item:hover {
-    background-color: #f1f3f5;
+    background-color: var(--gray-100);
 }
 .message-item.active-chat {
-    background-color: #e9ecef;
+    background-color: var(--gray-200);
 }
 
 .profile-header {
@@ -173,7 +232,7 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     border-radius: 0.5rem;
 }
 .profile-avatar {
-    border: 4px solid var(--secondary-color);
+    border: 4px solid var(--tertiary-color);
     margin-top: -60px;
     width: 120px;
     height: 120px;
@@ -189,7 +248,7 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     top: -5px;
     right: -8px;
     background-color: var(--accent-color);
-    color: white;
+    color: var(--text-on-accent-color);
     border-radius: 50%;
     padding: 0.1em 0.4em;
     font-size: 0.7rem;
@@ -197,25 +256,58 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 }
 .sent-message {
     background-color: var(--accent-color) !important; 
-    color: white;
+    color: var(--text-on-accent-color);
 }
-.logo-container { /* Container for the logo text */
-    padding: 0.5rem; /* Equivalent to p-2 */
-    margin-bottom: 1rem; /* Equivalent to mb-4 */
+.logo-container {
+    padding: 0.5rem;
+    margin-bottom: 1rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 2.5rem; /* Equivalent to h-10 */
+    height: 2.5rem;
 }
-.logo-text { /* Styling for the REGRU text */
+.logo-text {
     font-family: var(--font-oswald);
-    font-size: 1.5rem; /* text-2xl */
-    font-weight: 700; /* bold */
+    font-size: 1.5rem;
+    font-weight: 700;
     color: var(--main-color);
 }
 
-/* Ensure Font Awesome icons use the correct font family */
 [class^="fa-"], [class*=" fa-"] {
-  font-family: "Font Awesome 6 Free", "FontAwesome" !important; /* Fallback for older versions just in case */
-  font-weight: 900; /* For Font Awesome Solid icons (fas) */
+  font-family: "Font Awesome 6 Free", "FontAwesome" !important;
+  font-weight: 900;
+}
+
+input[type="search"], input[type="text"], textarea, select {
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 0.75rem;
+    color: var(--text-color);
+    background-color: var(--tertiary-color);
+}
+input[type="search"]::placeholder,
+input[type="text"]::placeholder,
+textarea::placeholder {
+    color: var(--gray-500);
+}
+
+input[type="search"]:focus,
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+    transform: translateY(-1px);
+}
+
+button {
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 50, 74, 0.15);
 } 

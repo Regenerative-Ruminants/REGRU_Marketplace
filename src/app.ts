@@ -180,42 +180,42 @@ const contentData: ContentData = {
         title: "All Products",
         htmlFactory: () => `
             <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-                <h2 class='font-oswald text-2xl text-main-color'>Browse All Products</h2>
+                <h2 class='font-oswald text-2xl text-main'>Browse All Products</h2>
                 <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
-                    <input type="search" placeholder="Search products..." class="p-2 border border-gray-300 rounded-md text-sm flex-grow sm:flex-grow-0 sm:w-48">
-                    <select class="p-2 border border-gray-300 rounded-md text-sm">
+                    <input type="search" placeholder="Search products..." class="p-2 border border-border rounded-lg text-sm flex-grow sm:flex-grow-0 sm:w-48">
+                    <select class="p-2 border border-border rounded-lg text-sm">
                         <option>Sort by: Relevance</option>
                         <option>Sort by: Popularity</option>
                         <option>Sort by: Price Low to High</option>
                         <option>Sort by: Price High to Low</option>
                     </select>
-                    <button class="p-2 border border-gray-300 rounded-md text-sm hover:bg-gray-100">
+                    <button class="p-2 border border-border rounded-lg text-sm hover:bg-gray-200">
                         <i class="fas fa-filter mr-1"></i> Filters
                     </button>
                 </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 ${sampleProducts.map(p => `
-                    <div class="product-card bg-white shadow-md rounded-lg overflow-hidden">
+                    <div class="product-card bg-tertiary shadow-md rounded-lg overflow-hidden">
                         <div class="relative">
                             <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover">
-                            <button class="favourite-icon p-1.5 rounded-full bg-white shadow hover:text-red-500">
-                                <i class="far fa-heart text-lg"></i>
+                            <button class="absolute top-2 right-2 bg-tertiary p-1.5 rounded-full shadow hover:bg-gray-200 transition-colors" onclick="alert('Toggle favourite for ${p.id}')">
+                                <i class="far fa-heart text-gray-700"></i>
                             </button>
                         </div>
                         <div class="product-card-content">
-                            <h3 class="text-lg font-semibold text-main-color mb-1 truncate" title="${p.name}">${p.name}</h3>
+                            <h3 class="text-lg font-semibold text-main mb-1 truncate" title="${p.name}">${p.name}</h3>
                             <p class="text-sm text-gray-600 mb-1">${p.seller}</p>
                             <p class="text-xs text-gray-500 mb-2">Provenance: ${p.provenance}</p>
                             <div class="product-card-tags">
                                 ${p.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
                             </div>
                             <div class="flex items-center mb-2 text-xs">
-                                ${[...Array(5)].map((_, i) => `<i class="fas fa-star ${i < p.rating ? 'text-yellow-400' : 'text-gray-300'}"></i>`).join('')}
+                                ${[...Array(5)].map((_, i) => `<i class="fas fa-star ${i < p.rating ? 'text-warning' : 'text-gray-300'}"></i>`).join('')}
                                 <span class="text-gray-500 ml-1">(${p.reviewCount})</span>
                             </div>
-                            <p class="text-xl font-bold text-main-color mb-3 mt-auto">£${p.price.toFixed(2)}</p>
-                            <button class="w-full bg-[var(--main-color)] text-white py-2 px-4 rounded-md hover:opacity-90 transition-opacity text-sm" onclick="window.addToCart('${p.id}', '${p.name.replace(/'/g, "\\\'")}', ${p.price}, '${p.image}')">
+                            <p class="text-xl font-bold text-main mb-3 mt-auto">£${p.price.toFixed(2)}</p>
+                            <button class="w-full bg-accent text-text-on-accent py-2 px-4 rounded-lg hover:brightness-90 transition-all text-sm" onclick="window.addToCart('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price}, '${p.image}')">
                                 Add to Cart
                             </button>
                         </div>
@@ -225,11 +225,11 @@ const contentData: ContentData = {
             <div class="mt-8 flex justify-center">
                 <nav aria-label="Page navigation">
                   <ul class="inline-flex items-center -space-x-px">
-                    <li><a href="#" class="py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700">Previous</a></li>
-                    <li><a href="#" class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">1</a></li>
-                    <li><a href="#" aria-current="page" class="z-10 py-2 px-3 leading-tight text-[var(--main-color)] bg-blue-50 border border-[var(--main-color)] hover:bg-blue-100 hover:text-[var(--main-color)]">2</a></li>
-                    <li><a href="#" class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">3</a></li>
-                    <li><a href="#" class="py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700">Next</a></li>
+                    <li><a href="#" class="py-2 px-3 ml-0 leading-tight text-gray-500 bg-tertiary rounded-l-lg border border-border hover:bg-gray-200 hover:text-gray-700">Previous</a></li>
+                    <li><a href="#" class="py-2 px-3 leading-tight text-gray-500 bg-tertiary border border-border hover:bg-gray-200 hover:text-gray-700">1</a></li>
+                    <li><a href="#" aria-current="page" class="z-10 py-2 px-3 leading-tight text-main bg-main/10 border-main hover:bg-main/20">2</a></li>
+                    <li><a href="#" class="py-2 px-3 leading-tight text-gray-500 bg-tertiary border border-border hover:bg-gray-200 hover:text-gray-700">3</a></li>
+                    <li><a href="#" class="py-2 px-3 leading-tight text-gray-500 bg-tertiary rounded-r-lg border border-border hover:bg-gray-200 hover:text-gray-700">Next</a></li>
                   </ul>
                 </nav>
             </div>
@@ -238,26 +238,26 @@ const contentData: ContentData = {
     browse_by_category: { title: "By Category", htmlFactory: () => {
         const categories = [...new Set(sampleProducts.map(p => p.category))];
         let html = `
-            <div class="flex justify-between items-center mb-6">
-                <h2 class='font-oswald text-2xl text-main-color'>Browse by Category</h2>
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                <h2 class='font-oswald text-2xl text-main'>Browse by Category</h2>
                 <div class="flex space-x-2">
-                     <input type="search" placeholder="Search categories..." class="p-2 border border-gray-300 rounded-md text-sm">
-                     <button class="p-2 border border-gray-300 rounded-md text-sm hover:bg-gray-100"><i class="fas fa-filter mr-1"></i> Filters</button>
+                    <input type="search" placeholder="Search categories..." class="p-2 border border-border rounded-lg text-sm">
+                    <button class="p-2 border border-border rounded-lg text-sm hover:bg-gray-200"><i class="fas fa-filter mr-1"></i> Filters</button>
                 </div>
             </div>`;
         categories.forEach(category => {
             html += `
-            <h3 class="font-oswald text-xl text-main-color mt-6 mb-3 border-b pb-1">${category}</h3>
+            <h3 class="font-oswald text-xl text-main mt-6 mb-3 border-b border-border pb-1">${category}</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">`;
             sampleProducts.filter(p => p.category === category).slice(0,4).forEach(p => {
                  html += `
-                    <div class="product-card bg-white shadow-md rounded-lg overflow-hidden">
+                    <div class="product-card bg-tertiary shadow-md rounded-lg overflow-hidden">
                         <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover">
                         <div class="product-card-content">
-                            <h4 class="text-md font-semibold text-main-color mb-1 truncate">${p.name}</h4>
-                            <p class="text-xs text-gray-500 mb-2">${p.seller}</p>
-                            <p class="text-lg font-bold text-main-color mt-auto">£${p.price.toFixed(2)}</p>
-                            <button class="w-full bg-[var(--main-color)] text-white py-1.5 px-3 rounded-md hover:opacity-90 text-xs mt-2" onclick="window.addToCart('${p.id}', '${p.name.replace(/'/g, "\\\'")}', ${p.price}, '${p.image}')">Add to Cart</button>
+                             <h4 class="text-md font-semibold text-main mb-1 truncate" title="${p.name}">${p.name}</h4>
+                             <p class="text-xs text-gray-500 mb-2">Seller: ${p.seller}</p>
+                             <p class="text-lg font-bold text-main mt-auto">£${p.price.toFixed(2)}</p>
+                             <button class="w-full bg-accent text-text-on-accent py-1.5 px-3 rounded-lg hover:brightness-90 text-xs mt-2 transition-all" onclick="window.addToCart('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price}, '${p.image}')">Add to Cart</button>
                         </div>
                     </div>`;
             });
@@ -268,26 +268,26 @@ const contentData: ContentData = {
     browse_by_seller: { title: "By Seller", htmlFactory: () => {
         const sellers = [...new Set(sampleProducts.map(p => p.seller))];
         let html = `
-            <div class="flex justify-between items-center mb-6">
-                <h2 class='font-oswald text-2xl text-main-color'>Browse by Seller</h2>
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                <h2 class='font-oswald text-2xl text-main'>Browse by Seller</h2>
                 <div class="flex space-x-2">
-                     <input type="search" placeholder="Search sellers..." class="p-2 border border-gray-300 rounded-md text-sm">
-                     <button class="p-2 border border-gray-300 rounded-md text-sm hover:bg-gray-100"><i class="fas fa-filter mr-1"></i> Filters</button>
+                    <input type="search" placeholder="Search sellers..." class="p-2 border border-border rounded-lg text-sm">
+                    <button class="p-2 border border-border rounded-lg text-sm hover:bg-gray-200"><i class="fas fa-filter mr-1"></i> Filters</button>
                 </div>
             </div>`;
         sellers.forEach(seller => {
             html += `
-            <h3 class="font-oswald text-xl text-main-color mt-6 mb-3 border-b pb-1">${seller}</h3>
+            <h3 class="font-oswald text-xl text-main mt-6 mb-3 border-b border-border pb-1">${seller}</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">`;
             sampleProducts.filter(p => p.seller === seller).slice(0,4).forEach(p => {
                  html += `
-                    <div class="product-card bg-white shadow-md rounded-lg overflow-hidden">
-                         <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover">
-                         <div class="product-card-content">
-                            <h4 class="text-md font-semibold text-main-color mb-1 truncate">${p.name}</h4>
-                            <p class="text-xs text-gray-500 mb-2">Category: ${p.category}</p>
-                            <p class="text-lg font-bold text-main-color mt-auto">£${p.price.toFixed(2)}</p>
-                            <button class="w-full bg-[var(--main-color)] text-white py-1.5 px-3 rounded-md hover:opacity-90 text-xs mt-2" onclick="window.addToCart('${p.id}', '${p.name.replace(/'/g, "\\\'")}', ${p.price}, '${p.image}')">Add to Cart</button>
+                    <div class="product-card bg-tertiary shadow-md rounded-lg overflow-hidden">
+                        <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover">
+                        <div class="product-card-content">
+                             <h4 class="text-md font-semibold text-main mb-1 truncate" title="${p.name}">${p.name}</h4>
+                             <p class="text-xs text-gray-500 mb-2">Category: ${p.category}</p>
+                             <p class="text-lg font-bold text-main mt-auto">£${p.price.toFixed(2)}</p>
+                             <button class="w-full bg-accent text-text-on-accent py-1.5 px-3 rounded-lg hover:brightness-90 text-xs mt-2 transition-all" onclick="window.addToCart('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price}, '${p.image}')">Add to Cart</button>
                         </div>
                     </div>`;
             });
@@ -298,26 +298,26 @@ const contentData: ContentData = {
     browse_by_provenance: { title: "By Provenance", htmlFactory: () => {
         const provenances = [...new Set(sampleProducts.map(p => p.provenance))];
         let html = `
-            <div class="flex justify-between items-center mb-6">
-                <h2 class='font-oswald text-2xl text-main-color'>Browse by Provenance</h2>
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                <h2 class='font-oswald text-2xl text-main'>Browse by Provenance</h2>
                 <div class="flex space-x-2">
-                     <input type="search" placeholder="Search provenance..." class="p-2 border border-gray-300 rounded-md text-sm">
-                     <button class="p-2 border border-gray-300 rounded-md text-sm hover:bg-gray-100"><i class="fas fa-filter mr-1"></i> Filters</button>
+                    <input type="search" placeholder="Search provenance..." class="p-2 border border-border rounded-lg text-sm">
+                    <button class="p-2 border border-border rounded-lg text-sm hover:bg-gray-200"><i class="fas fa-filter mr-1"></i> Filters</button>
                 </div>
             </div>`;
         provenances.forEach(provenance => {
             html += `
-            <h3 class="font-oswald text-xl text-main-color mt-6 mb-3 border-b pb-1">${provenance}</h3>
+            <h3 class="font-oswald text-xl text-main mt-6 mb-3 border-b border-border pb-1">${provenance}</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">`;
             sampleProducts.filter(p => p.provenance === provenance).slice(0,4).forEach(p => {
                  html += `
-                    <div class="product-card bg-white shadow-md rounded-lg overflow-hidden">
-                         <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover">
-                         <div class="product-card-content">
-                            <h4 class="text-md font-semibold text-main-color mb-1 truncate">${p.name}</h4>
-                            <p class="text-xs text-gray-500 mb-2">${p.seller}</p>
-                            <p class="text-lg font-bold text-main-color mt-auto">£${p.price.toFixed(2)}</p>
-                            <button class="w-full bg-[var(--main-color)] text-white py-1.5 px-3 rounded-md hover:opacity-90 text-xs mt-2" onclick="window.addToCart('${p.id}', '${p.name.replace(/'/g, "\\\'")}', ${p.price}, '${p.image}')">Add to Cart</button>
+                    <div class="product-card bg-tertiary shadow-md rounded-lg overflow-hidden">
+                        <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover">
+                        <div class="product-card-content">
+                             <h4 class="text-md font-semibold text-main mb-1 truncate" title="${p.name}">${p.name}</h4>
+                             <p class="text-xs text-gray-500 mb-2">Seller: ${p.seller}</p>
+                             <p class="text-lg font-bold text-main mt-auto">£${p.price.toFixed(2)}</p>
+                             <button class="w-full bg-accent text-text-on-accent py-1.5 px-3 rounded-lg hover:brightness-90 text-xs mt-2 transition-all" onclick="window.addToCart('${p.id}', '${p.name.replace(/'/g, "\\'")}', ${p.price}, '${p.image}')">Add to Cart</button>
                         </div>
                     </div>`;
             });
@@ -326,26 +326,26 @@ const contentData: ContentData = {
         return html;
     }},
     // My Buying Content
-    my_purchases: { title: "My Purchases", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Purchase History</h2><p>This is where you can view all your past orders, track their shipping status, and manage returns or issues. Example: Order #12345 - Organic Apples - Shipped. Order #12300 - Wool Yarn - Delivered.</p>" },
-    my_favourites: { title: "My Favourites", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Favourite Items</h2><p>All the products you've marked as favourites will appear here for easy access. Example: Organic Beef Sirloin Steak, Hand-Knitted Wool Scarf.</p>" },
+    my_purchases: { title: "My Purchases", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Your Purchase History</h2><p class='text-text'>This is where you can view all your past orders, track their shipping status, and manage returns or issues. Example: Order #12345 - Organic Apples - Shipped. Order #12300 - Wool Yarn - Delivered.</p>" },
+    my_favourites: { title: "My Favourites", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Your Favourite Items</h2><p class='text-text'>All the products you've marked as favourites will appear here for easy access. Example: Organic Beef Sirloin Steak, Hand-Knitted Wool Scarf.</p>" },
     // My Selling Content
-    selling_products: { title: "Manage Products", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Product Listings</h2><p>If you are a seller, this section allows you to add new products, edit existing listings (e.g., price, description, images), manage stock levels, and view product performance. Example: Add New Product button, list of current products with edit/delete options.</p>" },
-    selling_orders: { title: "Manage Orders", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Customer Orders</h2><p>Sellers can view and manage all incoming orders here. This includes updating order status (e.g., processing, shipped), printing invoices, and communicating with buyers regarding their orders. Example: Order #56789 - Pending Shipment, Order #56780 - Processing.</p>" },
-    selling_analytics: { title: "Sales Analytics", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Sales Performance</h2><p>Track your sales trends, top-selling products, revenue, and customer engagement metrics. Visual charts and reports would be displayed here to help you understand your business performance. Example: Graph showing monthly sales, list of most viewed products.</p>" },
-    selling_finance: { title: "Financial Overview", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Finances</h2><p>Manage your earnings, view payout history, download financial statements, and manage your bank details for payouts. Example: Current Balance: £XXX.XX, Next Payout Date: DD/MM/YYYY.</p>" },
+    selling_products: { title: "Manage Products", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Your Product Listings</h2><p class='text-text'>If you are a seller, this section allows you to add new products, edit existing listings (e.g., price, description, images), manage stock levels, and view product performance. Example: Add New Product button, list of current products with edit/delete options.</p>" },
+    selling_orders: { title: "Manage Orders", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Customer Orders</h2><p class='text-text'>Sellers can view and manage all incoming orders here. This includes updating order status (e.g., processing, shipped), printing invoices, and communicating with buyers regarding their orders. Example: Order #56789 - Pending Shipment, Order #56780 - Processing.</p>" },
+    selling_analytics: { title: "Sales Analytics", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Your Sales Performance</h2><p class='text-text'>Track your sales trends, top-selling products, revenue, and customer engagement metrics. Visual charts and reports would be displayed here to help you understand your business performance. Example: Graph showing monthly sales, list of most viewed products.</p>" },
+    selling_finance: { title: "Financial Overview", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Your Finances</h2><p class='text-text'>Manage your earnings, view payout history, download financial statements, and manage your bank details for payouts. Example: Current Balance: £XXX.XX, Next Payout Date: DD/MM/YYYY.</p>" },
 
     all_notifications: {
         title: "All Notifications",
         html: `
             <div class="flex flex-col h-full">
-                <div class="p-4 border-b border-[var(--border-color)]">
+                <div class="p-4 border-b border-border">
                     <div class="flex justify-between items-center mb-3">
-                        <h2 class='font-oswald text-2xl text-main-color'>Notifications</h2>
-                        <button class="text-sm text-[var(--main-color)] hover:underline">Mark all as read</button>
+                        <h2 class='font-oswald text-2xl text-main'>Notifications</h2>
+                        <button class="text-sm text-main hover:underline">Mark all as read</button>
                     </div>
                     <div class="flex space-x-2">
-                        <input type="search" placeholder="Search notifications..." class="flex-grow p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[var(--main-color)] focus:border-transparent outline-none">
-                        <select class="p-2 border border-gray-300 rounded-md text-sm">
+                        <input type="search" placeholder="Search notifications..." class="flex-grow p-2 border border-border rounded-lg text-sm outline-none">
+                        <select class="p-2 border border-border rounded-lg text-sm">
                             <option>Filter by: All</option>
                             <option>Filter by: Order Updates</option>
                             <option>Filter by: Messages</option>
@@ -358,12 +358,12 @@ const contentData: ContentData = {
                         {icon: 'fa-comment-dots', title: 'New Message from BerryFarm', text: 'You have a new message regarding your strawberry query.', time: '1h ago', unread: true},
                         {icon: 'fa-store', title: 'Product Approved', text: 'Your new product "Artisan Cheese" is now live.', time: '3h ago'},
                     ].map(n => `
-                        <div class="notification-item p-4 flex items-start space-x-3 hover:bg-gray-50 ${n.unread ? 'bg-blue-50 font-semibold' : ''}">
+                        <div class="notification-item p-4 flex items-start space-x-3 hover:bg-gray-100 ${n.unread ? 'bg-gray-100 font-semibold' : ''}">
                             <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                <i class="fas ${n.icon} text-main-color"></i>
+                                <i class="fas ${n.icon} text-main"></i>
                             </div>
                             <div class="flex-grow">
-                                <h3 class="text-sm text-main-color">${n.title}</h3>
+                                <h3 class="text-sm text-main">${n.title}</h3>
                                 <p class="text-xs text-gray-600">${n.text}</p>
                             </div>
                             <div class="flex-shrink-0 text-xs text-gray-500">${n.time}</div>
@@ -373,20 +373,20 @@ const contentData: ContentData = {
             </div>
         `
     },
-    unread_notifications: { title: "Unread Notifications", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Unread Notifications</h2><p>Display unread notifications here.</p>" },
-    priority_notifications: { title: "Priority Notifications", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Priority Notifications</h2><p>Display priority notifications here.</p>" },
-    my_buying_notifications: { title: "Buying Notifications", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>My Buying Notifications</h2><p>Notifications related to your purchases.</p>" },
-    my_selling_notifications: { title: "Selling Notifications", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>My Selling Notifications</h2><p>Notifications related to your sales.</p>" },
-    favourites_notifications: { title: "Favourites Notifications", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Favourites Notifications</h2><p>Notifications about your favourited items or sellers.</p>" },
+    unread_notifications: { title: "Unread Notifications", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Unread Notifications</h2><p class='text-text'>Display unread notifications here.</p>" },
+    priority_notifications: { title: "Priority Notifications", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Priority Notifications</h2><p class='text-text'>Display priority notifications here.</p>" },
+    my_buying_notifications: { title: "Buying Notifications", html: "<h2 class='font-oswald text-2xl text-main mb-4'>My Buying Notifications</h2><p class='text-text'>Notifications related to your purchases.</p>" },
+    my_selling_notifications: { title: "Selling Notifications", html: "<h2 class='font-oswald text-2xl text-main mb-4'>My Selling Notifications</h2><p class='text-text'>Notifications related to your sales.</p>" },
+    favourites_notifications: { title: "Favourites Notifications", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Favourites Notifications</h2><p class='text-text'>Notifications about your favourited items or sellers.</p>" },
 
 
     all_messages: {
         title: "All Messages",
         html: `
             <div class="flex h-full">
-                <div class="w-1/3 border-r border-[var(--border-color)] flex flex-col">
-                    <div class="p-4 border-b border-[var(--border-color)]">
-                        <input type="search" placeholder="Search chats or start new..." class="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-[var(--main-color)] focus:border-transparent outline-none">
+                <div class="w-1/3 border-r border-border flex flex-col">
+                    <div class="p-4 border-b border-border">
+                        <input type="search" placeholder="Search chats or start new..." class="w-full p-2 border border-border rounded-lg text-sm outline-none">
                     </div>
                     <div class="flex-grow overflow-y-auto">
                         ${[{ name: 'Farmer Giles', lastMsg: 'Yes, the eggs are fresh!', time: '10:30 AM', unread: 2, avatar: 'FG', active: true, tags: ['buyer:Farmer Giles', 'product:Fresh Eggs', 'status:pending'] },
@@ -394,171 +394,166 @@ const contentData: ContentData = {
                             { name: 'Customer Support', lastMsg: 'Query #CS789 updated.', time: 'Mon', avatar: 'CS', tags: ['support', 'status:resolved'] },
                         ].map(chat => `
                         <div class="message-item p-3 flex items-center space-x-3 cursor-pointer ${chat.active ? 'active-chat' : ''}">
-                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-main-color font-semibold">${chat.avatar}</div>
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-main font-semibold">${chat.avatar}</div>
                             <div class="flex-grow overflow-hidden">
                                 <div class="flex justify-between items-center">
-                                    <h3 class="text-sm font-semibold text-main-color truncate">${chat.name}</h3>
+                                    <h3 class="text-sm font-semibold text-main truncate">${chat.name}</h3>
                                     <span class="text-xs text-gray-500">${chat.time}</span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <p class="text-xs text-gray-600 truncate">${chat.lastMsg}</p>
-                                    ${chat.unread ? `<span class="ml-2 text-xs bg-[var(--accent-color)] text-white rounded-full px-1.5 py-0.5">${chat.unread}</span>` : ''}
+                                    ${chat.unread ? `<span class="ml-2 text-xs bg-accent text-text-on-accent rounded-full px-1.5 py-0.5">${chat.unread}</span>` : ''}
                                 </div>
                             </div>
                         </div>
                         `).join('')}
                     </div>
                 </div>
-                <div class="w-2/3 flex flex-col bg-white">
-                    <div class="p-4 border-b border-[var(--border-color)] flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-main-color font-semibold">FG</div>
+                <div class="w-2/3 flex flex-col bg-tertiary">
+                    <div class="p-4 border-b border-border flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-main font-semibold">FG</div>
                         <div>
-                            <h3 class="font-semibold text-main-color">Farmer Giles</h3>
+                            <h3 class="font-semibold text-main">Farmer Giles</h3>
                             <p class="text-xs text-gray-500">Online</p>
                         </div>
                         <div class="ml-auto space-x-2">
-                            <button class="p-2 text-gray-500 hover:text-main-color"><i class="fas fa-phone"></i></button>
-                            <button class="p-2 text-gray-500 hover:text-main-color"><i class="fas fa-video"></i></button>
-                            <button class="p-2 text-gray-500 hover:text-main-color"><i class="fas fa-ellipsis-v"></i></button>
+                            <button class="p-2 text-gray-500 hover:text-main"><i class="fas fa-phone"></i></button>
+                            <button class="p-2 text-gray-500 hover:text-main"><i class="fas fa-video"></i></button>
+                            <button class="p-2 text-gray-500 hover:text-main"><i class="fas fa-ellipsis-v"></i></button>
                         </div>
                     </div>
-                    <div class="flex-grow p-4 space-y-4 overflow-y-auto bg-gray-50">
+                    <div class="flex-grow p-4 space-y-4 overflow-y-auto bg-secondary">
                         <div class="flex justify-end"><div class="sent-message p-3 rounded-lg max-w-xs lg:max-w-md">Hi Farmer Giles, are the large eggs available?</div></div>
                         <div class="flex justify-start"><div class="bg-gray-200 text-gray-800 p-3 rounded-lg max-w-xs lg:max-w-md">Hello! Yes, the eggs are fresh from this morning! How many would you like?</div></div>
                         <div class="flex justify-end"><div class="sent-message p-3 rounded-lg max-w-xs lg:max-w-md">Great! I'll take two dozen.</div></div>
                     </div>
-                    <div class="p-4 border-t border-[var(--border-color)] bg-white">
+                    <div class="p-4 border-t border-border bg-tertiary">
                         <div class="flex items-center space-x-2">
-                            <button class="p-2 text-gray-500 hover:text-main-color"><i class="fas fa-paperclip"></i></button>
-                            <input type="text" placeholder="Type a message..." class="flex-grow p-3 border border-gray-300 rounded-full text-sm focus:ring-2 focus:ring-[var(--main-color)] focus:border-transparent outline-none">
-                            <button class="p-3 bg-[var(--main-color)] text-white rounded-full hover:opacity-90"><i class="fas fa-paper-plane"></i></button>
+                            <button class="p-2 text-gray-500 hover:text-main"><i class="fas fa-paperclip"></i></button>
+                            <input type="text" placeholder="Type a message..." class="flex-grow p-3 border border-border rounded-full text-sm outline-none">
+                            <button class="p-3 bg-main text-text-on-main rounded-full hover:bg-main/90"><i class="fas fa-paper-plane"></i></button>
                         </div>
                     </div>
                 </div>
             </div>
         `
     },
-    unread_messages: { title: "Unread Messages", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Unread Messages</h2><p>Display unread messages here.</p>" },
-    buyer_messages: { title: "Messages from Buyers", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Buyer Communications</h2><p>Display messages from buyers here.</p>" },
-    from_seller_messages: { title: "Messages from Sellers", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Seller Communications</h2><p>Display messages from sellers here.</p>" },
+    unread_messages: { title: "Unread Messages", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Unread Messages</h2><p class='text-text'>Display unread messages here.</p>" },
+    buyer_messages: { title: "Messages from Buyers", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Your Buyer Communications</h2><p class='text-text'>Display messages from buyers here.</p>" },
+    from_seller_messages: { title: "Messages from Sellers", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Your Seller Communications</h2><p class='text-text'>Display messages from sellers here.</p>" },
 
-    knowledge_library: { title: "Knowledge Library", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Platform Knowledge Library</h2><p>Find articles, guides, and FAQs.</p>" },
-    report_problem: { title: "Report a Problem", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Report an Issue</h2><textarea class='w-full p-2 border rounded mt-2' rows='4' placeholder='Describe the problem...'></textarea><button class='bg-[var(--main-color)] text-white py-2 px-4 rounded mt-2 hover:opacity-90'>Submit Report</button>" },
-    talk_to_team: { title: "Talk to Our Team", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Contact Support</h2><p>Here's how to reach us.</p>" },
+    knowledge_library: { title: "Knowledge Library", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Platform Knowledge Library</h2><p class='text-text'>Find articles, guides, and FAQs.</p>" },
+    report_problem: { title: "Report a Problem", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Report an Issue</h2><textarea class='w-full p-2 border border-border rounded mt-2 text-text bg-tertiary' rows='4' placeholder='Describe the problem...'></textarea><button class='bg-main text-text-on-main py-2 px-4 rounded mt-2 hover:bg-main/90'>Submit Report</button>" },
+    talk_to_team: { title: "Talk to Our Team", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Contact Support</h2><p class='text-text'>Here's how to reach us.</p>" },
 
     // Profile Content
     view_profile: {
         title: "My Profile",
         html: `
-            <div class="bg-white rounded-lg shadow">
+            <div class="bg-tertiary rounded-lg shadow">
                 <div class="profile-header relative"></div>
                 <div class="p-6">
                     <div class="flex flex-col sm:flex-row items-center sm:items-end space-y-4 sm:space-y-0 sm:space-x-4">
                         <img src="https://placehold.co/120x120/cccccc/333333?text=User" alt="User Avatar" class="profile-avatar rounded-full">
                         <div class="text-center sm:text-left">
-                            <h2 class="text-3xl font-oswald text-main-color">Alice Farmer</h2>
+                            <h2 class="text-3xl font-oswald text-main">Alice Farmer</h2>
                             <p class="text-gray-600">Green Valley Organics <span class="text-sm text-gray-400 ml-1">@alicefarmer_gvo</span></p>
                             <p class="text-sm text-gray-500 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>Somerset, UK</p>
                         </div>
                         <div class="sm:ml-auto mt-4 sm:mt-0">
-                            <button class="bg-[var(--main-color)] text-white py-2 px-4 rounded-md hover:opacity-90 text-sm w-full sm:w-auto" onclick="window.selectSecondPanelItem('edit_profile', 'Edit Profile', 'profile')">Edit Profile</button>
+                            <button class="bg-main text-text-on-main py-2 px-4 rounded-md hover:bg-main/90 text-sm w-full sm:w-auto" onclick="window.selectSecondPanelItem('edit_profile', 'Edit Profile', 'profile')">Edit Profile</button>
                         </div>
                     </div>
                     <p class="mt-4 text-gray-700">Passionate about sustainable farming and providing fresh, organic produce. Connecting directly with conscious consumers and businesses. Member since 2023.</p>
                     <div class="mt-4 flex flex-wrap justify-center sm:justify-start gap-x-6 gap-y-2 text-sm text-gray-600">
-                        <span><strong class="text-main-color">125</strong> Products Listed</span>
-                        <span><strong class="text-main-color">580</strong> Followers</span>
-                        <span><strong class="text-main-color">320</strong> Following</span>
+                        <span><strong class="text-main">125</strong> Products Listed</span>
+                        <span><strong class="text-main">580</strong> Followers</span>
+                        <span><strong class="text-main">320</strong> Following</span>
                     </div>
                 </div>
-                <div class="border-t border-[var(--border-color)]">
+                <div class="border-t border-border">
                     <nav class="profile-tabs flex space-x-1 px-6 -mb-px">
-                        <button data-tab="profile-timeline" class="py-3 px-1 border-b-2 border-transparent text-gray-500 hover:text-main-color hover:border-gray-300 active">Timeline</button>
-                        <button data-tab="profile-products-tab" class="py-3 px-1 border-b-2 border-transparent text-gray-500 hover:text-main-color hover:border-gray-300">Products</button>
-                        <button data-tab="profile-reviews" class="py-3 px-1 border-b-2 border-transparent text-gray-500 hover:text-main-color hover:border-gray-300">Reviews</button>
-                        <button data-tab="profile-about" class="py-3 px-1 border-b-2 border-transparent text-gray-500 hover:text-main-color hover:border-gray-300">About</button>
+                        <button data-tab="profile-timeline" class="py-3 px-1 border-b-2 border-transparent text-gray-500 hover:text-main hover:border-gray-300 active">Timeline</button>
+                        <button data-tab="profile-products-tab" class="py-3 px-1 border-b-2 border-transparent text-gray-500 hover:text-main hover:border-gray-300">Products</button>
+                        <button data-tab="profile-reviews" class="py-3 px-1 border-b-2 border-transparent text-gray-500 hover:text-main hover:border-gray-300">Reviews</button>
+                        <button data-tab="profile-about" class="py-3 px-1 border-b-2 border-transparent text-gray-500 hover:text-main hover:border-gray-300">About</button>
                     </nav>
                 </div>
                 <div id="profile-tab-content" class="p-6">
                     <div id="profile-timeline">
-                        <h3 class="font-oswald text-xl mb-3">Recent Activity (Timeline)</h3>
+                        <h3 class="font-oswald text-xl text-main mb-3">Recent Activity (Timeline)</h3>
                         <div class="space-y-4">
-                            <div class="p-4 border rounded-md bg-gray-50">Posted a new product: "Organic Carrots" - 2 hours ago</div>
-                            <div class="p-4 border rounded-md bg-gray-50">Received a 5-star review from John B. - 1 day ago</div>
-                            <div class="p-4 border rounded-md bg-gray-50">Updated store banner. - 3 days ago</div>
+                            <div class="p-4 border border-border rounded-lg bg-secondary">Posted a new product: "Organic Carrots" - 2 hours ago</div>
+                            <div class="p-4 border border-border rounded-lg bg-secondary">Received a 5-star review from John B. - 1 day ago</div>
+                            <div class="p-4 border border-border rounded-lg bg-secondary">Updated store banner. - 3 days ago</div>
                         </div>
                     </div>
                     <div id="profile-products-tab" class="hidden">
-                        <h3 class="font-oswald text-xl mb-3">Alice's Products</h3>
-                        <p>A preview of products listed by Alice would appear here, similar to the main product grid.</p>
+                        <h3 class="font-oswald text-xl text-main mb-3">Alice's Products</h3>
+                        <p class="text-text">A preview of products listed by Alice would appear here, similar to the main product grid.</p>
                     </div>
                     <div id="profile-reviews" class="hidden">
-                        <h3 class="font-oswald text-xl mb-3">Reviews for Alice</h3>
-                        <p>A list of reviews received by Alice would be displayed here.</p>
+                        <h3 class="font-oswald text-xl text-main mb-3">Reviews for Alice</h3>
+                        <p class="text-text">A list of reviews received by Alice would be displayed here.</p>
                     </div>
                     <div id="profile-about" class="hidden">
-                        <h3 class="font-oswald text-xl mb-3">About Green Valley Organics</h3>
-                        <p>Detailed information about Alice's farm/business, certifications, story, etc.</p>
+                        <h3 class="font-oswald text-xl text-main mb-3">About Green Valley Organics</h3>
+                        <p class="text-text">Detailed information about Alice's farm/business, certifications, story, etc.</p>
                     </div>
                 </div>
             </div>
         `
     },
-    edit_profile: { title: "Edit Profile", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Edit Your Profile</h2><p>This page would contain forms to update your personal information, profile picture, bio, contact details, and other public-facing profile elements. Example: Fields for Name, Username, Bio, Profile Picture Upload.</p>" },
-    activity_log_profile: { title: "Activity Log", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Activity Log</h2><p>A chronological list of your recent actions on the platform, such as products viewed, items favourited, messages sent, orders placed, or listings created (if a seller). Example: Viewed 'Organic Beef Mince' - 10 mins ago. Added 'Welsh Lamb Steaks' to Favourites - 1 hour ago.</p>" },
-    account_settings: { title: "Account Settings", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Account Settings</h2><p>Manage your account preferences here. This includes options for changing your password, managing email notification preferences (e.g., for orders, messages, promotions), setting privacy options, and managing linked accounts. Example: Change Password, Notification Preferences (toggle switches), Privacy Settings.</p>" },
-    my_store_settings: { title: "My Store Settings", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Store Management (Seller)</h2><p>If you are a registered seller, this section is for managing your storefront. Configure your store name, banner, business information, payment receiving details, shipping options and rates, and policies (e.g., return policy). Example: Store Name field, Shipping Zones setup, Payment Gateway integration.</p>" },
-    switch_community: { title: "Switch to Community", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Switching to Community View</h2><p>You are now switching to the community platform features. This might include forums, groups, and event listings.</p>" },
-    switch_management: { title: "Switch to Management", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Switching to Management View</h2><p>You are now switching to the management dashboard. This area is for platform administrators or business managers with specific operational roles.</p>" },
-    sign_out: { title: "Sign Out", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Sign Out</h2><p>You are about to be signed out of your account.</p><button class='bg-red-600 text-white py-2 px-4 rounded mt-2 hover:bg-red-700'>Confirm Sign Out</button><p class='mt-2 text-sm text-gray-600'>Clicking 'Confirm Sign Out' will end your current session.</p>" },
+    edit_profile: { title: "Edit Profile", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Edit Your Profile</h2><p class='text-text'>This page would contain forms to update your personal information, profile picture, bio, contact details, and other public-facing profile elements. Example: Fields for Name, Username, Bio, Profile Picture Upload.</p>" },
+    activity_log_profile: { title: "Activity Log", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Your Activity Log</h2><p class='text-text'>A chronological list of your recent actions on the platform, such as products viewed, items favourited, messages sent, orders placed, or listings created (if a seller). Example: Viewed 'Organic Beef Mince' - 10 mins ago. Added 'Welsh Lamb Steaks' to Favourites - 1 hour ago.</p>" },
+    account_settings: { title: "Account Settings", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Account Settings</h2><p class='text-text'>Manage your account preferences here. This includes options for changing your password, managing email notification preferences (e.g., for orders, messages, promotions), setting privacy options, and managing linked accounts. Example: Change Password, Notification Preferences (toggle switches), Privacy Settings.</p>" },
+    my_store_settings: { title: "My Store Settings", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Store Management (Seller)</h2><p class='text-text'>If you are a registered seller, this section is for managing your storefront. Configure your store name, banner, business information, payment receiving details, shipping options and rates, and policies (e.g., return policy). Example: Store Name field, Shipping Zones setup, Payment Gateway integration.</p>" },
+    switch_community: { title: "Switch to Community", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Switching to Community View</h2><p class='text-text'>You are now switching to the community platform features. This might include forums, groups, and event listings.</p>" },
+    switch_management: { title: "Switch to Management", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Switching to Management View</h2><p class='text-text'>You are now switching to the management dashboard. This area is for platform administrators or business managers with specific operational roles.</p>" },
+    sign_out: { title: "Sign Out", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Sign Out</h2><p class='text-text'>You are about to be signed out of your account.</p><button class='bg-danger text-text-on-accent py-2 px-4 rounded mt-2 hover:brightness-90'>Confirm Sign Out</button><p class='mt-2 text-sm text-gray-600'>Clicking 'Confirm Sign Out' will end your current session.</p>" },
 
     shopping_cart_view: {
         title: "Your Shopping Cart",
         htmlFactory: () => {
             if (shoppingCart.length === 0) {
-                return "<h2 class='font-oswald text-2xl text-main-color mb-4'>Your Cart is Empty</h2><p>Browse products and add them to your cart!</p>";
+                return "<h2 class='font-oswald text-2xl text-main mb-4'>Your Cart is Empty</h2><p class='text-text'>Browse products and add them to your cart!</p>";
             }
-            let cartHtml = `<h2 class='font-oswald text-2xl text-main-color mb-6'>Your Shopping Cart</h2>`;
+            let cartHtml = `<h2 class='font-oswald text-2xl text-main mb-6'>Your Shopping Cart</h2>`;
             let totalAmount = 0;
             cartHtml += `<div class="space-y-4">`;
             shoppingCart.forEach((item) => {
                 const itemTotal = item.price * item.quantity;
                 totalAmount += itemTotal;
                 cartHtml += `
-                    <div class="flex flex-col sm:flex-row items-center justify-between p-4 border border-[var(--border-color)] rounded-lg gap-4">
-                        <div class="flex items-center space-x-4 w-full sm:w-auto">
-                            <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded-md">
-                            <div>
-                                <h3 class="text-lg font-semibold text-main-color">${item.name}</h3>
-                                <p class="text-sm text-gray-500">Price: £${item.price.toFixed(2)}</p>
-                            </div>
+                    <div class="flex items-center gap-4 p-4 border border-border rounded-lg shadow-sm bg-tertiary">
+                        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded-lg">
+                        <div class="flex-grow">
+                            <h3 class="text-lg font-semibold text-gray-800">${item.name}</h3>
+                            <p class="text-sm text-gray-500">Price: £${item.price.toFixed(2)}</p>
                         </div>
-                        <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
-                            <div class="flex items-center">
-                              <label for="qty-${item.id}" class="text-sm mr-2">Qty:</label>
-                              <input type="number" id="qty-${item.id}" value="${item.quantity}" min="1" class="w-16 p-1 border border-gray-300 rounded-md text-sm" onchange="window.updateCartQuantity('${item.id}', (event.target as HTMLInputElement).value)">
-                            </div>
-                            <p class="text-md font-semibold text-main-color w-20 text-right">£${itemTotal.toFixed(2)}</p>
-                            <button class="text-red-500 hover:text-red-700" onclick="window.removeFromCart('${item.id}')"><i class="fas fa-trash-alt"></i></button>
+                        <div class="flex items-center gap-2">
+                            <label for="qty-${item.id}" class="text-sm text-gray-600">Qty:</label>
+                            <input type="number" id="qty-${item.id}" value="${item.quantity}" min="1" class="w-16 p-1 border border-border rounded-lg text-sm" onchange="window.updateCartQuantity('${item.id}', (event.target as HTMLInputElement).value)">
+                            <button class="text-danger hover:brightness-90 text-sm" onclick="window.removeFromCart('${item.id}')"><i class="fas fa-trash"></i> Remove</button>
                         </div>
                     </div>`;
             });
             cartHtml += `</div>`;
             cartHtml += `
-                <div class="mt-8 pt-4 border-t border-[var(--border-color)]">
+                <div class="mt-8 pt-4 border-t border-border">
                     <div class="flex justify-end items-center space-x-4">
-                        <h3 class="text-xl font-oswald text-main-color">Total:</h3>
-                        <p class="text-2xl font-bold text-main-color">£${totalAmount.toFixed(2)}</p>
+                        <h3 class="text-xl font-oswald text-main">Total:</h3>
+                        <p class="text-2xl font-bold text-main">£${totalAmount.toFixed(2)}</p>
                     </div>
                     <div class="flex justify-end mt-4">
-                        <button class="bg-[var(--accent-color)] text-white py-3 px-6 rounded-md hover:opacity-90 font-semibold">Proceed to Checkout</button>
+                        <button class="bg-accent text-text-on-accent py-3 px-6 rounded-lg hover:brightness-90 font-semibold transition-all">Proceed to Checkout</button>
                     </div>
                 </div>`;
             return cartHtml;
         }
     },
 
-    default_content: { title: "Welcome to the Marketplace", html: "<h2 class='font-oswald text-2xl text-main-color mb-4'>Welcome!</h2><p>Your one-stop platform for connecting farms, businesses, and customers. Browse products, manage your buying and selling, and connect with the community.</p>" }
+    default_content: { title: "Welcome to the Marketplace", html: "<h2 class='font-oswald text-2xl text-main mb-4'>Welcome!</h2><p class='text-text'>Your one-stop platform for connecting farms, businesses, and customers. Browse products, manage your buying and selling, and connect with the community.</p>" }
 };
 
 // --- Information Panel Data (Simplified) ---
@@ -601,9 +596,9 @@ function renderFirstPanel(): void {
         if (!item.label || key === 'shopping_cart_view') return;
 
         const button = document.createElement('button');
-        button.className = `first-panel-item group w-full flex flex-col items-center p-3 rounded-md hover:bg-gray-100 transition-colors focus:outline-none`;
+        button.className = `first-panel-item group w-full flex flex-col items-center p-3 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none`;
         button.setAttribute('data-key', key);
-        button.innerHTML = `<i class="${item.iconClass} text-2xl icon-main-color group-hover:text-[var(--main-color)]"></i><span class="first-panel-label text-xs mt-1 text-main-color group-hover:text-[var(--main-color)] font-oswald">${item.label}</span>`;
+        button.innerHTML = `<i class="${item.iconClass} text-2xl text-main group-hover:text-main"></i><span class="first-panel-label text-xs mt-1 text-main group-hover:text-main font-oswald">${item.label}</span>`;
         button.onclick = () => selectFirstPanelItem(key);
         if (item.isBottomIcon) firstPanelBottomIconsContainer.appendChild(button);
         else firstPanelMainIconsContainer.appendChild(button);
@@ -631,16 +626,17 @@ function renderSecondPanel(key: string | null): void {
     itemData.secondPanelContent.forEach(group => {
         if (group.groupLabel) {
             const groupLabelDiv = document.createElement('h3');
-            groupLabelDiv.className = 'second-panel-group-label text-sm font-semibold my-3 px-2 uppercase tracking-wider';
+            groupLabelDiv.className = 'second-panel-group-label text-sm text-main font-semibold mt-3 mb-4 px-2 uppercase tracking-wider';
             groupLabelDiv.textContent = group.groupLabel;
             secondPanelContentEl.appendChild(groupLabelDiv);
         }
         group.items.forEach(subItem => {
             const div = document.createElement('div');
-            div.className = 'second-panel-item block w-full text-left p-2.5 text-sm rounded-md hover:bg-gray-100 cursor-pointer transition-colors flex items-center space-x-2';
+            div.className = 'second-panel-item block w-full text-left p-2.5 text-text rounded-lg hover:bg-gray-200 cursor-pointer transition-colors flex items-center space-x-2';
             div.setAttribute('data-id', subItem.id);
             div.setAttribute('data-parent-key', key);
-            div.innerHTML = `${subItem.iconClass ? `<i class="${subItem.iconClass} text-main-color text-base w-5 text-center"></i>` : '<span class="w-5"></span>'}<span>${subItem.label}</span>`;
+            div.setAttribute('data-label', subItem.label);
+            div.innerHTML = subItem.iconClass ? `<i class="${subItem.iconClass} fa-fw w-5 h-5 mr-2 text-gray-500 group-hover:text-main"></i> <span class="flex-1">${subItem.label}</span>` : `<span class="flex-1">${subItem.label}</span>`;
             div.onclick = () => selectSecondPanelItem(subItem.id, subItem.label, key);
             secondPanelContentEl.appendChild(div);
         });
@@ -674,10 +670,10 @@ function attachProfileTabListeners(): void {
 
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
-            tabButtons.forEach(btn => btn.classList.remove('active', 'border-main-color', 'text-main-color'));
+            tabButtons.forEach(btn => btn.classList.remove('active', 'border-main', 'text-main'));
             tabButtons.forEach(btn => btn.classList.add('border-transparent', 'text-gray-500'));
 
-            button.classList.add('active', 'border-main-color', 'text-main-color');
+            button.classList.add('active', 'border-main', 'text-main');
             button.classList.remove('border-transparent', 'text-gray-500');
 
             tabContents.forEach(content => content.classList.add('hidden'));
