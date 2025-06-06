@@ -212,4 +212,10 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     font-size: 1.5rem; /* text-2xl */
     font-weight: 700; /* bold */
     color: var(--main-color);
+}
+
+/* Ensure Font Awesome icons use the correct font family */
+[class^="fa-"], [class*=" fa-"] {
+  font-family: "Font Awesome 6 Free", "FontAwesome" !important; /* Fallback for older versions just in case */
+  font-weight: 900; /* For Font Awesome Solid icons (fas) */
 } 
