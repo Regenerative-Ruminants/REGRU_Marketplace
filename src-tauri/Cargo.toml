@@ -17,6 +17,7 @@ tokio = { version = "1", features = ["full"] }
 color-eyre = "0.6.5"
 dirs-next = "2.0.0"
 alloy-primitives = "1.2.0"
+futures = "0.3.31"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

@@ -6,9 +6,7 @@ pub struct Wallet {
     pub address: String,
     pub token_balance: U256,
     pub gas_token_balance: U256,
-    pub encrypted: bool,
 }
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AvailableWallets {
