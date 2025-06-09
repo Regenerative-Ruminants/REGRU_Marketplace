@@ -13,7 +13,6 @@ const ENCRYPTED_PRIVATE_KEY_EXT: &str = ".encrypted";
 ///
 /// `PathBuf` - local data dir
 ///
-#[allow(dead_code)]
 pub fn get_client_data_dir_path() -> Result<PathBuf> {
     let os_data_dir = dirs_next::data_dir()
         .ok_or_else(|| eyre!("Failed to obtain data dir, your OS might not be supported."))?;
@@ -25,15 +24,20 @@ pub fn get_client_data_dir_path() -> Result<PathBuf> {
 ///
 /// # Returns
 ///
-/// `PathBuf` - wallets data dir
+/// `PathBuf` - wallet data dir
 ///
-#[allow(dead_code)]
 pub fn get_wallets_dir_path() -> Result<PathBuf> {
     let client_data = get_client_data_dir_path()?;
     let wallets_dir = create_wallets_dir(client_data)?;
     Ok(wallets_dir)
 }
 
+/// Get wallet file names in full
+/// 
+/// # Returns
+/// 
+/// A vector of wallet file names
+/// ["0x3485...4780", "0x3485...4780.encrypted"]
 pub fn get_wallet_file_names() -> Result<Vec<String>> {
     let wallets_dir = get_wallets_dir_path()?;
     let wallet_files = std::fs::read_dir(wallets_dir)
@@ -49,12 +53,6 @@ pub fn is_wallet_file_encrypted(wallet_file: &str) -> bool {
     wallet_file.ends_with(ENCRYPTED_PRIVATE_KEY_EXT)
 }
 
-pub fn get_wallet_public_address(wallet_file: &str) -> String {
-    if wallet_file.ends_with(ENCRYPTED_PRIVATE_KEY_EXT) {
-        return wallet_file.replace(ENCRYPTED_PRIVATE_KEY_EXT, "");
-    }
-    String::from(wallet_file)
-}
 
 /// Loads the private key (hex-encoded) from disk.
 ///
