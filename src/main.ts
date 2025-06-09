@@ -5,7 +5,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 async function greet() {
   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
   // setGreetMsg(await invoke("greet", { name: greetInputEl.value }));
-  console.log(await invoke("greet", { name: "World" }));
+  console.log("wallets:", await invoke("get_available_wallets"));
 }
 
 // Only call greet if running in Tauri environment and IPC is available
