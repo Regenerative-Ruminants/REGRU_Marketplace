@@ -33,9 +33,9 @@ pub fn get_wallets_dir_path() -> Result<PathBuf> {
 }
 
 /// Get wallet file names in full
-/// 
+///
 /// # Returns
-/// 
+///
 /// A vector of wallet file names
 /// ["0x3485...4780", "0x3485...4780.encrypted"]
 pub fn get_wallet_file_names() -> Result<Vec<String>> {
@@ -52,7 +52,6 @@ pub fn get_wallet_file_names() -> Result<Vec<String>> {
 pub fn is_wallet_file_encrypted(wallet_file: &str) -> bool {
     wallet_file.ends_with(ENCRYPTED_PRIVATE_KEY_EXT)
 }
-
 
 /// Loads the private key (hex-encoded) from disk.
 ///
