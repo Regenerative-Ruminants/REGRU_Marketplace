@@ -54,8 +54,6 @@ pub fn is_wallet_file_encrypted(wallet_file: &str) -> bool {
 }
 
 /// Loads the private key (hex-encoded) from disk.
-///
-/// If the private key file is encrypted, the function will prompt for the decryption password in the CLI.
 pub fn load_wallet_private_key(wallet_filename: &str) -> Result<String> {
     let wallets_dir = get_wallets_dir_path()?;
 
