@@ -12,7 +12,10 @@ pub fn get_wallets() -> Result<Vec<Wallet>> {
     let wallets = file_names
         .iter()
         .map(|name| load_wallet_private_key(name).unwrap())
-        .map(|key| Wallet::new_from_private_key(Network::ArbitrumSepoliaTest, &key).unwrap())
+        .map(|key| {
+            Wallet::new_from_private_key(Network::new(true).expect("Failed to load network"), &key)
+                .unwrap()
+        })
         .collect();
 
     Ok(wallets)
