@@ -19,7 +19,7 @@ pub fn get_wallets() -> Result<Vec<Wallet>> {
 }
 
 /// EVM wallet
-pub fn create_wallet_from_env(network: &Network) -> Result<Wallet> {
+pub fn load_wallet_from_env(network: &Network) -> Result<Wallet> {
     let secret_key =
         get_secret_key_from_env().wrap_err("The secret key is required to perform this action")?;
     let wallet = Wallet::new_from_private_key(network.clone(), &secret_key)
@@ -49,7 +49,7 @@ mod tests {
                 let network = Network::ArbitrumSepoliaTest;
 
                 // Act
-                let result = create_wallet_from_env(&network);
+                let result = load_wallet_from_env(&network);
 
                 // Assert
                 assert!(result.is_ok());
