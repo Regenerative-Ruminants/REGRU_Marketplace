@@ -56,6 +56,15 @@ cd src-tauri && cargo test      # Rust logic
 pnpm exec playwright test       # opens Tauri, adds item, pays ANT, verifies Scratchpad
 ```
 
+### UI Wallet Verification
+In addition to the automated tests, you can manually verify wallet loading via the UI:
+1.  Ensure the application is running (`pnpm tauri dev`).
+2.  Click the "Wallets" icon in the left navigation panel.
+3.  A modal will appear displaying the available wallets detected by the `get_available_wallets` command.
+    *   **With `SECRET_KEY_ENV` set:** The modal should show the wallet derived from this environment variable.
+    *   **Without `SECRET_KEY_ENV` and with `.key` files:** If key files (e.g., `wallets/local.key`) are present as per the "🔑 Wallets & Environments" table, their corresponding wallets should be listed.
+    *   **No wallets configured:** The modal should show an empty list `[]` or an appropriate error message.
+
 ## 📦 Build & Sign
 | OS      | Command                                                              | Reference                                       |
 |---------|----------------------------------------------------------------------|-------------------------------------------------|

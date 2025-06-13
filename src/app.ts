@@ -1,3 +1,5 @@
+import { invoke } from "@tauri-apps/api/tauri";
+
 // --- Type Definitions ---
 interface Product {
     id: string;
@@ -140,6 +142,10 @@ const platformData: PlatformData = {
                 { id: "from_seller_messages", label: "From Sellers", iconClass: "fas fa-store-alt" }
             ]}
         ]
+    },
+    wallets_view: {
+        label: "Wallets",
+        iconClass: "fas fa-wallet",
     },
     profile: {
         label: "Profile",
@@ -601,10 +607,16 @@ function renderFirstPanel(): void {
         if (!item.label || key === 'shopping_cart_view') return;
 
         const button = document.createElement('button');
-        button.className = `first-panel-item group w-full flex flex-col items-center p-3 rounded-md hover:bg-gray-100 transition-colors focus:outline-none`;
+        button.className = `first-panel-item group w-full flex flex-col items-center p-3 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none`;
         button.setAttribute('data-key', key);
-        button.innerHTML = `<i class="${item.iconClass} text-2xl icon-main-color group-hover:text-[var(--main-color)]"></i><span class="first-panel-label text-xs mt-1 text-main-color group-hover:text-[var(--main-color)] font-oswald">${item.label}</span>`;
-        button.onclick = () => selectFirstPanelItem(key);
+        button.innerHTML = `<i class="${item.iconClass} text-2xl text-main group-hover:text-main"></i><span class="first-panel-label text-xs mt-1 text-main group-hover:text-main font-oswald">${item.label}</span>`;
+        
+        if (key === 'wallets_view') {
+            button.onclick = () => openWalletsModal();
+        } else {
+            button.onclick = () => selectFirstPanelItem(key);
+        }
+
         if (item.isBottomIcon) firstPanelBottomIconsContainer.appendChild(button);
         else firstPanelMainIconsContainer.appendChild(button);
     });
@@ -836,134 +848,67 @@ shoppingCartButton.addEventListener('click', () => {
     updateMainContent('shopping_cart_view', contentData.shopping_cart_view.title);
 });
 
+// --- Wallet Modal Functions ---
+const walletModal = document.getElementById('wallet-modal') as HTMLElement;
+const walletModalResults = document.getElementById('wallet-modal-results') as HTMLPreElement;
+const closeWalletModalButton = document.getElementById('close-wallet-modal-button') as HTMLButtonElement;
+
+async function openWalletsModal(): Promise<void> {
+    if (!walletModal || !walletModalResults) {
+        console.error("Wallet modal elements not found!");
+        return;
+    }
+    walletModalResults.textContent = 'Fetching available wallets...';
+    walletModal.classList.remove('hidden');
+
+    try {
+        const result = await invoke("get_available_wallets");
+        walletModalResults.textContent = JSON.stringify(result, null, 2);
+    } catch (error) {
+        console.error("Error fetching wallets:", error);
+        walletModalResults.textContent = `Error fetching wallets: ${JSON.stringify(error, null, 2)}`;
+    }
+}
+
+function closeWalletsModal(): void {
+    if (walletModal) {
+        walletModal.classList.add('hidden');
+    }
+}
 
 // --- Initialization ---
 function initializeApp(): void {
     renderFirstPanel();
-    const firstKey = Object.keys(platformData).find(k => platformData[k].label && !platformData[k].isBottomIcon && k !== 'shopping_cart_view') ||
-                     Object.keys(platformData).find(k => platformData[k].label && k !== 'shopping_cart_view');
+    // Default to Marketplace view
+    selectFirstPanelItem('marketplace'); 
+    selectSecondPanelItem('browse_all_products', 'All Products', 'marketplace');
+    updateCartDisplay(); // Initialize cart count display
 
-    mainHeading.textContent = contentData.default_content.title || "Welcome";
-    contentSection.innerHTML = '';
-    contentPlaceholder.style.display = 'block';
-    infoPanelContentEl.innerHTML = informationPanelData['default_info'];
-
-
-    if (firstKey && platformData[firstKey]) {
-        activeFirstPanelKey = firstKey;
-        renderSecondPanel(firstKey);
-        document.querySelectorAll('#first-panel .first-panel-item').forEach(btn => {
-            btn.classList.toggle('active', btn.getAttribute('data-key') === firstKey);
-        });
-        activeSecondPanelId = null;
-        updateSecondPanelActiveState();
-    } else {
-        activeFirstPanelKey = null;
-        activeSecondPanelId = null;
-        renderSecondPanel(null);
-        updateSecondPanelActiveState();
+    // Event listener for closing the wallet modal
+    if (closeWalletModalButton) {
+        closeWalletModalButton.addEventListener('click', closeWalletsModal);
     }
-
-    toggleSecondPanelDisplay(isSecondPanelOpen);
-    toggleInfoPanelDisplay(isInfoPanelOpen);
-    
-    toggleInfoIcon.innerHTML = isInfoPanelOpen ? `<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />` : `<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />`;
-
-    updateCartDisplay();
-}
-
-initializeApp();
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Mobile menu toggle
-    const mobileMenuButton = document.querySelector('[aria-controls="mobile-menu"]');
-    const mobileMenu = document.getElementById('mobile-menu');
-    if (mobileMenuButton && mobileMenu) {
-        mobileMenuButton.addEventListener('click', () => {
-            const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
-            mobileMenuButton.setAttribute('aria-expanded', String(!isExpanded));
-            mobileMenu.classList.toggle('hidden');
-        });
-    }
-
-    // Theme toggle
-    const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
-    const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
-    const themeToggleButton = document.getElementById('theme-toggle');
-
-    if (themeToggleDarkIcon && themeToggleLightIcon && themeToggleButton) {
-        // Check for saved theme preference or use system preference
-        if (localStorage.getItem('color-theme') === 'dark' || 
-            (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            themeToggleLightIcon.classList.remove('hidden');
-            document.documentElement.classList.add('dark');
-        } else {
-            themeToggleDarkIcon.classList.remove('hidden');
-            document.documentElement.classList.remove('dark');
-        }
-
-        themeToggleButton.addEventListener('click', () => {
-            themeToggleDarkIcon.classList.toggle('hidden');
-            themeToggleLightIcon.classList.toggle('hidden');
-
-            if (localStorage.getItem('color-theme')) {
-                if (localStorage.getItem('color-theme') === 'light') {
-                    document.documentElement.classList.add('dark');
-                    localStorage.setItem('color-theme', 'dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                    localStorage.setItem('color-theme', 'light');
-                }
-            } else {
-                if (document.documentElement.classList.contains('dark')) {
-                    document.documentElement.classList.remove('dark');
-                    localStorage.setItem('color-theme', 'light');
-                } else {
-                    document.documentElement.classList.add('dark');
-                    localStorage.setItem('color-theme', 'dark');
-                }
+    // Optional: Close modal on backdrop click
+    if (walletModal) {
+        walletModal.addEventListener('click', (event) => {
+            if (event.target === walletModal) { // Check if the click is on the backdrop itself
+                closeWalletsModal();
             }
         });
     }
-
-    // Profile dropdown toggle
-    const userMenuButton = document.getElementById('user-menu-button');
-    const userMenuDropdown = document.querySelector('[aria-labelledby="user-menu-button"]');
-    if (userMenuButton && userMenuDropdown) {
-        userMenuButton.addEventListener('click', () => {
-            const isExpanded = userMenuButton.getAttribute('aria-expanded') === 'true';
-            userMenuButton.setAttribute('aria-expanded', String(!isExpanded));
-            userMenuDropdown.classList.toggle('hidden');
-            userMenuDropdown.classList.toggle('absolute'); // Ensure it's positioned correctly
-            userMenuDropdown.classList.toggle('right-0');
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (event) => {
-            const target = event.target as HTMLElement;
-            if (!userMenuButton.contains(target) && !userMenuDropdown.contains(target)) {
-                userMenuButton.setAttribute('aria-expanded', 'false');
-                userMenuDropdown.classList.add('hidden');
-            }
-        });
-    }
-});
-
-// Function to toggle dark mode (can be called from other parts of the app if needed)
-export function toggleDarkMode(enable: boolean): void {
-    if (enable) {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('color-theme', 'dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('color-theme', 'light');
-    }
 }
 
-// Example of how you might use a function from Rust
-// import { invoke } from '@tauri-apps/api/tauri';
-// async function greet() {
-//   const greeting = await invoke('greet', { name: 'World' });
-//   console.log(greeting);
-// }
-// greet(); 
+// Run initialization when the DOM is ready
+document.addEventListener('DOMContentLoaded', initializeApp);
+
+// Expose functions to window for inline HTML onclick, if any (legacy or specific needs)
+(window as any).addToCart = addToCart;
+(window as any).removeFromCart = removeFromCart;
+(window as any).updateCartQuantity = updateCartQuantity;
+(window as any).selectSecondPanelItem = selectSecondPanelItem; // If called from dynamic HTML
+
+// Dark mode toggle (if it was defined, keep it)
+// export function toggleDarkMode(enable: boolean): void { ... }
+// Ensure it's correctly handled or removed if not used.
+
+console.log("app.ts loaded and initializeApp queued for DOMContentLoaded."); 
