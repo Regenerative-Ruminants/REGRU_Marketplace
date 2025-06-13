@@ -7,8 +7,10 @@ use std::env;
 
 const SECRET_KEY_ENV: &str = "SECRET_KEY";
 
+/// A serializable representation of a wallet, suitable for sending to the frontend.
 #[derive(Serialize, Debug, Clone)]
 pub struct SerializableWallet {
+    /// The wallet address, typically as a hexadecimal string.
     address: String,
     // Add other fields here if needed from autonomi::Wallet
 }
@@ -44,14 +46,25 @@ fn get_wallets_internal() -> EyreResult<Vec<Wallet>> {
     }
 }
 
+/// Tauri command to get a list of available wallets.
+///
+/// Behavior:
+/// - If the `SECRET_KEY_ENV` environment variable is set to a valid private key,
+///   this command returns a list containing only that single wallet.
+/// - Otherwise, it attempts to load all wallets found in the default wallet directory.
+///   If no wallets are found (or the directory doesn't exist/is empty), an empty list is returned.
+///
+/// Returns:
+/// - `Ok(Vec<SerializableWallet>)` on success, containing a list of wallets (or an empty list).
+/// - `Err(String)` if an error occurs during wallet loading or network initialization.
 #[tauri::command]
 pub fn get_available_wallets() -> Result<Vec<SerializableWallet>, String> {
     get_wallets_internal()
         .map_err(|e| e.to_string()) // Convert EyreResult error to String
         .map(|wallets| { // Convert Vec<Wallet> to Vec<SerializableWallet>
             wallets.into_iter().map(|wallet| {
-                // Using format! with Debug for address as placeholder
-                let address_str = format!("{:?}", wallet.address());
+                // Attempt to use to_string() for a more standard address representation
+                let address_str = wallet.address().to_string();
                 SerializableWallet {
                     address: address_str,
                 }
@@ -80,7 +93,7 @@ mod tests {
     use temp_env;
 
     #[test]
-    #[ignore] // Ignoring because it depends on a running local Autonomi network
+    #[ignore = "requires a local Autonomi node to be running for Network::new(true)"]
     fn test_get_available_wallets_with_env_var() {
         temp_env::with_var(
             SECRET_KEY_ENV,
@@ -123,7 +136,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore] // Ignoring because it depends on a running local Autonomi network
+    #[ignore = "requires a local Autonomi node to be running for Network::new(true)"]
     fn test_load_wallet_from_env_success() {
         temp_env::with_var(
             SECRET_KEY_ENV,
