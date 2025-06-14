@@ -16,7 +16,7 @@ src-tauri/Cargo.lock
 src-tauri/tauri.conf.json # Often machine-specific or generated, can be versioned if needed
 
 # Wallets - sensitive information
-wallets/
+/wallets/
 
 # IDE specific
 .vscode/
