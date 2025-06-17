@@ -6,16 +6,13 @@ use std::env;
 
 const SECRET_KEY_ENV: &str = "SECRET_KEY";
 
-pub fn get_wallets() -> Result<Vec<Wallet>> {
+pub fn get_wallets(network: &Network) -> Result<Vec<Wallet>> {
     let file_names = get_wallet_file_names().expect("Failed to get wallet file names");
 
     let wallets = file_names
         .iter()
         .map(|name| load_wallet_private_key(name).unwrap())
-        .map(|key| {
-            Wallet::new_from_private_key(Network::new(true).expect("Failed to load network"), &key)
-                .unwrap()
-        })
+        .map(|key| Wallet::new_from_private_key(network.clone(), &key).unwrap())
         .collect();
 
     Ok(wallets)
