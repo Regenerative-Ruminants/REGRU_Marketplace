@@ -13,13 +13,9 @@
 }
 
 body {
-    font-family: var(--font-garamond);
+    font-family: var(--font-oswald); /* Changed to Oswald for body */
     color: var(--main-color);
-    background-color: var(--secondary-color);
-}
-
-h1, h2, h3, h4, h5, h6, .font-oswald {
-    font-family: var(--font-oswald);
+    background-color: var(--secondary-color); /* This might be overridden by body class in HTML */
 }
 
 ::-webkit-scrollbar {
@@ -218,4 +214,18 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 [class^="fa-"], [class*=" fa-"] {
   font-family: "Font Awesome 6 Free", "FontAwesome" !important; /* Fallback for older versions just in case */
   font-weight: 900; /* For Font Awesome Solid icons (fas) */
+  line-height: inherit; /* Helps with vertical alignment with text */
+}
+
+/* Styles for Bottom Tab Navigator */
+#bottom-tab-bar .flex-1.active-tab {
+    color: var(--main-color);
+    border-bottom: 3px solid var(--main-color);
+    /* Optional: if you want the icon and text to be bolder on active */
+    /* font-weight: bold; */ 
+}
+
+#bottom-tab-bar .flex-1.active-tab i,
+#bottom-tab-bar .flex-1.active-tab span {
+    color: var(--main-color); /* Ensures icon and span inherit the active color */
 } 
