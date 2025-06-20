@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Oswald:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/index.css">
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden bg-secondary-color">
     <!-- Wallet Modal Structure (initially hidden) -->
     <div id="wallet-modal" style="position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.5); overflow-y: auto; z-index: 50; padding-top: 48px; padding-bottom: 48px;" class="hidden">
         <div style="position: relative; background-color: white; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border-radius: 8px; width: 500px; margin-left: auto; margin-right: auto; border: 1px solid #cccccc;">
@@ -26,73 +26,78 @@
         </div>
     </div>
 
-    <nav id="first-panel" class="w-20 flex flex-col items-center py-4 shadow-lg">
-        <div class="logo-container">
-            <span class="logo-text">REGRU</span>
+    <!-- Sidebar - Based on Mockup -->
+    <div id="app-sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <img src="/src/assets/images/regru_logo.png" alt="REGRU Logo" class="sidebar-logo-img">
+            <div class="tagline">Farm to Customer</div>
         </div>
-        <div id="first-panel-main-icons" class="flex-1 flex flex-col items-center space-y-3 w-full overflow-y-auto first-panel-scrollable">
-            <!-- Existing icons will be here, new Wallets button will be added by app.ts -->
-            <!-- Example structure that app.ts might create (for reference): 
-            <button class="first-panel-item group w-full flex flex-col items-center p-3 rounded-lg hover:bg-gray-200">
-                <i class="fas fa-wallet text-2xl text-main group-hover:text-main"></i>
-                <span class="first-panel-label text-xs mt-1 text-main group-hover:text-main font-oswald">Wallets</span>
-            </button> 
-            -->
-        </div>
-        <div id="first-panel-bottom-icons" class="py-3 space-y-3 w-full border-t border-[var(--border-color)]">
-            <!-- Profile, Help icons will be here -->
-        </div>
-    </nav>
-
-    <aside id="second-panel" class="panel-bg-tertiary w-72 flex flex-col shadow-lg transition-all duration-300 ease-in-out">
-        <div class="p-4 border-b border-[var(--border-color)]">
-            <input type="search" id="second-panel-search" placeholder="Search..." class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--main-color)] focus:border-transparent outline-none text-sm">
-        </div>
-        <div id="second-panel-content" class="flex-1 overflow-y-auto p-3 space-y-1 second-panel-scrollable">
+        <nav id="sidebar-nav-container" class="sidebar-nav">
+            <!-- Sidebar navigation items will be populated by app.ts -->
+            <!-- Example of how app.ts might populate this:
+            <div class="nav-section">
+                <div class="nav-section-title">Browse</div>
+                <a href="#" class="nav-item active" data-nav-id="browse_all_products">
+                    <i class="fas fa-th-large"></i>
+                    <span>All Products</span>
+                </a>
             </div>
-    </aside>
-
-    <div id="toggle-second-panel-container" class="flex items-center panel-bg-tertiary">
-        <button id="toggle-second-panel" class="p-1 focus:outline-none hover:bg-gray-200 transition-colors z-10 rounded-r-md shadow-md h-16">
-            <svg id="toggle-second-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-main-color">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
-        </button>
+            -->
+        </nav>
     </div>
 
-    <div class="flex-1 flex flex-col overflow-hidden">
-        <header id="main-heading-container" class="content-bg-secondary p-4 shadow flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
-            <h1 id="main-heading" class="font-oswald text-3xl text-main-color">Welcome</h1>
-            
-            <!-- Wallet Test Controls - REMOVED FROM HEADER -->
-
-            <button id="shopping-cart-button" class="p-2 rounded-full hover:bg-gray-100 focus:outline-none relative">
-                <i class="fas fa-shopping-cart text-2xl text-main-color"></i>
-                <span id="shopping-cart-count-display" class="shopping-cart-count hidden">0</span>
-            </button>
+    <!-- Main Content - Based on Mockup -->
+    <div id="app-main-content" class="main-content">
+        <!-- Top Bar -->
+        <header id="app-top-bar" class="top-bar">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search-input-main" class="search-input" placeholder="Search fresh produce, artisan cheese, organic meat...">
+            </div>
+            <div class="header-actions">
+                <button id="filter-button" class="action-btn">
+                    <i class="fas fa-filter"></i>
+                    Filters
+                </button>
+                <button id="shopping-cart-button-topbar" class="action-btn primary" style="position: relative;">
+                    <i class="fas fa-shopping-cart"></i>
+                    Cart
+                    <span id="shopping-cart-count-topbar" class="cart-badge">0</span>
+                </button>
+            </div>
         </header>
 
-        <div class="flex flex-1 overflow-hidden">
-            <section id="content-section" class="flex-1 content-bg-secondary p-6 overflow-y-auto content-section-scrollable min-h-0">
-                <div id="content-placeholder" class="text-gray-600">
-                    <p class="text-lg">Please select an item from the navigation to see content here.</p>
-                    <p class="mt-2">The content will update based on your selection in the second panel.</p>
+        <!-- Content Area -->
+        <main id="app-content-area" class="content-area">
+            <div class="content-header">
+                <h1 id="page-title-main" class="page-title">Fresh Farm Products</h1>
+                <div class="view-controls">
+                    <select id="sort-select-control" class="sort-select">
+                        <option value="featured">Sort by: Featured</option>
+                        <option value="price_asc">Sort by: Price Low to High</option>
+                        <option value="price_desc">Sort by: Price High to Low</option>
+                        <option value="newest">Sort by: Newest</option>
+                    </select>
+                    <div id="view-toggle-control" class="view-toggle">
+                        <button class="view-btn active" data-view="grid">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="view-btn" data-view="list">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
                 </div>
-                </section>
+            </div>
 
-            <button id="toggle-info-panel" class="panel-bg-tertiary p-1 focus:outline-none hover:bg-gray-200 transition-colors z-10 self-center rounded-l-md shadow-md h-16">
-                 <svg id="toggle-info-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-main-color">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                </svg>
-            </button>
+            <div id="filter-tags-container" class="filter-tags">
+                <!-- Filter tags will be populated by app.ts -->
+                <!-- Example: <div class="filter-tag active" data-filter-id="all">All Products</div> -->
+            </div>
 
-            <aside id="info-panel" class="panel-bg-tertiary w-80 p-4 shadow-lg overflow-y-auto transition-all duration-300 ease-in-out info-panel-scrollable">
-                <h3 class="font-oswald text-xl text-main-color mb-3 border-b border-[var(--border-color)] pb-2">Information</h3>
-                <div id="info-panel-content" class="text-sm text-gray-700 space-y-2">
-                    Select an item to see relevant information here.
-                </div>
-            </aside>
-        </div>
+            <div id="products-grid-container" class="products-grid">
+                <!-- Product cards will be populated by app.ts -->
+            </div>
+        </main>
     </div>
 
     <script type="module" src="/src/main.ts"></script>
