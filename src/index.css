@@ -105,15 +105,19 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 }
 
 .product-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
     border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    transition: box-shadow 0.3s ease;
-    display: flex; 
-    flex-direction: column; 
-    /* min-width removed to allow natural shrinking with grid columns */
+    display: flex;
+    flex-direction: column;
 }
 .product-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
 }
 .product-card img {
     border-top-left-radius: 0.5rem;
@@ -538,8 +542,8 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     transition: all 0.3s ease;
     cursor: pointer;
     border: 1px solid var(--border-color);
-    /* Overriding display flex from old styles to default block for grid item behavior */
-    display: block; 
+    display: flex;
+    flex-direction: column;
 }
 
 .product-card:hover {
@@ -580,12 +584,13 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06); /* Add shadow for depth */
 }
 
-.badge.organic { background: #22c55e; color: white; }
-.badge.local { background: #3b82f6; color: white; }
-.badge.seasonal { background: #f59e0b; color: white; }
-.badge.traceable { background: #8b5cf6; color: white; }
+.badge.organic { background: linear-gradient(to right, #22c55e 75%, rgba(34, 197, 94, 0) 100%); color: white; border: 1px solid #1a994a; }
+.badge.local { background: linear-gradient(to right, #3b82f6 75%, rgba(59, 130, 246, 0) 100%); color: white; border: 1px solid #296dce; }
+.badge.seasonal { background: linear-gradient(to right, #f59e0b 75%, rgba(245, 158, 11, 0) 100%); color: white; border: 1px solid #d4880a; }
+.badge.traceable { background: linear-gradient(to right, #8b5cf6 75%, rgba(139, 92, 246, 0) 100%); color: white; border: 1px solid #7045d5; }
 
 .favorite-btn {
     position: absolute;
@@ -613,6 +618,9 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 
 .product-content {
     padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .product-title {
@@ -669,7 +677,7 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 16px;
+    padding: 16px 20px 20px 20px;
     border-top: 1px solid #f1f3f5;
 }
 
