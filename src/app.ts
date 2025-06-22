@@ -185,11 +185,14 @@ const shoppingCartButtonTopbar = document.getElementById('shopping-cart-button-t
 const shoppingCartCountTopbar = document.getElementById('shopping-cart-count-topbar') as HTMLElement;
 const productsGridContainer = document.getElementById('products-grid-container') as HTMLElement; // Main content display area
 const sortSelectControl = document.getElementById('sort-select-control') as HTMLSelectElement; // Phase 2.4: Sort select
+const filterTagsContainer = document.getElementById('filter-tags-container') as HTMLElement; // Phase 2.5: Filter tags
 
 // --- App State (New) ---
 let currentView: string = 'browse_all_products'; // Default view
 let currentSearchTerm: string = ''; // Phase 2.3: For search functionality
 let currentSortOption: string = 'featured'; // Phase 2.4: For sort functionality
+let activeFilters: { category?: string } = {}; // Phase 2.5: For filter functionality
+
 // Placeholder for dynamic badge counts - to be implemented later
 const dynamicBadgeData = {
     userProducts: 0,
@@ -388,6 +391,25 @@ function renderProductGrid(productsToDisplay: Product[]): void {
     });
 }
 
+// --- Filter Tag Functions (Phase 2.5a) ---
+function renderFilterTags(): void {
+    if (!filterTagsContainer) return;
+
+    const categories = [...new Set(sampleProducts.map(p => p.category))].sort();
+    
+    const allCategoriesClass = !activeFilters.category ? 'active' : '';
+    let tagsHTML = `<div class="filter-tag ${allCategoriesClass}" data-filter-type="category" data-filter-value="all">All Categories</div>`;
+
+    categories.forEach(category => {
+        const categoryClass = activeFilters.category === category ? 'active' : '';
+        tagsHTML += `<div class="filter-tag ${categoryClass}" data-filter-type="category" data-filter-value="${category}">${category}</div>`;
+    });
+
+    filterTagsContainer.innerHTML = tagsHTML;
+
+    // Event listeners will be added in Phase 2.5b
+}
+
 // Simplified navigateTo for Phase 1
 function navigateTo(viewId: string, data?: { title?: string }): void {
     console.log(`Navigating to: ${viewId}`, data);
@@ -436,6 +458,8 @@ function navigateTo(viewId: string, data?: { title?: string }): void {
             productsGridContainer.innerHTML = `<p class="col-span-full text-center p-8">Content for <strong>${data?.title || viewId}</strong> coming soon!</p>`;
         }
     }
+
+    renderFilterTags(); // Phase 2.5a: Initial render of filter tags (SINGLE CALL HERE)
 }
 
 // --- Shopping Cart Functions (Preserved, minor adaptation for new cart count ID) ---
@@ -506,7 +530,7 @@ function initializeApp(): void {
         closeWalletModalButton.addEventListener('click', closeWalletsModal);
     }
     if (walletModal) { 
-        walletModal.addEventListener('click', (event) => {
+        walletModal.addEventListener('click', (event) => { 
             if (event.target === walletModal) closeWalletsModal();
         });
     }
@@ -514,7 +538,6 @@ function initializeApp(): void {
     // Top Bar Listeners
     if (shoppingCartButtonTopbar) {
         shoppingCartButtonTopbar.addEventListener('click', () => {
-            // In Phase 1, just navigate to a placeholder. Phase 2 will render actual cart.
             navigateTo('shopping_cart_view', { title: 'Your Shopping Cart' });
         });
     }
@@ -533,6 +556,8 @@ function initializeApp(): void {
             navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' });
         });
     }
+    
+    renderFilterTags(); // Phase 2.5a: Initial render of filter tags (SINGLE CALL HERE, AT THE END OF UI SETUP)
     
     // Add other listeners (view toggle, filters) in later phases
 
