@@ -322,7 +322,7 @@ function renderProductCard(product: Product): string {
                     <span class="price">£${product.price.toFixed(2)}</span>
                     ${product.category === 'Meat' || product.category === 'Dairy' ? '<span class="price-unit">/ kg</span>' : product.category === 'Produce' && product.name.toLowerCase().includes('dozen') ? '<span class="price-unit">/ dozen</span>' : '<span class="price-unit">/ unit</span>'}
                 </div>
-                <button class="add-to-cart-btn" 
+                <button class="add-to-cart" 
                         data-product-id="${product.id}" 
                         data-product-name="${product.name}" 
                         data-product-price="${product.price}" 
@@ -349,7 +349,7 @@ function renderProductGrid(productsToDisplay: Product[]): void {
     productsGridContainer.innerHTML = productsToDisplay.map(product => renderProductCard(product)).join('');
 
     // Attach event listeners for Add to Cart buttons within the grid
-    productsGridContainer.querySelectorAll('.add-to-cart-btn').forEach(button => {
+    productsGridContainer.querySelectorAll('.add-to-cart').forEach(button => {
         button.addEventListener('click', (event) => {
             const btn = event.currentTarget as HTMLButtonElement;
             const productId = btn.dataset.productId;
