@@ -407,7 +407,24 @@ function renderFilterTags(): void {
 
     filterTagsContainer.innerHTML = tagsHTML;
 
-    // Event listeners will be added in Phase 2.5b
+    // Phase 2.5b: Add event listeners to filter tags
+    filterTagsContainer.querySelectorAll('.filter-tag').forEach(tagElement => {
+        tagElement.addEventListener('click', (event) => {
+            const clickedTag = event.currentTarget as HTMLElement;
+            const filterType = clickedTag.dataset.filterType;
+            const filterValue = clickedTag.dataset.filterValue;
+
+            if (filterType === 'category') {
+                if (filterValue === 'all') {
+                    activeFilters.category = undefined;
+                } else {
+                    activeFilters.category = filterValue;
+                }
+                renderFilterTags(); // Re-render tags to update active state
+                navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' });
+            }
+        });
+    });
 }
 
 // Simplified navigateTo for Phase 1
@@ -423,10 +440,16 @@ function navigateTo(viewId: string, data?: { title?: string }): void {
     if (productsGridContainer) {
         if (viewId === "browse_all_products") {
             let productsToDisplay = sampleProducts;
+
+            // 0. Apply Category Filter (Phase 2.5b)
+            if (activeFilters.category) {
+                productsToDisplay = productsToDisplay.filter(product => product.category === activeFilters.category);
+            }
+
             // 1. Apply Search Filter (Phase 2.3)
             if (currentSearchTerm) {
                 const searchTermLower = currentSearchTerm.toLowerCase().trim();
-                productsToDisplay = sampleProducts.filter(product => 
+                productsToDisplay = productsToDisplay.filter(product => 
                     product.name.toLowerCase().includes(searchTermLower) ||
                     product.seller.toLowerCase().includes(searchTermLower) ||
                     product.category.toLowerCase().includes(searchTermLower) ||
@@ -436,21 +459,18 @@ function navigateTo(viewId: string, data?: { title?: string }): void {
             }
 
             // 2. Apply Sorting (Phase 2.4)
-            // Create a mutable copy for sorting, as .sort() sorts in place
             let sortedProducts = [...productsToDisplay]; 
             if (currentSortOption === 'price_asc') {
                 sortedProducts.sort((a, b) => a.price - b.price);
             } else if (currentSortOption === 'price_desc') {
                 sortedProducts.sort((a, b) => b.price - a.price);
             } else if (currentSortOption === 'newest') {
-                // Simple alphanumeric sort on ID (descending) as a proxy for newest
-                // Assumes higher IDs are newer (e.g., prod006 is newer than prod001)
                 sortedProducts.sort((a, b) => b.id.localeCompare(a.id));
             } else if (currentSortOption === 'featured') {
-                // No additional sort needed if 'featured', order is from sampleProducts or search result
+                // No additional sort needed
             }
 
-            renderProductGrid(sortedProducts); // Display searched and sorted products
+            renderProductGrid(sortedProducts); 
         } else if (viewId === "shopping_cart_view") {
             productsGridContainer.innerHTML = `<p class="col-span-full text-center p-8">Shopping Cart View (Details coming in Phase 2)</p>`;
         }
