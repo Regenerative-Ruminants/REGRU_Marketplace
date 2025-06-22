@@ -184,10 +184,12 @@ const searchInputMain = document.getElementById('search-input-main') as HTMLInpu
 const shoppingCartButtonTopbar = document.getElementById('shopping-cart-button-topbar') as HTMLButtonElement;
 const shoppingCartCountTopbar = document.getElementById('shopping-cart-count-topbar') as HTMLElement;
 const productsGridContainer = document.getElementById('products-grid-container') as HTMLElement; // Main content display area
+const sortSelectControl = document.getElementById('sort-select-control') as HTMLSelectElement; // Phase 2.4: Sort select
 
 // --- App State (New) ---
 let currentView: string = 'browse_all_products'; // Default view
 let currentSearchTerm: string = ''; // Phase 2.3: For search functionality
+let currentSortOption: string = 'featured'; // Phase 2.4: For sort functionality
 // Placeholder for dynamic badge counts - to be implemented later
 const dynamicBadgeData = {
     userProducts: 0,
@@ -399,6 +401,7 @@ function navigateTo(viewId: string, data?: { title?: string }): void {
     if (productsGridContainer) {
         if (viewId === "browse_all_products") {
             let productsToDisplay = sampleProducts;
+            // 1. Apply Search Filter (Phase 2.3)
             if (currentSearchTerm) {
                 const searchTermLower = currentSearchTerm.toLowerCase().trim();
                 productsToDisplay = sampleProducts.filter(product => 
@@ -409,7 +412,23 @@ function navigateTo(viewId: string, data?: { title?: string }): void {
                     product.tags.some(tag => tag.toLowerCase().includes(searchTermLower))
                 );
             }
-            renderProductGrid(productsToDisplay); // Display actual or filtered products
+
+            // 2. Apply Sorting (Phase 2.4)
+            // Create a mutable copy for sorting, as .sort() sorts in place
+            let sortedProducts = [...productsToDisplay]; 
+            if (currentSortOption === 'price_asc') {
+                sortedProducts.sort((a, b) => a.price - b.price);
+            } else if (currentSortOption === 'price_desc') {
+                sortedProducts.sort((a, b) => b.price - a.price);
+            } else if (currentSortOption === 'newest') {
+                // Simple alphanumeric sort on ID (descending) as a proxy for newest
+                // Assumes higher IDs are newer (e.g., prod006 is newer than prod001)
+                sortedProducts.sort((a, b) => b.id.localeCompare(a.id));
+            } else if (currentSortOption === 'featured') {
+                // No additional sort needed if 'featured', order is from sampleProducts or search result
+            }
+
+            renderProductGrid(sortedProducts); // Display searched and sorted products
         } else if (viewId === "shopping_cart_view") {
             productsGridContainer.innerHTML = `<p class="col-span-full text-center p-8">Shopping Cart View (Details coming in Phase 2)</p>`;
         }
@@ -503,15 +522,19 @@ function initializeApp(): void {
     if (searchInputMain) {
         searchInputMain.addEventListener('input', (e) => {
             currentSearchTerm = (e.target as HTMLInputElement).value;
-            // Re-render the current view if it's product related, or specifically the product grid
-            // For simplicity in Phase 2.3, we always re-navigate to browse_all_products to trigger filtering.
-            // A more sophisticated approach might preserve the current view if it's not product-list specific
-            // and apply search there, or update a live-filtered list without full navigateTo.
             navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' }); 
         });
     }
     
-    // Add other listeners (sort, view toggle, filters) in later phases
+    // Phase 2.4: Sort Select Listener
+    if (sortSelectControl) {
+        sortSelectControl.addEventListener('change', (e) => {
+            currentSortOption = (e.target as HTMLSelectElement).value;
+            navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' });
+        });
+    }
+    
+    // Add other listeners (view toggle, filters) in later phases
 
     console.log("app.ts (Phase 1 UI Refactor) loaded and initializeApp queued for DOMContentLoaded.");
 }
