@@ -186,12 +186,14 @@ const shoppingCartCountTopbar = document.getElementById('shopping-cart-count-top
 const productsGridContainer = document.getElementById('products-grid-container') as HTMLElement; // Main content display area
 const sortSelectControl = document.getElementById('sort-select-control') as HTMLSelectElement; // Phase 2.4: Sort select
 const filterTagsContainer = document.getElementById('filter-tags-container') as HTMLElement; // Phase 2.5: Filter tags
+const viewToggleControl = document.getElementById('view-toggle-control') as HTMLElement; // Phase 2.6: View toggle
 
 // --- App State (New) ---
 let currentView: string = 'browse_all_products'; // Default view
 let currentSearchTerm: string = ''; // Phase 2.3: For search functionality
 let currentSortOption: string = 'featured'; // Phase 2.4: For sort functionality
 let activeFilters: { category?: string } = {}; // Phase 2.5: For filter functionality
+let currentDisplayMode: 'grid' | 'list' = 'grid'; // Phase 2.6: For grid/list view toggle
 
 // Placeholder for dynamic badge counts - to be implemented later
 const dynamicBadgeData = {
@@ -347,6 +349,14 @@ function renderProductCard(product: Product): string {
 function renderProductGrid(productsToDisplay: Product[]): void {
     if (!productsGridContainer) return;
 
+    // Phase 2.6a: Set class on grid container based on display mode
+    productsGridContainer.classList.remove('grid-view', 'list-view'); // Clear existing
+    if (currentDisplayMode === 'grid') {
+        productsGridContainer.classList.add('grid-view');
+    } else {
+        productsGridContainer.classList.add('list-view');
+    }
+
     if (!productsToDisplay || productsToDisplay.length === 0) {
         productsGridContainer.innerHTML = '<p class="col-span-full text-center p-8">No products found.</p>';
         return;
@@ -427,6 +437,24 @@ function renderFilterTags(): void {
     });
 }
 
+// --- View Toggle Functions (Phase 2.6a) ---
+function updateViewToggleButtonsActiveState(): void {
+    if (!viewToggleControl) return;
+    const gridViewButton = viewToggleControl.querySelector('[data-view="grid"]') as HTMLButtonElement;
+    const listViewButton = viewToggleControl.querySelector('[data-view="list"]') as HTMLButtonElement;
+
+    if (gridViewButton && listViewButton) {
+        gridViewButton.classList.remove('active');
+        listViewButton.classList.remove('active');
+
+        if (currentDisplayMode === 'grid') {
+            gridViewButton.classList.add('active');
+        } else {
+            listViewButton.classList.add('active');
+        }
+    }
+}
+
 // Simplified navigateTo for Phase 1
 function navigateTo(viewId: string, data?: { title?: string }): void {
     console.log(`Navigating to: ${viewId}`, data);
@@ -479,7 +507,43 @@ function navigateTo(viewId: string, data?: { title?: string }): void {
         }
     }
 
-    renderFilterTags(); // Phase 2.5a: Initial render of filter tags (SINGLE CALL HERE)
+    renderFilterTags(); // Phase 2.5a: Initial render of filter tags
+    updateViewToggleButtonsActiveState(); // Phase 2.6a: Initial set active button state
+    
+    // Add other listeners (view toggle, etc.) in later phases
+
+    // Phase 2.4: Sort Select Listener
+    if (sortSelectControl) {
+        sortSelectControl.addEventListener('change', (e) => {
+            currentSortOption = (e.target as HTMLSelectElement).value;
+            navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' });
+        });
+    }
+
+    // Phase 2.6a: View Toggle Button Listeners
+    if (viewToggleControl) {
+        const gridBtn = viewToggleControl.querySelector('[data-view="grid"]');
+        const listBtn = viewToggleControl.querySelector('[data-view="list"]');
+
+        if (gridBtn) {
+            gridBtn.addEventListener('click', () => {
+                if (currentDisplayMode === 'grid') return; // Do nothing if already active
+                currentDisplayMode = 'grid';
+                updateViewToggleButtonsActiveState();
+                navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' });
+            });
+        }
+        if (listBtn) {
+            listBtn.addEventListener('click', () => {
+                if (currentDisplayMode === 'list') return; // Do nothing if already active
+                currentDisplayMode = 'list';
+                updateViewToggleButtonsActiveState();
+                navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' });
+            });
+        }
+    }
+    
+    renderFilterTags(); // Phase 2.5a: Initial render of filter tags (SINGLE CALL HERE, AT THE END OF UI SETUP)
 }
 
 // --- Shopping Cart Functions (Preserved, minor adaptation for new cart count ID) ---
@@ -544,8 +608,10 @@ function initializeApp(): void {
     }
 
     updateCartDisplay();
+    renderFilterTags(); // Phase 2.5a: Initial render of filter tags
+    updateViewToggleButtonsActiveState(); // Phase 2.6a: Initial set active button state
 
-    // Event listener for closing the wallet modal
+    // Event Listeners Setup
     if (closeWalletModalButton) {
         closeWalletModalButton.addEventListener('click', closeWalletsModal);
     }
@@ -555,7 +621,6 @@ function initializeApp(): void {
         });
     }
 
-    // Top Bar Listeners
     if (shoppingCartButtonTopbar) {
         shoppingCartButtonTopbar.addEventListener('click', () => {
             navigateTo('shopping_cart_view', { title: 'Your Shopping Cart' });
@@ -568,19 +633,37 @@ function initializeApp(): void {
             navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' }); 
         });
     }
-    
-    // Phase 2.4: Sort Select Listener
+
     if (sortSelectControl) {
         sortSelectControl.addEventListener('change', (e) => {
             currentSortOption = (e.target as HTMLSelectElement).value;
             navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' });
         });
     }
-    
-    renderFilterTags(); // Phase 2.5a: Initial render of filter tags (SINGLE CALL HERE, AT THE END OF UI SETUP)
-    
-    // Add other listeners (view toggle, filters) in later phases
 
+    // Phase 2.6a: View Toggle Button Listeners
+    if (viewToggleControl) {
+        const gridBtn = viewToggleControl.querySelector('[data-view="grid"]');
+        const listBtn = viewToggleControl.querySelector('[data-view="list"]');
+
+        if (gridBtn) {
+            gridBtn.addEventListener('click', () => {
+                if (currentDisplayMode === 'grid') return; // Do nothing if already active
+                currentDisplayMode = 'grid';
+                updateViewToggleButtonsActiveState();
+                navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' });
+            });
+        }
+        if (listBtn) {
+            listBtn.addEventListener('click', () => {
+                if (currentDisplayMode === 'list') return; // Do nothing if already active
+                currentDisplayMode = 'list';
+                updateViewToggleButtonsActiveState();
+                navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' });
+            });
+        }
+    }
+    
     console.log("app.ts (Phase 1 UI Refactor) loaded and initializeApp queued for DOMContentLoaded.");
 }
 

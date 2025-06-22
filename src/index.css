@@ -527,9 +527,55 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 /* === PRODUCT GRID === */
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    /* grid-template-columns: repeat(3, 1fr); Default, will be overridden by .grid-view specifically */
     gap: 24px;
     margin-bottom: 40px;
+}
+
+/* Phase 2.6b: Explicit styles for grid view */
+.products-grid.grid-view {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Phase 2.6b: Styles for list view */
+.products-grid.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Adjust gap for list items */
+}
+
+.products-grid.list-view .product-card {
+    flex-direction: row; /* Image on left, content on right */
+    align-items: flex-start; /* Align items to the top */
+    max-width: none; /* Allow card to take full width if needed */
+    /* Ensure consistent height is not an issue, or set a min-height if desired */
+}
+
+.products-grid.list-view .product-card .product-image {
+    flex-shrink: 0;
+    width: 200px; /* Or desired fixed width for list view image */
+    height: 180px; /* Example fixed height, or use aspect-ratio */
+    border-radius: 16px 0 0 16px; /* Round left corners only */
+}
+
+.products-grid.list-view .product-card .product-image img {
+    border-radius: 16px 0 0 16px; /* Ensure img inside also respects this */
+}
+
+
+.products-grid.list-view .product-card .product-content {
+    padding-left: 24px; /* Add space between image and content */
+    padding-top: 16px; /* Adjust top padding if needed */
+    padding-bottom: 16px; /* Adjust bottom padding if needed */
+    /* flex-grow: 1; already set, should be fine */
+}
+
+.products-grid.list-view .product-card .product-footer {
+    /* Footer styles might need minor adjustments if content flow changes significantly */
+    /* For now, relying on existing padding and flex behavior */
+     margin-top: auto; /* Push footer to the bottom of product-content if product-content is also flex column */
+     padding-left: 0; /* Footer padding is handled by product-content padding now */
+     padding-right: 0;
 }
 
 /* === PRODUCT CARDS === */
