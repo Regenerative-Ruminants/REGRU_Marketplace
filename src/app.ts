@@ -187,6 +187,7 @@ const productsGridContainer = document.getElementById('products-grid-container')
 
 // --- App State (New) ---
 let currentView: string = 'browse_all_products'; // Default view
+let currentSearchTerm: string = ''; // Phase 2.3: For search functionality
 // Placeholder for dynamic badge counts - to be implemented later
 const dynamicBadgeData = {
     userProducts: 0,
@@ -397,7 +398,18 @@ function navigateTo(viewId: string, data?: { title?: string }): void {
 
     if (productsGridContainer) {
         if (viewId === "browse_all_products") {
-            renderProductGrid(sampleProducts); // Display actual products
+            let productsToDisplay = sampleProducts;
+            if (currentSearchTerm) {
+                const searchTermLower = currentSearchTerm.toLowerCase().trim();
+                productsToDisplay = sampleProducts.filter(product => 
+                    product.name.toLowerCase().includes(searchTermLower) ||
+                    product.seller.toLowerCase().includes(searchTermLower) ||
+                    product.category.toLowerCase().includes(searchTermLower) ||
+                    (product.description && product.description.toLowerCase().includes(searchTermLower)) ||
+                    product.tags.some(tag => tag.toLowerCase().includes(searchTermLower))
+                );
+            }
+            renderProductGrid(productsToDisplay); // Display actual or filtered products
         } else if (viewId === "shopping_cart_view") {
             productsGridContainer.innerHTML = `<p class="col-span-full text-center p-8">Shopping Cart View (Details coming in Phase 2)</p>`;
         }
@@ -490,11 +502,12 @@ function initializeApp(): void {
 
     if (searchInputMain) {
         searchInputMain.addEventListener('input', (e) => {
-            const searchTerm = (e.target as HTMLInputElement).value;
-            console.log("Search term (Phase 1 - not implemented):", searchTerm);
-            // Search/filtering logic will be added in Phase 2
-            // For now, it could re-trigger navigateTo if we want to show a "searching..." state
-            // navigateTo(currentView, { title: pageTitleMain.textContent || undefined });
+            currentSearchTerm = (e.target as HTMLInputElement).value;
+            // Re-render the current view if it's product related, or specifically the product grid
+            // For simplicity in Phase 2.3, we always re-navigate to browse_all_products to trigger filtering.
+            // A more sophisticated approach might preserve the current view if it's not product-list specific
+            // and apply search there, or update a live-filtered list without full navigateTo.
+            navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' }); 
         });
     }
     
