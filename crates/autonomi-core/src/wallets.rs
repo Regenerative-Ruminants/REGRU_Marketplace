@@ -1,8 +1,22 @@
 use anyhow::Context;
 use autonomi::{Network, Wallet};
+use serde::Serialize;
 use std::env;
 
 const SECRET_KEY_ENV: &str = "SECRET_KEY";
+
+#[derive(Serialize)]
+pub struct SerializableWallet {
+    pub address: String,
+}
+
+impl From<&Wallet> for SerializableWallet {
+    fn from(wallet: &Wallet) -> Self {
+        Self {
+            address: wallet.address().to_string(),
+        }
+    }
+}
 
 /// Gets a list of available wallets.
 ///
@@ -16,16 +30,17 @@ const SECRET_KEY_ENV: &str = "SECRET_KEY";
 /// - If the variable is not present, it returns an empty list.
 ///
 /// Returns:
-/// - `Ok(Vec<Wallet>)` containing the loaded wallet, or an empty Vec if none is found.
+/// - `Ok(Vec<SerializableWallet>)` containing the loaded wallet, or an empty Vec if none is found.
 /// - `Err(anyhow::Error)` if network initialization or wallet creation fails.
-pub fn get_wallets() -> anyhow::Result<Vec<Wallet>> {
+pub fn get_wallets() -> anyhow::Result<Vec<SerializableWallet>> {
     let network = Network::new(false)?;
 
     match env::var(SECRET_KEY_ENV) {
         Ok(secret_key) => {
             let wallet = Wallet::new_from_private_key(network, &secret_key)
                 .with_context(|| "Failed to create wallet from secret key")?;
-            Ok(vec![wallet])
+            let serializable_wallet = SerializableWallet::from(&wallet);
+            Ok(vec![serializable_wallet])
         }
         Err(env::VarError::NotPresent) => {
             // It's not an error if the env var is not set, just means no wallet to load.
@@ -53,6 +68,7 @@ mod tests {
                 assert!(result.is_ok(), "Expected OK, but got an error: {:?}", result.as_ref().err());
                 let wallets = result.unwrap();
                 assert_eq!(wallets.len(), 1, "Expected one wallet when env var is set");
+                assert!(!wallets[0].address.is_empty(), "Wallet address should not be empty");
             },
         );
     }
