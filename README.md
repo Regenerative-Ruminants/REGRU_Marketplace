@@ -90,4 +90,31 @@ In addition to the automated tests, you can manually verify wallet loading via t
 | `docs/WALLETS.md`      | Generate keys (`autonomi wallet create`), encrypt with `age`, load via env vars.                       |
 | `.github/workflows/tauri.yml` | Uses `tauri-action` to build macOS/Windows/Linux, runs local network, executes tests.                    |
 
-</rewritten_file> 
+# REGRU Marketplace
+
+A regenerative marketplace for local producers and consumers.
+
+## Development
+
+To run the application locally, you will need to have Node.js and Rust installed.
+
+```
+npm install
+npm run dev
+```
+
+The application will be available at `http://localhost:1420`.
+
+The backend server will be available at `http://localhost:8000`.
+
+To run the backend server:
+
+```
+cd src-backend
+cargo run
+```
+
+
+## Deployment
+
+Deployment is handled automatically by a GitHub Actions workflow. Any push to the `web-deployment` branch will trigger a new deployment. 
