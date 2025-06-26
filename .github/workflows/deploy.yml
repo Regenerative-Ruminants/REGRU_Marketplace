@@ -1,9 +1,10 @@
 name: Deploy to DigitalOcean
 
 on:
+  workflow_dispatch: # Allows manual triggering of the workflow
   push:
     branches:
-      - main # This workflow runs on pushes to the main branch
+      - web-deployment # This workflow runs on pushes to the web-deployment branch for testing
 
 jobs:
   build-and-deploy:
