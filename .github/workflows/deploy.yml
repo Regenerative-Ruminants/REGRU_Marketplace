@@ -14,6 +14,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Node.js and build frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 # Specify the Node.js version you use
+      - run: npm install
+      - run: npm run build # This creates the ./dist directory
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
