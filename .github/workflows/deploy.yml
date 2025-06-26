@@ -31,6 +31,15 @@ jobs:
           username: ${{ secrets.DO_REGISTRY_USER }}
           password: ${{ secrets.DO_REGISTRY_PASSWORD }}
 
+      - name: Inspect build context
+        run: |
+          echo "Listing top-level files:"
+          ls -l
+          echo "Listing src-backend files:"
+          ls -l src-backend
+          echo "Listing autonomi-core files:"
+          ls -l crates/autonomi-core
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
