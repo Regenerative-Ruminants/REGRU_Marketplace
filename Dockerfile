@@ -1,7 +1,7 @@
 # ---- Builder Stage ----
 # Use the official Rust image as a builder.
-# We use the nightly version to get the latest features required by dependencies.
-FROM rust:nightly as builder
+# We use a specific recent version to get the latest features required by dependencies.
+FROM rust:1.78 AS builder
 
 # Set the working directory in the container.
 WORKDIR /usr/src/app
@@ -15,9 +15,7 @@ COPY . .
 RUN cd src-backend && cargo build --release
 
 # ---- Final Stage ----
-# Use a minimal "distroless" image for the final container.
-# These images contain only our application and its runtime dependencies,
-# making them smaller and more secure.
+# Use a slim Debian image for the final container.
 FROM gcr.io/distroless/cc-debian12
 
 # Set the working directory.
