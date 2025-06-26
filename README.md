@@ -91,7 +91,7 @@ In addition to the automated tests, you can manually verify wallet loading via t
 | `.github/workflows/tauri.yml` | Uses `tauri-action` to build macOS/Windows/Linux, runs local network, executes tests.                    |
 
 # REGRU Marketplace
-
+<!-- This is a comment to trigger the workflow -->
 A regenerative marketplace for local producers and consumers.
 
 ## Development
