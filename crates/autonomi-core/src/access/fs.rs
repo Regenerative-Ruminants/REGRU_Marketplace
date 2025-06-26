@@ -1,7 +1,6 @@
-use color_eyre::{
-    eyre::{eyre, Context, Result},
-    Section,
-};
+// This file will contain file system access logic, moved from src-tauri. 
+
+use anyhow::{anyhow, Context, Result};
 use std::io::Read;
 use std::path::PathBuf;
 
@@ -15,7 +14,7 @@ const ENCRYPTED_PRIVATE_KEY_EXT: &str = ".encrypted";
 ///
 pub fn get_client_data_dir_path() -> Result<PathBuf> {
     let os_data_dir = dirs_next::data_dir()
-        .ok_or_else(|| eyre!("Failed to obtain data dir, your OS might not be supported."))?;
+        .ok_or_else(|| anyhow!("Failed to obtain data dir, your OS might not be supported."))?;
     let data_dir = create_client_data_dir(os_data_dir)?;
     Ok(data_dir)
 }
@@ -40,8 +39,8 @@ pub fn get_wallets_dir_path() -> Result<PathBuf> {
 /// ["0x3485...4780", "0x3485...4780.encrypted"]
 pub fn get_wallet_file_names() -> Result<Vec<String>> {
     let wallets_dir = get_wallets_dir_path()?;
-    let wallet_files = std::fs::read_dir(wallets_dir)
-        .map_err(|e| eyre!("Failed to read wallets folder: {e}"))?
+    let wallet_files = std::fs::read_dir(&wallets_dir)
+        .with_context(|| format!("Failed to read wallets folder at: {:?}", wallets_dir))?
         .filter_map(Result::ok)
         .filter_map(|dir_entry| dir_entry.file_name().into_string().ok())
         .collect();
@@ -60,17 +59,17 @@ pub fn load_wallet_private_key(wallet_filename: &str) -> Result<String> {
     let is_encrypted = is_wallet_file_encrypted(wallet_filename);
 
     if is_encrypted {
-        panic!("Encrypted wallets are not supported yet");
+        return Err(anyhow!("Encrypted wallets are not supported yet"));
     }
 
     let file_path = wallets_dir.join(wallet_filename);
 
     let mut file =
-        std::fs::File::open(&file_path).map_err(|e| eyre!("Private key file not found: {e}"))?;
+        std::fs::File::open(&file_path).with_context(|| format!("Private key file not found at {:?}", file_path))?;
 
     let mut buffer = String::new();
     file.read_to_string(&mut buffer)
-        .map_err(|_| eyre!("Invalid private key file"))?;
+        .with_context(|| format!("Could not read private key from file at {:?}", file_path))?;
 
     Ok(buffer)
 }
@@ -78,20 +77,14 @@ pub fn load_wallet_private_key(wallet_filename: &str) -> Result<String> {
 fn create_client_data_dir(data_dir: PathBuf) -> Result<PathBuf> {
     let dir = data_dir.join("autonomi/client");
     std::fs::create_dir_all(dir.as_path())
-        .wrap_err("Failed to create data dir")
-        .with_suggestion(|| {
-            format!("make sure you have the correct permissions to access the data dir: {dir:?}")
-        })?;
+        .with_context(|| format!("Failed to create data dir at {:?}", dir))?;
     Ok(dir)
 }
 
 fn create_wallets_dir(client_data_dir: PathBuf) -> Result<PathBuf> {
     let dir = client_data_dir.join("wallets");
     std::fs::create_dir_all(dir.as_path())
-        .wrap_err("Failed to create wallets dir")
-        .with_suggestion(|| {
-            format!("make sure you have the correct permissions to access the data dir: {dir:?}")
-        })?;
+        .with_context(|| format!("Failed to create wallets dir at {:?}", dir))?;
     Ok(dir)
 }
 
@@ -155,4 +148,4 @@ mod tests {
         // Assert
         assert!(tmp_dir.join("wallets").exists());
     }
-}
+} 
