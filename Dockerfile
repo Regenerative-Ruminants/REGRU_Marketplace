@@ -1,7 +1,7 @@
 # ---- Builder Stage ----
 # Use the official Rust image as a builder.
-# We use a specific version to ensure reproducible builds.
-FROM rust:1.76 as builder
+# We use the nightly version to get the latest features required by dependencies.
+FROM rust:nightly as builder
 
 # Set the working directory in the container.
 WORKDIR /usr/src/app
