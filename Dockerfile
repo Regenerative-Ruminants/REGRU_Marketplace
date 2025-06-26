@@ -19,6 +19,13 @@ FROM chef AS builder
 WORKDIR /usr/src/app
 # Copy the recipe from the planner stage.
 COPY --from=planner /usr/src/app/recipe.json recipe.json
+
+# To properly cook dependencies for a workspace, we also need all the Cargo.toml files
+# and the lock file to give cargo-chef the full context.
+COPY Cargo.toml Cargo.lock ./
+COPY crates/autonomi-core/Cargo.toml ./crates/autonomi-core/
+COPY src-backend/Cargo.toml ./src-backend/
+
 # Cook (build) the dependencies. This is the heavy lifting.
 # As long as recipe.json doesn't change, this layer is cached.
 RUN cargo chef cook --release --recipe-path recipe.json
