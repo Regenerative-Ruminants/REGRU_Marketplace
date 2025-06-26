@@ -15,4 +15,8 @@ log = "0.4"
 
 autonomi-core = { path = "../crates/autonomi-core" }
 
-color-eyre = "0.6" # For consistent error reporting, optional 
+color-eyre = "0.6" # For consistent error reporting, optional
+
+# Pin problematic dependencies to stable versions to avoid "edition2024" issues.
+base64ct = "1.6.0"
+alloy-hardforks = "0.2.0" 
