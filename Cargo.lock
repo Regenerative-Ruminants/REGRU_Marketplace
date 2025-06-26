@@ -1525,10 +1525,8 @@ dependencies = [
 name = "autonomi-core"
 version = "0.1.0"
 dependencies = [
- "alloy-hardforks",
  "anyhow",
  "autonomi",
- "base64ct",
  "color-eyre",
  "dirs-next",
  "serde",
