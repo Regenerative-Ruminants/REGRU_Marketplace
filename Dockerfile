@@ -9,8 +9,8 @@ RUN cargo install cargo-chef
 FROM chef AS planner
 WORKDIR /usr/src/app
 COPY . .
-# For a workspace, we must specify the binary whose dependencies we want to plan.
-RUN cargo chef prepare --recipe-path recipe.json
+# We must explicitly tell cargo-chef which binary's recipe to prepare in a workspace.
+RUN cargo chef prepare --recipe-path recipe.json --bin src-backend
 
 # ---- Builder Stage ----
 # This stage builds the dependencies using the cached recipe.
