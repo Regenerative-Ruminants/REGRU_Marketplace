@@ -31,5 +31,5 @@ wallets/
 
 # Environment files
 .env
-# .env.* (this line is temporarily removed/commented to allow .env.example creation)
+.env.*
 !**/.env.example # Allow .env.example files in any subdirectory 
