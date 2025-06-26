@@ -1,9 +1,9 @@
-use actix_web::{get, web, App, HttpServer, Responder, HttpResponse};
+use actix_web::{get, App, HttpServer, Responder, HttpResponse};
 use dotenv::dotenv;
 use std::env;
 
 // Import from our shared core library
-use autonomi_core::wallets::get_available_wallets;
+use autonomi_core::wallets::get_wallets;
 
 #[get("/health")]
 async fn health_check() -> impl Responder {
@@ -12,7 +12,7 @@ async fn health_check() -> impl Responder {
 
 #[get("/api/wallets")]
 async fn get_wallets_route() -> impl Responder {
-    match get_available_wallets() {
+    match get_wallets() {
         Ok(wallets) => HttpResponse::Ok().json(wallets),
         Err(e) => {
             log::error!("Failed to get available wallets: {:?}", e);

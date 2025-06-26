@@ -13,6 +13,7 @@ dirs-next = "2.0" # For accessing system-specific data directories
 autonomi = "0.4.6"   # For wallet and network types
 thiserror = "1.0"  # For custom error handling
 anyhow = "1.0"     # For ergonomic error handling
+evmlib = { version = "0.4.0", features = ["serde"] } # Add direct dependency to enable serde
 
 # Add other common dependencies that will be shared, e.g.:
 # autonomi-sdk = "0.3" # Replace with actual autonomi crate name and version if available
@@ -20,4 +21,4 @@ anyhow = "1.0"     # For ergonomic error handling
 
 [dev-dependencies]
 tempfile = "3.3" # For creating temporary directories/files in tests
-temp-env = "0.3.6" # For managing environment variables in tests 
+temp-env = "0.3.6" # For managing environment variables in tests
