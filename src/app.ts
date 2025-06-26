@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api/tauri";
-
 // --- Type Definitions (Phase 1 Refactor) ---
 interface Product {
     id: string;
@@ -119,11 +117,16 @@ async function openWalletsModal(): Promise<void> {
     walletModal.classList.remove('hidden');
 
     try {
-        const result = await invoke("get_available_wallets");
+        const response = await fetch('/api/wallets'); 
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
         walletModalResults.textContent = JSON.stringify(result, null, 2);
     } catch (error) {
         console.error("Error fetching wallets:", error);
-        walletModalResults.textContent = `Error fetching wallets: ${JSON.stringify(error, null, 2)}`;
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        walletModalResults.textContent = `Error fetching wallets: ${errorMessage}`;
     }
 }
 

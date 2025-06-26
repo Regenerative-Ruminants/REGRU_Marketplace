@@ -1,6 +1,5 @@
 import './index.css';
 import './app.ts';
-import { invoke } from "@tauri-apps/api/tauri";
 
 async function greet() {
   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -9,26 +8,33 @@ async function greet() {
 }
 
 // Only call greet if running in Tauri environment and IPC is available
-if (typeof window.__TAURI_IPC__ === 'function') {
-  greet(); // greet still runs, but won't call get_available_wallets automatically
+if (typeof (window as any).__TAURI_IPC__ === 'function') {
+  greet(); 
+}
 
-  // --- Wallet Test Controls Logic ---
-  const fetchWalletsButton = document.getElementById('fetch-wallets-button');
-  const walletsResultDisplay = document.getElementById('wallets-result-display');
+// --- Wallet Test Controls Logic ---
+// This now works independently of the Tauri IPC bridge
+const fetchWalletsButton = document.getElementById('fetch-wallets-button');
+const walletsResultDisplay = document.getElementById('wallets-result-display');
 
-  if (fetchWalletsButton && walletsResultDisplay) {
-    fetchWalletsButton.addEventListener('click', async () => {
-      walletsResultDisplay.textContent = 'Fetching wallets...';
-      try {
-        const result = await invoke("get_available_wallets");
-        walletsResultDisplay.textContent = JSON.stringify(result, null, 2);
-      } catch (error) {
-        walletsResultDisplay.textContent = `Error: ${JSON.stringify(error, null, 2)}`;
+if (fetchWalletsButton && walletsResultDisplay) {
+  fetchWalletsButton.addEventListener('click', async () => {
+    walletsResultDisplay.textContent = 'Fetching wallets...';
+    try {
+      // Phase 2: Replace Tauri invoke with fetch
+      const response = await fetch('/api/wallets');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    });
-  } else {
-    console.error('Wallet test UI elements not found in the DOM.');
-  }
+      const result = await response.json();
+      walletsResultDisplay.textContent = JSON.stringify(result, null, 2);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      walletsResultDisplay.textContent = `Error: ${errorMessage}`;
+    }
+  });
+} else {
+  console.error('Wallet test UI elements not found in the DOM.');
 }
 
 console.log("Hello from frontend!"); 
