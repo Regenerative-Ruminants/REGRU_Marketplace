@@ -1,13 +1,27 @@
-use actix_web::{get, App, HttpServer, Responder, HttpResponse};
+use actix_web::{get, web, App, HttpServer, Responder, HttpResponse};
 use dotenv::dotenv;
 use std::env;
 
-// Import from our shared core library (though not used in this minimal example yet)
-// use autonomi_core;
+// Import from our shared core library
+use autonomi_core::wallets::get_available_wallets;
 
 #[get("/health")]
 async fn health_check() -> impl Responder {
     HttpResponse::Ok().json(serde_json::json!({ "status": "UP" }))
+}
+
+#[get("/api/wallets")]
+async fn get_wallets_route() -> impl Responder {
+    match get_available_wallets() {
+        Ok(wallets) => HttpResponse::Ok().json(wallets),
+        Err(e) => {
+            log::error!("Failed to get available wallets: {:?}", e);
+            HttpResponse::InternalServerError().json(serde_json::json!({
+                "error": "Failed to retrieve wallets",
+                "details": e.to_string()
+            }))
+        }
+    }
 }
 
 #[actix_web::main]
@@ -35,6 +49,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(actix_web::middleware::Logger::default()) // Basic request logging
             .service(health_check)
+            .service(get_wallets_route)
             // We will add more services (routes) here later
             // .configure(crate::handlers::config) // Example for modular routing
     })

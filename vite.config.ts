@@ -10,6 +10,14 @@ export default defineConfig(async () => ({
   server: {
     port: 1420,
     strictPort: true,
+    // Phase 3: Proxy API requests to the Rust backend server
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000', // The address of our Actix server
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''), // Remove /api prefix before forwarding
+      },
+    },
     watch: {
       // 3. tell vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],
