@@ -31,6 +31,9 @@ jobs:
           username: ${{ secrets.DO_REGISTRY_USER }}
           password: ${{ secrets.DO_REGISTRY_PASSWORD }}
 
+      - name: Force remove .dockerignore
+        run: rm -f .dockerignore
+
       - name: Inspect build context
         run: |
           echo "Listing top-level files:"
