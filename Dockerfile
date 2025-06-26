@@ -12,7 +12,8 @@ COPY . .
 
 # Build the backend in release mode.
 # This will compile our Actix server into an optimized executable.
-RUN cd src-backend && cargo build --release
+# We build from the workspace root to ensure the Cargo.lock file is respected.
+RUN cargo build --release --package src-backend
 
 # ---- Final Stage ----
 # Use a slim Debian image for the final container.
