@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REGRU Marketplace - Design Mockup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Oswald:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --main-color: #0d324a;
+            --secondary-color: #ffffff;
+            --tertiary-color: #f8f9fa;
+            --accent-color: #28a745;
+            --border-color: #dee2e6;
+            --hover-color: #e9ecef;
+            --text-secondary: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --font-oswald: 'Oswald', sans-serif;
+            --font-garamond: 'Garamond', serif;
+        }
+
+        body {
+            font-family: var(--font-garamond);
+            color: var(--main-color);
+            background-color: var(--secondary-color);
+            line-height: 1.6;
+        }
+
+        .mockup-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            border: 4px solid #334155;
+            border-radius: 8px;
+            margin: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        /* === SIDEBAR DESIGN === */
+        .sidebar {
+            width: 280px;
+            background: var(--secondary-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .logo {
+            font-family: var(--font-oswald);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--main-color);
+            margin-bottom: 8px;
+        }
+
+        .tagline {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-section-title {
+            font-family: var(--font-oswald);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 20px 12px 20px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--main-color);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin: 0 8px;
+            border-radius: 8px;
+        }
+
+        .nav-item:hover {
+            background: var(--hover-color);
+            color: var(--accent-color);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--accent-color), #22c55e);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        .nav-item i {
+            width: 18px;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--accent-color);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* === MAIN CONTENT === */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            background: var(--secondary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 48px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            background: #fafbfc;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .action-btn {
+            padding: 10px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: white;
+            color: var(--main-color);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .action-btn.primary {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: #22c55e;
+            border-color: #22c55e;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* === CONTENT AREA === */
+        .content-area {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: #fafbfc;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-family: var(--font-oswald);
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--main-color);
+        }
+
+        .view-controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .sort-select {
+            padding: 10px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: white;
+            color: var(--main-color);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .view-toggle {
+            display: flex;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .view-btn {
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            color: var(--main-color);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .view-btn.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* === FILTER TAGS === */
+        .filter-tags {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tag {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--main-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-tag:hover {
+            border-color: var(--accent-color);
+        }
+
+        .filter-tag.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+
+        /* === PRODUCT GRID === */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* === PRODUCT CARDS === */
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        }
+
+        .product-image {
+            position: relative;
+            height: 220px;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        .product-badges {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.organic { background: #22c55e; color: white; }
+        .badge.local { background: #3b82f6; color: white; }
+        .badge.seasonal { background: #f59e0b; color: white; }
+        .badge.traceable { background: #8b5cf6; color: white; }
+
+        .favorite-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .favorite-btn:hover {
+            background: white;
+            color: #ef4444;
+            transform: scale(1.1);
+        }
+
+        .product-content {
+            padding: 20px;
+        }
+
+        .product-title {
+            font-family: var(--font-oswald);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--main-color);
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .farm-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .farm-name {
+            font-size: 14px;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .location {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .product-tags {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 4px 8px;
+            background: #f1f3f5;
+            color: var(--main-color);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid #f1f3f5;
+        }
+
+        .price-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .price {
+            font-family: var(--font-oswald);
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--main-color);
+        }
+
+        .price-unit {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .stars {
+            color: #fbbf24;
+            font-size: 14px;
+        }
+
+        .rating-count {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .add-to-cart {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .add-to-cart:hover {
+            background: #22c55e;
+            transform: translateY(-1px);
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 1200px) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+            }
+            
+            .sidebar-nav .nav-item span {
+                display: none;
+            }
+            
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-area {
+                padding: 16px;
+            }
+        }
+
+        /* === PLACEHOLDER IMAGES === */
+        .produce-bg { background: linear-gradient(135deg, #22c55e, #84cc16); }
+        .meat-bg { background: linear-gradient(135deg, #8b4513, #d2b48c); }
+        .dairy-bg { background: linear-gradient(135deg, #0ea5e9, #7dd3fc); }
+        .grains-bg { background: linear-gradient(135deg, #d97706, #fbbf24); }
+        .flowers-bg { background: linear-gradient(135deg, #ec4899, #f472b6); }
+        .crafts-bg { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+
+        .product-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* === DEMO ANIMATIONS === */
+        .product-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .product-card:nth-child(1) { animation-delay: 0.1s; }
+        .product-card:nth-child(2) { animation-delay: 0.2s; }
+        .product-card:nth-child(3) { animation-delay: 0.3s; }
+        .product-card:nth-child(4) { animation-delay: 0.4s; }
+        .product-card:nth-child(5) { animation-delay: 0.5s; }
+        .product-card:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* === MOCKUP LABEL === */
+        .mockup-label {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1f2937;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-label">
+        DESIGN MOCKUP - 3 Cards Per Row
+    </div>
+
+    <div class="mockup-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">REGRU</div>
+                <div class="tagline">Farm to Customer</div>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Browse</div>
+                    <a href="#" class="nav-item active">
+                        <i class="fas fa-th-large"></i>
+                        <span>All Products</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-tags"></i>
+                        <span>By Category</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-store-alt"></i>
+                        <span>By Seller</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-leaf"></i>
+                        <span>By Provenance</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">My Buying</div>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-receipt"></i>
+                        <span>My Purchases</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-heart"></i>
+                        <span>Favourites</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">My Selling</div>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-box-open"></i>
+                        <span>Products</span>
+                        <span class="nav-badge">12</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-dolly"></i>
+                        <span>Orders</span>
+                        <span class="nav-badge">3</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <span>Finance</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Communication</div>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                        <span class="nav-badge">5</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-comments"></i>
+                        <span>Messages</span>
+                        <span class="nav-badge">2</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-wallet"></i>
+                        <span>Wallets</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Profile</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Help</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search fresh produce, artisan cheese, organic meat...">
+                </div>
+                
+                <div class="header-actions">
+                    <a href="#" class="action-btn">
+                        <i class="fas fa-filter"></i>
+                        Filters
+                    </a>
+                    <a href="#" class="action-btn primary" style="position: relative;">
+                        <i class="fas fa-shopping-cart"></i>
+                        Cart
+                        <span class="cart-badge">3</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="content-header">
+                    <h1 class="page-title">Fresh Farm Products</h1>
+                    <div class="view-controls">
+                        <select class="sort-select">
+                            <option>Sort by: Featured</option>
+                            <option>Sort by: Price Low to High</option>
+                            <option>Sort by: Price High to Low</option>
+                            <option>Sort by: Newest</option>
+                        </select>
+                        
+                        <div class="view-toggle">
+                            <button class="view-btn active">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button class="view-btn">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Tags -->
+                <div class="filter-tags">
+                    <div class="filter-tag active">All Products</div>
+                    <div class="filter-tag">Organic</div>
+                    <div class="filter-tag">Local</div>
+                    <div class="filter-tag">Seasonal</div>
+                    <div class="filter-tag">Fresh Produce</div>
+                    <div class="filter-tag">Dairy</div>
+                    <div class="filter-tag">Meat</div>
+                </div>
+
+                <!-- Products Grid - 3 CARDS PER ROW -->
+                <div class="products-grid">
+                    <!-- Product 1 -->
+                    <div class="product-card">
+                        <div class="product-image">
+                            <div class="product-placeholder produce-bg">
+                                🥕 Organic Carrots
+                            </div>
+                            <div class="product-badges">
+                                <span class="badge organic">Organic</span>
+                                <span class="badge traceable">Traceable</span>
+                            </div>
+                            <button class="favorite-btn">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="product-content">
+                            <h3 class="product-title">Heritage Rainbow Carrots</h3>
+                            <div class="farm-info">
+                                <span class="farm-name">Sunrise Organic Farm</span>
+                                <span class="location">• Devon, England</span>
+                            </div>
+                            <div class="rating">
+                                <span class="stars">★★★★★</span>
+                                <span class="rating-count">(127 reviews)</span>
+                            </div>
+                            <p class="product-description">
+                                Hand-harvested heritage carrots in vibrant colors. Sweet, crisp, and packed with nutrients.
+                            </p>
+                            <div class="product-tags">
+                                <span class="tag">Heirloom</span>
+                                <span class="tag">No-till</span>
+                                <span class="tag">Seasonal</span>
+                            </div>
+                            <div class="product-footer">
+                                <div class="price-section">
+                                    <div class="price">£3.50</div>
+                                    <div class="price-unit">per bunch</div>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div class="product-card">
+                        <div class="product-image">
+                            <div class="product-placeholder dairy-bg">
+                                🧀 Artisan Cheese
+                            </div>
+                            <div class="product-badges">
+                                <span class="badge local">Local</span>
+                                <span class="badge traceable">Traceable</span>
+                            </div>
+                            <button class="favorite-btn">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="product-content">
+                            <h3 class="product-title">Aged Cheddar Wheel</h3>
+                            <div class="farm-info">
+                                <span class="farm-name">Cotswold Creamery</span>
+                                <span class="location">• Gloucestershire</span>
+                            </div>
+                            <div class="rating">
+                                <span class="stars">★★★★★</span>
+                                <span class="rating-count">(89 reviews)</span>
+                            </div>
+                            <p class="product-description">
+                                18-month aged traditional cheddar. Made from grass-fed Jersey cow milk using traditional methods.
+                            </p>
+                            <div class="product-tags">
+                                <span class="tag">Grass-fed</span>
+                                <span class="tag">Aged 18mo</span>
+                                <span class="tag">Artisan</span>
+                            </div>
+                            <div class="product-footer">
+                                <div class="price-section">
+                                    <div class="price">£12.99</div>
+                                    <div class="price-unit">per 250g</div>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 3 -->
+                    <div class="product-card">
+                        <div class="product-image">
+                            <div class="product-placeholder meat-bg">
+                                🥩 Grass-Fed Beef
+                            </div>
+                            <div class="product-badges">
+                                <span class="badge organic">Organic</span>
+                                <span class="badge local">Local</span>
+                                <span class="badge traceable">Traceable</span>
+                            </div>
+                            <button class="favorite-btn">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="product-content">
+                            <h3 class="product-title">Grass-Fed Ribeye Steak</h3>
+                            <div class="farm-info">
+                                <span class="farm-name">Highland Heritage Farm</span>
+                                <span class="location">• Scottish Highlands</span>
+                            </div>
+                            <div class="rating">
+                                <span class="stars">★★★★★</span>
+                                <span class="rating-count">(156 reviews)</span>
+                            </div>
+                            <p class="product-description">
+                                Premium grass-fed ribeye from Highland cattle. Aged 28 days for exceptional flavor and tenderness.
+                            </p>
+                            <div class="product-tags">
+                                <span class="tag">28-day aged</span>
+                                <span class="tag">Grass-fed</span>
+                                <span class="tag">Highland</span>
+                            </div>
+                            <div class="product-footer">
+                                <div class="price-section">
+                                    <div class="price">£24.99</div>
+                                    <div class="price-unit">per 300g</div>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 4 -->
+                    <div class="product-card">
+                        <div class="product-image">
+                            <div class="product-placeholder flowers-bg">
+                                🌸 Cut Flowers
+                            </div>
+                            <div class="product-badges">
+                                <span class="badge seasonal">Seasonal</span>
+                                <span class="badge local">Local</span>
+                            </div>
+                            <button class="favorite-btn">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="product-content">
+                            <h3 class="product-title">Mixed Spring Bouquet</h3>
+                            <div class="farm-info">
+                                <span class="farm-name">Meadow Bloom Flowers</span>
+                                <span class="location">• Kent, England</span>
+                            </div>
+                            <div class="rating">
+                                <span class="stars">★★★★☆</span>
+                                <span class="rating-count">(73 reviews)</span>
+                            </div>
+                            <p class="product-description">
+                                Seasonal mixed bouquet featuring tulips, daffodils, and cherry blossoms. Freshly cut this morning.
+                            </p>
+                            <div class="product-tags">
+                                <span class="tag">Seasonal</span>
+                                <span class="tag">Fresh cut</span>
+                                <span class="tag">Mixed</span>
+                            </div>
+                            <div class="product-footer">
+                                <div class="price-section">
+                                    <div class="price">£18.00</div>
+                                    <div class="price-unit">per bouquet</div>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 5 -->
+                    <div class="product-card">
+                        <div class="product-image">
+                            <div class="product-placeholder grains-bg">
+                                🌾 Heritage Grains
+                            </div>
+                            <div class="product-badges">
+                                <span class="badge organic">Organic</span>
+                                <span class="badge traceable">Traceable</span>
+                            </div>
+                            <button class="favorite-btn">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="product-content">
+                            <h3 class="product-title">Stone-Ground Spelt Flour</h3>
+                            <div class="farm-info">
+                                <span class="farm-name">Ancient Grains Collective</span>
+                                <span class="location">• Norfolk, England</span>
+                            </div>
+                            <div class="rating">
+                                <span class="stars">★★★★★</span>
+                                <span class="rating-count">(94 reviews)</span>
+                            </div>
+                            <p class="product-description">
+                                Ancient spelt wheat, stone-ground in small batches. Perfect for artisan breads and baking.
+                            </p>
+                            <div class="product-tags">
+                                <span class="tag">Stone-ground</span>
+                                <span class="tag">Ancient grain</span>
+                                <span class="tag">Small batch</span>
+                            </div>
+                            <div class="product-footer">
+                                <div class="price-section">
+                                    <div class="price">£4.75</div>
+                                    <div class="price-unit">per 1kg</div>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product 6 -->
+                    <div class="product-card">
+                        <div class="product-image">
+                            <div class="product-placeholder crafts-bg">
+                                🧶 Handmade Crafts
+                            </div>
+                            <div class="product-badges">
+                                <span class="badge local">Local</span>
+                                <span class="badge traceable">Traceable</span>
+                            </div>
+                            <button class="favorite-btn">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="product-content">
+                            <h3 class="product-title">Hand-Spun Wool Yarn</h3>
+                            <div class="farm-info">
+                                <span class="farm-name">Woolly Wonders Farm</span>
+                                <span class="location">• Lake District</span>
+                            </div>
+                            <div class="rating">
+                                <span class="stars">★★★★★</span>
+                                <span class="rating-count">(112 reviews)</span>
+                            </div>
+                            <p class="product-description">
+                                Hand-spun yarn from rare breed sheep. Naturally dyed with plants grown on our farm.
+                            </p>
+                            <div class="product-tags">
+                                <span class="tag">Hand-spun</span>
+                                <span class="tag">Natural dye</span>
+                                <span class="tag">Rare breed</span>
+                            </div>
+                            <div class="product-footer">
+                                <div class="price-section">
+                                    <div class="price">£16.50</div>
+                                    <div class="price-unit">per 100g</div>
+                                </div>
+                                <button class="add-to-cart">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple interactivity for the mockup
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filter tags
+            const filterTags = document.querySelectorAll('.filter-tag');
+            filterTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    filterTags.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Favorite buttons
+            const favoriteButtons = document.querySelectorAll('.favorite-btn');
+            favoriteButtons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const icon = this.querySelector('i');
+                    icon.classList.toggle('far');
+                    icon.classList.toggle('fas');
+                    this.style.color = icon.classList.contains('fas') ? '#ef4444' : '#6b7280';
+                });
+            });
+
+            // Add to cart buttons
+            const addToCartButtons = document.querySelectorAll('.add-to-cart');
+            addToCartButtons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const originalText = this.textContent;
+                    this.textContent = 'Added!';
+                    this.style.background = '#22c55e';
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.background = '#28a745';
+                    }, 1000);
+                });
+            });
+
+            // View toggle
+            const viewButtons = document.querySelectorAll('.view-btn');
+            viewButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    viewButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

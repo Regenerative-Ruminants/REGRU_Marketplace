@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The REGRU Marketplace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Oswald:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/index.css">
+</head>
+<body class="flex h-screen overflow-hidden">
+    <!-- Wallet Modal Structure (initially hidden) -->
+    <div id="wallet-modal" style="position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.5); overflow-y: auto; z-index: 50; padding-top: 48px; padding-bottom: 48px;" class="hidden">
+        <div style="position: relative; background-color: white; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border-radius: 8px; width: 500px; margin-left: auto; margin-right: auto; border: 1px solid #cccccc;">
+            <div class="text-center">
+                <h3 class="text-2xl leading-6 font-oswald text-main-color mb-6">Available Wallets</h3>
+                <div class="mt-2 px-4 py-3">
+                    <pre id="wallet-modal-results" class="text-sm bg-slate-50 p-4 rounded-md max-h-72 overflow-y-auto border border-gray-200 min-h-[4em] text-left whitespace-pre-wrap break-all">Fetching...</pre>
+                </div>
+                <div class="items-center px-6 py-4 mt-4 border-t border-gray-200">
+                    <button id="close-wallet-modal-button" class="px-6 py-2.5 bg-main-color text-white text-base font-medium rounded-md w-full shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-main-color transition-opacity">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav id="first-panel" class="w-20 flex flex-col items-center py-4 shadow-lg">
+        <div class="logo-container">
+            <span class="logo-text">REGRU</span>
+        </div>
+        <div id="first-panel-main-icons" class="flex-1 flex flex-col items-center space-y-3 w-full overflow-y-auto first-panel-scrollable">
+            <!-- Existing icons will be here, new Wallets button will be added by app.ts -->
+            <!-- Example structure that app.ts might create (for reference): 
+            <button class="first-panel-item group w-full flex flex-col items-center p-3 rounded-lg hover:bg-gray-200">
+                <i class="fas fa-wallet text-2xl text-main group-hover:text-main"></i>
+                <span class="first-panel-label text-xs mt-1 text-main group-hover:text-main font-oswald">Wallets</span>
+            </button> 
+            -->
+        </div>
+        <div id="first-panel-bottom-icons" class="py-3 space-y-3 w-full border-t border-[var(--border-color)]">
+            <!-- Profile, Help icons will be here -->
+        </div>
+    </nav>
+
+    <aside id="second-panel" class="panel-bg-tertiary w-72 flex flex-col shadow-lg transition-all duration-300 ease-in-out">
+        <div class="p-4 border-b border-[var(--border-color)]">
+            <input type="search" id="second-panel-search" placeholder="Search..." class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--main-color)] focus:border-transparent outline-none text-sm">
+        </div>
+        <div id="second-panel-content" class="flex-1 overflow-y-auto p-3 space-y-1 second-panel-scrollable">
+            </div>
+    </aside>
+
+    <div id="toggle-second-panel-container" class="flex items-center panel-bg-tertiary">
+        <button id="toggle-second-panel" class="p-1 focus:outline-none hover:bg-gray-200 transition-colors z-10 rounded-r-md shadow-md h-16">
+            <svg id="toggle-second-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-main-color">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header id="main-heading-container" class="content-bg-secondary p-4 shadow flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+            <h1 id="main-heading" class="font-oswald text-3xl text-main-color">Welcome</h1>
+            
+            <!-- Wallet Test Controls - REMOVED FROM HEADER -->
+
+            <button id="shopping-cart-button" class="p-2 rounded-full hover:bg-gray-100 focus:outline-none relative">
+                <i class="fas fa-shopping-cart text-2xl text-main-color"></i>
+                <span id="shopping-cart-count-display" class="shopping-cart-count hidden">0</span>
+            </button>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <section id="content-section" class="flex-1 content-bg-secondary p-6 overflow-y-auto content-section-scrollable min-h-0">
+                <div id="content-placeholder" class="text-gray-600">
+                    <p class="text-lg">Please select an item from the navigation to see content here.</p>
+                    <p class="mt-2">The content will update based on your selection in the second panel.</p>
+                </div>
+                </section>
+
+            <button id="toggle-info-panel" class="panel-bg-tertiary p-1 focus:outline-none hover:bg-gray-200 transition-colors z-10 self-center rounded-l-md shadow-md h-16">
+                 <svg id="toggle-info-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-main-color">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+            </button>
+
+            <aside id="info-panel" class="panel-bg-tertiary w-80 p-4 shadow-lg overflow-y-auto transition-all duration-300 ease-in-out info-panel-scrollable">
+                <h3 class="font-oswald text-xl text-main-color mb-3 border-b border-[var(--border-color)] pb-2">Information</h3>
+                <div id="info-panel-content" class="text-sm text-gray-700 space-y-2">
+                    Select an item to see relevant information here.
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html> 
