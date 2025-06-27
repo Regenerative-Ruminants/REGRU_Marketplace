@@ -13,9 +13,11 @@ export default defineConfig(async () => ({
     // Phase 3: Proxy API requests to the Rust backend server
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000', // The address of our Actix server
+        // This should point to your Rust backend server in production
+        target: 'http://127.0.0.1:8000', 
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''), // Remove /api prefix before forwarding
+        // The rewrite is important if your backend doesn't expect the /api prefix
+        // rewrite: (path) => path.replace(/^\/api/, ''), 
       },
     },
     watch: {
@@ -23,4 +25,15 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
+  // Configuration for the production web build
+  build: {
+    outDir: 'dist', // The output directory for build files
+    rollupOptions: {
+      output: {
+        entryFileNames: `assets/[name].js`,
+        chunkFileNames: `assets/[name].js`,
+        assetFileNames: `assets/[name].[ext]`
+      }
+    }
+  }
 })); 
