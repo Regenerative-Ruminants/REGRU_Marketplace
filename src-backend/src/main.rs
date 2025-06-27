@@ -1,4 +1,5 @@
 use actix_web::{get, App, HttpServer, Responder, HttpResponse};
+use actix_files as fs;
 use dotenv::dotenv;
 use std::env;
 
@@ -50,6 +51,11 @@ async fn main() -> std::io::Result<()> {
             .wrap(actix_web::middleware::Logger::default()) // Basic request logging
             .service(health_check)
             .service(get_wallets_route)
+            .service(
+                fs::Files::new("/", "./dist")
+                    .index_file("index.html")
+                    .use_last_modified(true),
+            )
             // We will add more services (routes) here later
             // .configure(crate::handlers::config) // Example for modular routing
     })
