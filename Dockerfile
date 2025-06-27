@@ -1,5 +1,5 @@
 # ---- Chef Stage: Installs cargo-chef ----
-FROM rust:1.78 AS chef
+FROM rust:nightly AS chef
 RUN cargo install cargo-chef
 
 # ---- Planner Stage: Creates the dependency recipe ----
