@@ -49,6 +49,8 @@ jobs:
           context: .
           push: true
           tags: registry.digitalocean.com/regru-marketplace/app:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Deploy to DigitalOcean Droplet
         uses: appleboy/ssh-action@v1.0.3
