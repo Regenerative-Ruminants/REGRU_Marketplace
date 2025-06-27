@@ -118,3 +118,38 @@ cargo run
 ## Deployment
 
 Deployment is handled automatically by a GitHub Actions workflow. Any push to the `web-deployment` branch will trigger a new deployment. 
+
+## Project Layout
+
+This project is a Rust workspace containing the following key components:
+
+-   `crates/autonomi-core`: A shared library containing core business logic.
+-   `src-backend`: The Actix web server and API backend.
+-   `src-tauri`: The original Tauri desktop application (can be deprecated or maintained).
+-   `src`: The Svelte-based frontend source code.
+-   `docs`: Contains project documentation, including architectural summaries.
+
+For a detailed explanation of the migration from the original desktop application to the current web architecture, please see the [Web Migration Summary](docs/web_migration_summary.md).
+
+## Getting Started
+
+```
+npm install
+npm run dev
+```
+
+The application will be available at `http://localhost:1420`.
+
+The backend server will be available at `http://localhost:8000`.
+
+To run the backend server:
+
+```
+cd src-backend
+cargo run
+```
+
+
+## Deployment
+
+Deployment is handled automatically by a GitHub Actions workflow. Any push to the `web-deployment` branch will trigger a new deployment. 
