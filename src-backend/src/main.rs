@@ -32,7 +32,7 @@ async fn main() -> std::io::Result<()> {
     // Initialize logger
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    let app_host = env::var("APP_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
+    let app_host = env::var("APP_HOST").unwrap_or_else(|_| "0.0.0.0".to_string());
     let app_port_str = env::var("APP_PORT").unwrap_or_else(|_| "8000".to_string());
     
     let app_port = match app_port_str.parse::<u16>() {
