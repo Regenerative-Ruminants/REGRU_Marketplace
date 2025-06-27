@@ -59,17 +59,21 @@ jobs:
           username: ${{ secrets.DO_DROPLET_USER }}
           key: ${{ secrets.DO_DROPLET_KEY }}
           script: |
+            # Update package list and install Docker if not present
+            apt-get update
+            apt-get install -y docker.io
+
             # Find and kill any process using port 80
-            sudo fuser -k 80/tcp || true
+            fuser -k 80/tcp || true
 
             # Pull the latest image from the registry
-            sudo docker pull registry.digitalocean.com/regru-marketplace/app:latest
+            docker pull registry.digitalocean.com/regru-marketplace/app:latest
             
             # Stop and remove the old container if it exists
-            sudo docker stop regru-app || true
-            sudo docker rm regru-app || true
+            docker stop regru-app || true
+            docker rm regru-app || true
             
             # Run the new container
-            sudo docker run -d -p 80:8000 --name regru-app \
+            docker run -d -p 80:8000 --name regru-app \
               -e SECRET_KEY="${{ secrets.SECRET_KEY }}" \
               registry.digitalocean.com/regru-marketplace/app:latest 
