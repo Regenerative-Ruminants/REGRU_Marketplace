@@ -6,6 +6,8 @@ RUN cargo install cargo-chef
 FROM chef AS planner
 WORKDIR /app
 COPY . .
+# To ensure a consistent lock file, generate it within the Linux build environment.
+RUN rm -f Cargo.lock && cargo generate-lockfile
 # Use the dummy binary to generate a recipe for the entire workspace
 RUN cargo chef prepare --recipe-path recipe.json --bin chef
 
