@@ -1,5 +1,6 @@
 # ---- Chef Stage: Installs cargo-chef ----
 FROM rust:1.88.0-slim-bookworm AS chef
+RUN rustup component add rustfmt
 RUN cargo install cargo-chef
 
 # ---- Planner Stage: Creates the dependency recipe ----
