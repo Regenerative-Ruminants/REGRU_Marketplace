@@ -1,13 +1,5 @@
-use autonomi_core::wallets as core_wallets;
+use autonomi_core::wallets::{self as core_wallets, SerializableWallet};
 use serde::Serialize;
-
-/// A serializable representation of a wallet, suitable for sending to the frontend.
-#[derive(Serialize, Debug, Clone)]
-pub struct SerializableWallet {
-    /// The wallet address, typically as a hexadecimal string.
-    address: String,
-    // Add other fields here if needed from autonomi::Wallet that should be exposed to frontend
-}
 
 /// Tauri command to get a list of available wallets.
 ///
@@ -19,16 +11,7 @@ pub struct SerializableWallet {
 /// - `Err(String)` if an error occurs during wallet loading or network initialization.
 #[tauri::command]
 pub fn get_available_wallets() -> Result<Vec<SerializableWallet>, String> {
-    core_wallets::get_wallets()
-        .map_err(|e| format!("{:?}", e)) // Convert anyhow::Error to String
-        .map(|wallets| { // Convert Vec<autonomi::Wallet> to Vec<SerializableWallet>
-            wallets.into_iter().map(|wallet| {
-                let address_str = wallet.address().to_string();
-                SerializableWallet {
-                    address: address_str,
-                }
-            }).collect()
-        })
+    core_wallets::get_wallets().map_err(|e| format!("{:?}", e))
 }
 
 // Keeping tests to ensure the command layer still wires up correctly,

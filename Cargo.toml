@@ -31,3 +31,9 @@ unsafe_code = "forbid"
 [workspace.lints.clippy]
 # ... and many more, see `cargo clippy -W help`
 pedantic = "deny" 
+
+[patch.crates-io]
+ant-bootstrap = { git = "https://github.com/maidsafe/autonomi", tag = "autonomi-v0.4.6" }
+ant-evm = { git = "https://github.com/maidsafe/autonomi", tag = "autonomi-v0.4.6" }
+ant-networking = { git = "https://github.com/maidsafe/autonomi", tag = "autonomi-v0.4.6" }
+ant-protocol = { git = "https://github.com/maidsafe/autonomi", tag = "autonomi-v0.4.6" } 
