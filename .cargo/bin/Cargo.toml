@@ -1,0 +1,8 @@
+[package]
+name = "chef"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+autonomi-core = { path = "../../crates/autonomi-core" }
+src-backend = { path = "../../src-backend" } 

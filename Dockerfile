@@ -4,11 +4,11 @@ FROM rust:1.78 AS chef
 RUN cargo install cargo-chef
 
 # ---- Planner Stage ----
-# Generates the recipe from the full project context. This stage is fast.
+# Generates the recipe from the full project context using the dummy chef binary.
 FROM chef AS planner
 WORKDIR /app
 COPY . .
-RUN cargo chef prepare --recipe-path recipe.json --bin src-backend
+RUN cargo chef prepare --recipe-path recipe.json --bin chef
 
 # ---- Cooker Stage ----
 # Cooks dependencies. This is the main cache layer and the slowest step.

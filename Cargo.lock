@@ -2051,6 +2051,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "chef"
+version = "0.1.0"
+dependencies = [
+ "autonomi-core",
+ "src-backend",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -3,6 +3,7 @@ members = [
     "crates/autonomi-core",
     "src-backend",
     "src-tauri",
+    ".cargo/bin",
 ]
 
 resolver = "2" # Specifies to use the version 2 feature resolver
