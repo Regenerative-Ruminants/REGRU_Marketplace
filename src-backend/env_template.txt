@@ -1,0 +1,18 @@
+# .env.example for local development
+# Rename this file to .env and fill in the values if needed.
+
+# The IP address the Actix web server will bind to.
+# For local development, 127.0.0.1 is fine.
+# In Docker, this is set to 0.0.0.0 to accept external connections.
+APP_HOST=127.0.0.1
+
+# The port the Actix web server will listen on.
+APP_PORT=8000
+
+# A secret key for signing sessions or other security-related features.
+# Generate a strong random key for production.
+SECRET_KEY=your_super_secret_key_here
+
+# Log level for the application.
+# Can be one of: error, warn, info, debug, trace
+RUST_LOG=info 
