@@ -1,5 +1,5 @@
 # ---- Chef Stage: Installs cargo-chef ----
-FROM rust:nightly-slim AS chef
+FROM rust:1.88.0-slim-bookworm AS chef
 RUN cargo install cargo-chef
 
 # ---- Planner Stage: Creates the dependency recipe ----
