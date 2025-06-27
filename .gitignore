@@ -32,4 +32,7 @@ wallets/
 # Environment files
 .env
 .env.*
-!**/.env.example # Allow .env.example files in any subdirectory 
+!**/.env.example # Allow .env.example files in any subdirectory
+
+# Ignore the temporary repository directory
+temp_repo/ 
