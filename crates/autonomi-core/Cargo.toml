@@ -3,21 +3,9 @@ name = "autonomi-core"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+autonomi = { git = "https://github.com/maidsafe/autonomi", tag = "autonomi-v0.4.6" }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-color-eyre = "0.6"
-dirs-next = "2.0" # For accessing system-specific data directories
-autonomi = "0.4.6"   # Restored to intended version to match nightly toolchain
-thiserror = "1.0"  # For custom error handling
-anyhow = "1.0"     # For ergonomic error handling
 
-# Add other common dependencies that will be shared, e.g.:
-# autonomi-sdk = "0.3" # Replace with actual autonomi crate name and version if available
-# tokio = { version = "1", features = ["full"] } # If async operations are core here
-
-[dev-dependencies]
-tempfile = "3.3" # For creating temporary directories/files in tests
-temp-env = "0.3.6" # For managing environment variables in tests
+[lints]
+workspace = true
