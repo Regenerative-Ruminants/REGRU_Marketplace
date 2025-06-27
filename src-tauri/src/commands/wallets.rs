@@ -1,5 +1,4 @@
 use autonomi_core::wallets::{self as core_wallets, SerializableWallet};
-use serde::Serialize;
 
 /// Tauri command to get a list of available wallets.
 ///
