@@ -172,3 +172,7 @@ The CI/CD pipeline relies on several secrets configured in the GitHub repository
 *   **`DO_REGISTRY_USER`**: The username for the DigitalOcean Container Registry.
 *   **`DO_REGISTRY_PASSWORD`**: An access token with write privileges for the DigitalOcean Container Registry.
 *   **`SECRET_KEY`**: The production secret key that will be injected into the running container as an environment variable.
+
+A web-based frontend for the Autonomi protocol, designed for the REGRU marketplace.
+
+<!-- Added to trigger workflow -->
