@@ -566,7 +566,10 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 
 
 .products-grid.list-view .product-card .product-content {
-    @apply flex-row items-center p-2;
+    padding-left: 24px; /* Add space between image and content */
+    padding-top: 16px; /* Adjust top padding if needed */
+    padding-bottom: 16px; /* Adjust bottom padding if needed */
+    /* flex-grow: 1; already set, should be fine */
 }
 
 .products-grid.list-view .product-card .product-footer {
@@ -906,17 +909,7 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     
     .products-grid.list-view .product-card .product-content {
         padding: 20px;
-    }
-
-    /* 
-     * Add transitions for the JS-driven scroll animation.
-     * The custom cubic-bezier creates the "rubberband" effect on the logo.
-    */
-    #mobile-logo-img {
-        height: 2.5rem; /* 40px */
-    }
-    #mobile-logo-tagline {
-        transition: opacity 0.2s ease-in-out;
+        flex-direction: column;
     }
 }
 
@@ -941,4 +934,18 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     .products-grid.list-view .product-card .product-content {
         padding: 20px;
     }
+}
+
+/* Add a class to the mobile header when scrolled */
+.mobile-header {
+    /* ... other styles ... */
+    z-index: 40; /* Ensure it's above content but below modals */
+}
+
+#mobile-logo-img {
+    height: 2.5rem; /* 40px */
+}
+
+#mobile-logo-tagline {
+    transition: opacity 0.2s ease;
 } 

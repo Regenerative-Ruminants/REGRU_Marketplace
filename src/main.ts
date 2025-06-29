@@ -81,12 +81,28 @@ const mobileHeader = document.getElementById('mobile-top-bar');
 const mobileLogoImg = document.getElementById('mobile-logo-img');
 const mobileLogoTagline = document.getElementById('mobile-logo-tagline');
 
+let isHeaderStateLocked = false;
+
 if (scrollContainer && mobileHeader && mobileLogoImg && mobileLogoTagline) {
     const animationScrollDistance = 80; // The distance over which the animation occurs (in pixels)
 
     scrollContainer.addEventListener('scroll', () => {
+        if (isHeaderStateLocked) { return; }
+
         const scrollY = scrollContainer.scrollTop;
         const progress = Math.min(scrollY / animationScrollDistance, 1); // Progress from 0.0 to 1.0
+
+        if (progress >= 1) {
+            isHeaderStateLocked = true;
+            // Manually set final state to prevent rounding errors
+            requestAnimationFrame(() => {
+                mobileHeader.style.paddingTop = '4px';
+                mobileHeader.style.paddingBottom = '4px';
+                mobileLogoImg.style.height = '32px';
+                mobileLogoTagline.style.opacity = '0';
+            });
+            return;
+        }
 
         // Interpolate values based on progress
         const headerPadding = 8 - (4 * progress); // From 8px (0.5rem) down to 4px (0.25rem)
