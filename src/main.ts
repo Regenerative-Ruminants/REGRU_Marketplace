@@ -81,10 +81,14 @@ const mobileHeader = document.getElementById('mobile-top-bar');
 const mobileLogoContainer = document.getElementById('mobile-logo-container');
 const mobileLogoImg = document.getElementById('mobile-logo-img');
 const mobileLogoTagline = document.getElementById('mobile-logo-tagline');
+const hamburgerButton = document.getElementById('hamburger') as HTMLElement;
+const searchButton = document.getElementById('mobile-search') as HTMLElement;
+const hamburgerIcon = document.querySelector('#hamburger i') as HTMLElement;
+const searchIcon = document.querySelector('#mobile-search i') as HTMLElement;
 
 // State flags
 let hasScrolled = false; // Tracks if the user has scrolled at all
-let isSticky = false;    // Tracks if the header is in the final "sticky" state
+let isInitialShrinkComplete = false; // Tracks if the main welcome-mat shrink is done
 
 // --- Define Pixel-Based States ---
 // State 1: Welcome Mat (calculated dynamically)
@@ -99,69 +103,156 @@ const MEDIUM_LOGO_HEIGHT = 64;      // Corresponds to Tailwind's h-16
 const SMALLEST_CONTAINER_HEIGHT = 56; // Corresponds to Tailwind's h-14
 const SMALLEST_LOGO_HEIGHT = 40;      // Corresponds to Tailwind's h-10
 
+// --- Icon Size States ---
+const LARGE_ICON_SIZE = 32;     // px, Welcome Mat
+const MEDIUM_ICON_SIZE = 26;    // px, Medium
+const SMALL_ICON_SIZE = 22;     // px, Small
+const LARGE_ICON_PADDING = 24;  // px, Welcome Mat (readjusted)
+const MEDIUM_ICON_PADDING = 18; // px, Medium (readjusted)
+const SMALL_ICON_PADDING = 12;  // px, Small
+
+// --- Tagline Size States ---
+const LARGE_TAGLINE_SIZE = 36;  // px, for welcome mat (As requested)
+const MEDIUM_TAGLINE_SIZE = 16; // px, Medium
+const SMALL_TAGLINE_SIZE = 12;  // px, matches tailwind 'text-xs'
+
 // --- Animation Trigger Points ---
-const SHRINK_FINISH_SCROLL_Y = 150; // Scroll distance at which the header is fully shrunk
+let PHASE1_DISTANCE = 120; // Is now calculated dynamically in initHeader
+const PHASE2_DISTANCE = 80;  // Scroll distance for Medium -> Small
 
 // --- Core Functions ---
 
-function setHeaderHeight(containerHeight: number, logoHeight: number) {
+function setHeaderAppearance(containerHeight: number, logoHeight: number, iconSize: number, padding: number, taglineSize: number, taglineOpacity: number) {
     requestAnimationFrame(() => {
-        if (!mobileLogoContainer || !mobileLogoImg) return;
+        if (!mobileLogoContainer || !mobileLogoImg || !hamburgerIcon || !searchIcon || !hamburgerButton || !searchButton || !mobileLogoTagline) return;
+        
         mobileLogoContainer.style.height = `${containerHeight}px`;
         mobileLogoImg.style.height = `${logoHeight}px`;
+        
+        hamburgerIcon.style.fontSize = `${iconSize}px`;
+        searchIcon.style.fontSize = `${iconSize}px`;
+        hamburgerButton.style.padding = `${padding}px`;
+        searchButton.style.padding = `${padding}px`;
+        
+        mobileLogoTagline.style.fontSize = `${taglineSize}px`;
+        mobileLogoTagline.style.opacity = `${taglineOpacity}`;
+    });
+}
+
+function setupButtonPositioning() {
+    if (!mobileHeader || !hamburgerButton || !searchButton) return;
+
+    // Set header as the positioning context for the absolute-positioned buttons
+    mobileHeader.style.position = 'relative';
+
+    // Style and position the hamburger button
+    hamburgerButton.style.position = 'absolute';
+    hamburgerButton.style.left = '16px'; // Space from the edge
+    hamburgerButton.style.top = '50%';
+    hamburgerButton.style.transform = 'translateY(-50%)';
+    hamburgerButton.style.borderRadius = '50%';
+    hamburgerButton.style.backgroundColor = 'transparent';
+    hamburgerButton.style.border = '1px solid transparent';
+
+    // Style and position the search button
+    searchButton.style.position = 'absolute';
+    searchButton.style.right = '16px'; // Space from the edge
+    searchButton.style.top = '50%';
+    searchButton.style.transform = 'translateY(-50%)';
+    searchButton.style.borderRadius = '50%';
+    searchButton.style.backgroundColor = 'transparent';
+    searchButton.style.border = '1px solid transparent';
+
+    // Add hover event listeners for both buttons
+    [hamburgerButton, searchButton].forEach(button => {
+        button.addEventListener('mouseenter', () => {
+            button.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+            button.style.borderColor = 'rgba(0, 0, 0, 0.1)';
+            button.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+        });
+        button.addEventListener('mouseleave', () => {
+            button.style.backgroundColor = 'transparent';
+            button.style.borderColor = 'transparent';
+            button.style.boxShadow = 'none';
+        });
     });
 }
 
 function handleScroll() {
-    if (!scrollContainer || !mobileLogoTagline) return;
+    if (!scrollContainer) return;
 
     if (!hasScrolled) {
-        // This is the first scroll event.
         hasScrolled = true;
-        // The one-time handoff: disable the resize listener.
         window.removeEventListener('resize', initHeader);
         
         // Add CSS transitions now so the initial set doesn't animate, but subsequent scrolls do.
-        if (mobileLogoContainer && mobileLogoImg) {
-            mobileLogoContainer.style.transition = 'height 0.3s ease-in-out';
-            mobileLogoImg.style.transition = 'height 0.3s ease-in-out';
+        if (mobileLogoContainer && mobileLogoImg && hamburgerIcon && searchIcon && hamburgerButton && searchButton && mobileLogoTagline) {
+            mobileLogoContainer.style.transition = 'height 0.3s linear';
+            mobileLogoImg.style.transition = 'height 0.3s linear';
+            hamburgerIcon.style.transition = 'font-size 0.3s linear';
+            searchIcon.style.transition = 'font-size 0.3s linear';
+            mobileLogoTagline.style.transition = 'opacity 0.3s linear, font-size 0.3s linear';
+
+            const buttonTransitions = 'padding 0.3s linear, background-color 0.2s linear, border-color 0.2s linear, box-shadow 0.2s linear';
+            hamburgerButton.style.transition = buttonTransitions;
+            searchButton.style.transition = buttonTransitions;
         }
     }
 
     const scrollY = scrollContainer.scrollTop;
     
-    // Calculate the shrink progress (0 to 1)
-    const progress = Math.min(scrollY / SHRINK_FINISH_SCROLL_Y, 1);
-    
-    // Interpolate between Medium and Smallest states
-    const containerHeight = MEDIUM_CONTAINER_HEIGHT - (MEDIUM_CONTAINER_HEIGHT - SMALLEST_CONTAINER_HEIGHT) * progress;
-    const logoHeight = MEDIUM_LOGO_HEIGHT - (MEDIUM_LOGO_HEIGHT - SMALLEST_LOGO_HEIGHT) * progress;
-    const taglineOpacity = 1 - progress; // Fade out tagline as we shrink
-    
-    setHeaderHeight(containerHeight, logoHeight);
-    mobileLogoTagline.style.opacity = `${taglineOpacity}`;
+    if (!isInitialShrinkComplete) {
+        // --- PHASE 1: One-way shrink from LARGEST to MEDIUM. ---
+        const progress = Math.min(scrollY / PHASE1_DISTANCE, 1);
+
+        const containerHeight = welcomeHeightContainer - (welcomeHeightContainer - MEDIUM_CONTAINER_HEIGHT) * progress;
+        const logoHeight = welcomeHeightLogo - (welcomeHeightLogo - MEDIUM_LOGO_HEIGHT) * progress;
+        const iconSize = LARGE_ICON_SIZE - (LARGE_ICON_SIZE - MEDIUM_ICON_SIZE) * progress;
+        const iconPadding = LARGE_ICON_PADDING - (LARGE_ICON_PADDING - MEDIUM_ICON_PADDING) * progress;
+        const taglineSize = LARGE_TAGLINE_SIZE - (LARGE_TAGLINE_SIZE - MEDIUM_TAGLINE_SIZE) * progress;
+        
+        setHeaderAppearance(containerHeight, logoHeight, iconSize, iconPadding, taglineSize, 1); // Opacity is always 1
+
+        if (progress >= 1) {
+            isInitialShrinkComplete = true; // The handoff is complete. Never run this block again.
+        }
+
+    } else {
+        // --- PHASE 2: Reversible shrink from MEDIUM to SMALLEST. ---
+        const phase2ScrollY = Math.max(0, scrollY - PHASE1_DISTANCE);
+        const progress = Math.min(phase2ScrollY / PHASE2_DISTANCE, 1);
+
+        const containerHeight = MEDIUM_CONTAINER_HEIGHT - (MEDIUM_CONTAINER_HEIGHT - SMALLEST_CONTAINER_HEIGHT) * progress;
+        const logoHeight = MEDIUM_LOGO_HEIGHT - (MEDIUM_LOGO_HEIGHT - SMALLEST_LOGO_HEIGHT) * progress;
+        const iconSize = MEDIUM_ICON_SIZE - (MEDIUM_ICON_SIZE - SMALL_ICON_SIZE) * progress;
+        const iconPadding = MEDIUM_ICON_PADDING - (MEDIUM_ICON_PADDING - SMALL_ICON_PADDING) * progress;
+        const taglineSize = MEDIUM_TAGLINE_SIZE - (MEDIUM_TAGLINE_SIZE - SMALL_TAGLINE_SIZE) * progress;
+        const taglineOpacity = 1 - progress; // Fade out during phase 2
+        
+        setHeaderAppearance(containerHeight, logoHeight, iconSize, iconPadding, taglineSize, taglineOpacity);
+    }
 }
 
 function initHeader() {
     // Calculate the initial "Welcome Mat" size in pixels
-    // Use 50% of the viewport height as the container, and 40% for the logo
-    welcomeHeightContainer = window.innerHeight * 0.5;
-    welcomeHeightLogo = window.innerHeight * 0.4;
+    welcomeHeightContainer = window.innerHeight * 0.30; // Reduced from 0.35
+    welcomeHeightLogo = window.innerHeight * 0.20;      // Reduced from 0.25
     
-    // Set the initial state without transitions
-    setHeaderHeight(welcomeHeightContainer, welcomeHeightLogo);
+    // Dynamically calculate the scroll distance for phase 1 to feel responsive
+    // The animation will complete over a scroll distance 60% of the header's shrink size.
+    PHASE1_DISTANCE = (welcomeHeightContainer - MEDIUM_CONTAINER_HEIGHT) * 0.6;
 
-    // Ensure tagline is fully visible initially
-    if (mobileLogoTagline) {
-        mobileLogoTagline.style.opacity = '1';
-    }
+    // Set the initial state without transitions, using the new comprehensive function
+    setHeaderAppearance(welcomeHeightContainer, welcomeHeightLogo, LARGE_ICON_SIZE, LARGE_ICON_PADDING, LARGE_TAGLINE_SIZE, 1);
 }
 
-
 // --- Event Listeners ---
-if (scrollContainer && mobileHeader && mobileLogoContainer && mobileLogoImg && mobileLogoTagline) {
+if (scrollContainer && mobileHeader && mobileLogoContainer && mobileLogoImg && mobileLogoTagline && hamburgerIcon && searchIcon && hamburgerButton && searchButton) {
     // 1. Set the initial state on load
-    document.addEventListener('DOMContentLoaded', initHeader);
+    document.addEventListener('DOMContentLoaded', () => {
+        setupButtonPositioning(); // Set static positions first
+        initHeader(); // Then set initial sizes
+    });
 
     // 2. Add a resize listener to handle orientation changes BEFORE the first scroll
     window.addEventListener('resize', initHeader);
