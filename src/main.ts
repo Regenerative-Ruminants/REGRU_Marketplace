@@ -142,4 +142,13 @@ function updateHeaderOnScroll() {
 if (scrollContainer) {
     scrollContainer.addEventListener('scroll', updateHeaderOnScroll);
     updateHeaderOnScroll(); // Set initial state on load
+}
+
+// --- Welcome Mat Handoff ---
+// This listener runs exactly once on the first scroll, then removes itself.
+const logo = document.getElementById('mobile-logo-img');
+if (logo) {
+    window.addEventListener('scroll', () => {
+        logo.classList.remove('welcome-mat');
+    }, { once: true });
 } 

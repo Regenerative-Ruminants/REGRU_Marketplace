@@ -953,4 +953,10 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 
 #mobile-logo-tagline {
     transition: opacity 0.2s ease;
+}
+
+#mobile-logo-img.welcome-mat {
+    width: 75%; /* Freely scales with window width */
+    height: auto; /* Maintains perfect aspect ratio */
+    transition: all 0.3s ease-in-out; /* Smooths the handoff */
 } 
