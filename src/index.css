@@ -566,7 +566,7 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 
 
 .products-grid.list-view .product-card .product-content {
-    padding-left: 24px; /* Add space between image and content */
+    padding-left: 1rem;
     padding-top: 16px; /* Adjust top padding if needed */
     padding-bottom: 16px; /* Adjust bottom padding if needed */
     /* flex-grow: 1; already set, should be fine */
@@ -909,17 +909,6 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     
     .products-grid.list-view .product-card .product-content {
         padding: 20px;
-    }
-
-    /* 
-     * Add transitions for the JS-driven scroll animation.
-     * The custom cubic-bezier creates the "rubberband" effect on the logo.
-    */
-    #mobile-logo-img {
-        transition: height 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    }
-    #mobile-logo-tagline {
-        transition: opacity 0.2s ease-out;
     }
 }
 
