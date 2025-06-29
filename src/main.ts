@@ -101,24 +101,4 @@ if (scrollContainer && mobileHeader && mobileLogoImg && mobileLogoTagline) {
             mobileLogoTagline.style.opacity = `${taglineOpacity}`;
         });
     });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Other initializations...
-    
-    // Mobile Header Scroll Animation
-    const mainContent = document.getElementById('app-main-content');
-    const mobileHeader = document.getElementById('mobile-top-bar');
-    const mobileLogoImg = document.getElementById('mobile-logo-img');
-    const mobileLogoTagline = document.getElementById('mobile-logo-tagline');
-
-    if (mainContent && mobileHeader && mobileLogoImg && mobileLogoTagline) {
-        mainContent.addEventListener('scroll', () => {
-            if (mainContent.scrollTop > 10) { // Add class after scrolling a small amount
-                mobileHeader.classList.add('scrolled');
-            } else {
-                mobileHeader.classList.remove('scrolled');
-            }
-        });
-    }
-}); 
+} 
