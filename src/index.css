@@ -336,6 +336,8 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    padding-top: 3rem; /* 48px, height of mobile header */
+    padding-bottom: 3.5rem; /* 56px, height of bottom nav */
 }
 
 .top-bar {
@@ -799,7 +801,10 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     }
     
     .content-area {
-        padding: 16px;
+        padding-top: 0;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        padding-bottom: 0.5rem;
     }
 }
 
@@ -844,5 +849,99 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* === MOBILE RESPONSIVE STYLES === */
+@media (max-width: 767px) {
+    /* Kill the outer scrollbar */
+    body {
+        overflow: hidden;
+    }
+
+    /* Hide desktop elements */
+    #app-sidebar, #app-top-bar {
+        display: none;
+    }
+
+    /* Show mobile elements */
+    #mobile-top-bar, #mobile-bottom-nav, #hamburger {
+        display: flex; /* or block, as appropriate */
+    }
+    #mobile-drawer {
+        display: none; /* Keep drawer hidden by default */
+    }
+
+    /* Adjust main content for mobile overlay elements */
+    #app-main-content {
+        height: 100vh;
+        overflow-y: auto;
+        padding-top: 0; /* Override global padding */
+        padding-bottom: 0; /* Remove padding from scroller */
+    }
+
+    /* Apply padding to the inner container instead */
+    .content-area {
+        padding-top: 1rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        padding-bottom: 5rem; /* Space for bottom nav */
+    }
+
+    /* Force single-column on mobile for all views */
+    .products-grid.grid-view,
+    .products-grid.list-view {
+        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .products-grid .product-card {
+        flex-direction: column !important;
+    }
+
+    /* Reset list view image for mobile */
+    .products-grid.list-view .product-card .product-image {
+        width: 100%;
+        height: 180px;
+        border-radius: 16px 16px 0 0;
+    }
+    
+    .products-grid.list-view .product-card .product-content {
+        padding: 20px;
+    }
+
+    /* 
+     * Add transitions for the JS-driven scroll animation.
+     * The custom cubic-bezier creates the "rubberband" effect on the logo.
+    */
+    #mobile-logo-img {
+        transition: height 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+    #mobile-logo-tagline {
+        transition: opacity 0.2s ease-out;
+    }
+}
+
+@media (min-width: 768px) {
+    /* Apply desktop-specific layout to the body */
+    body {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* Show desktop elements */
+    #app-sidebar, #app-top-bar {
+        display: flex;
+    }
+
+    /* Hide mobile elements */
+    #mobile-top-bar, #mobile-bottom-nav, #hamburger, #mobile-drawer {
+        display: none;
+    }
+
+    .products-grid.list-view .product-card .product-content {
+        padding: 20px;
     }
 } 
