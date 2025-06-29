@@ -84,22 +84,18 @@ const mobileLogoTagline = document.getElementById('mobile-logo-tagline');
 
 let isInitialShrinkComplete = false;
 
-// --- Define the 3 states ---
-// State 1: LARGEST (on load)
-const LARGEST_LOGO_HEIGHT = 80; // h-20
-const LARGEST_CONTAINER_HEIGHT = 96; // h-24
+// --- Define the 3 states using SCALE ---
+const LARGEST_SCALE = 1.0;
+const MEDIUM_SCALE = 0.5;
+const SMALLEST_SCALE = 0.4;
 
-// State 2: MEDIUM (new "top")
-const MEDIUM_LOGO_HEIGHT = 40; // h-10
-const MEDIUM_CONTAINER_HEIGHT = 56; // h-14
-
-// State 3: SMALLEST (sticky)
-const SMALLEST_LOGO_HEIGHT = 32; // h-8
-const SMALLEST_CONTAINER_HEIGHT = 48; // h-12
+const LARGEST_CONTAINER_PADDING = 16; // py-4
+const MEDIUM_CONTAINER_PADDING = 8; // py-2
+const SMALLEST_CONTAINER_PADDING = 4; // py-1
 
 // --- Define Animation Ranges ---
-const PHASE1_DISTANCE = 80; // Scroll distance for Largest -> Medium
-const PHASE2_DISTANCE = 80; // Scroll distance for Medium -> Smallest
+const PHASE1_DISTANCE = 80;
+const PHASE2_DISTANCE = 80;
 
 function updateHeaderOnScroll() {
     if (!scrollContainer || !mobileHeader || !mobileLogoContainer || !mobileLogoImg || !mobileLogoTagline) return;
@@ -107,33 +103,33 @@ function updateHeaderOnScroll() {
     const scrollY = scrollContainer.scrollTop;
 
     if (!isInitialShrinkComplete) {
-        // --- PHASE 1: One-way shrink from LARGEST to MEDIUM. Tagline is always visible. ---
+        // --- PHASE 1: One-way shrink from LARGEST to MEDIUM ---
         const progress = Math.min(scrollY / PHASE1_DISTANCE, 1);
-
-        const logoHeight = LARGEST_LOGO_HEIGHT - (LARGEST_LOGO_HEIGHT - MEDIUM_LOGO_HEIGHT) * progress;
-        const containerHeight = LARGEST_CONTAINER_HEIGHT - (LARGEST_CONTAINER_HEIGHT - MEDIUM_CONTAINER_HEIGHT) * progress;
+        const scale = LARGEST_SCALE - (LARGEST_SCALE - MEDIUM_SCALE) * progress;
+        const padding = LARGEST_CONTAINER_PADDING - (LARGEST_CONTAINER_PADDING - MEDIUM_CONTAINER_PADDING) * progress;
 
         requestAnimationFrame(() => {
-            mobileLogoContainer.style.height = `${containerHeight}px`;
-            mobileLogoImg.style.height = `${logoHeight}px`;
-            mobileLogoTagline.style.opacity = '1'; // Ensure tagline is visible
+            mobileLogoImg.style.transform = `scale(${scale})`;
+            mobileLogoContainer.style.paddingTop = `${padding}px`;
+            mobileLogoContainer.style.paddingBottom = `${padding}px`;
+            mobileLogoTagline.style.opacity = '1';
         });
 
         if (progress >= 1) {
-            isInitialShrinkComplete = true; // The handoff
+            isInitialShrinkComplete = true;
         }
     } else {
-        // --- PHASE 2: Reversible shrink from MEDIUM to SMALLEST. Tagline fades out. ---
+        // --- PHASE 2: Reversible shrink from MEDIUM to SMALLEST ---
         const phase2ScrollY = Math.max(0, scrollY - PHASE1_DISTANCE);
         const progress = Math.min(phase2ScrollY / PHASE2_DISTANCE, 1);
-
-        const logoHeight = MEDIUM_LOGO_HEIGHT - (MEDIUM_LOGO_HEIGHT - SMALLEST_LOGO_HEIGHT) * progress;
-        const containerHeight = MEDIUM_CONTAINER_HEIGHT - (MEDIUM_CONTAINER_HEIGHT - SMALLEST_CONTAINER_HEIGHT) * progress;
-        const taglineOpacity = 1 - progress; // Tagline fades during this phase
+        const scale = MEDIUM_SCALE - (MEDIUM_SCALE - SMALLEST_SCALE) * progress;
+        const padding = MEDIUM_CONTAINER_PADDING - (MEDIUM_CONTAINER_PADDING - SMALLEST_CONTAINER_PADDING) * progress;
+        const taglineOpacity = 1 - progress;
 
         requestAnimationFrame(() => {
-            mobileLogoContainer.style.height = `${containerHeight}px`;
-            mobileLogoImg.style.height = `${logoHeight}px`;
+            mobileLogoImg.style.transform = `scale(${scale})`;
+            mobileLogoContainer.style.paddingTop = `${padding}px`;
+            mobileLogoContainer.style.paddingBottom = `${padding}px`;
             mobileLogoTagline.style.opacity = `${taglineOpacity}`;
         });
     }
@@ -141,5 +137,5 @@ function updateHeaderOnScroll() {
 
 if (scrollContainer) {
     scrollContainer.addEventListener('scroll', updateHeaderOnScroll);
-    updateHeaderOnScroll(); // Set initial state on load
+    updateHeaderOnScroll();
 } 
