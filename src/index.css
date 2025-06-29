@@ -947,29 +947,10 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     z-index: 40; /* Ensure it's above content but below modals */
 }
 
-#mobile-logo-container {
-    min-height: 48px; /* Set a minimum height for the smallest state */
-}
-
 #mobile-logo-img {
-    width: 75%; /* The fluid welcome mat size */
-    height: auto; /* Guarantees correct aspect ratio */
-    transform-origin: center; /* Scale from the center for a clean look */
-    transition: transform 0.2s ease-out; /* Animate ONLY the transform property */
+    height: 3.75rem; /* 60px - This is the new LARGEST state */
 }
 
 #mobile-logo-tagline {
-    opacity: 1; /* Ensure it's visible by default */
-    margin-top: -0.5rem; /* Pull it up closer to the larger logo */
-    padding-bottom: 0.5rem; /* Add some space below it */
     transition: opacity 0.2s ease;
-}
-
-/* Scrolled state for the header */
-#mobile-top-bar.scrolled #mobile-logo-img {
-    width: 25%; /* Shrink the logo */
-}
-
-#mobile-top-bar.scrolled #mobile-logo-tagline {
-    opacity: 0; /* Hide the tagline */
 } 
