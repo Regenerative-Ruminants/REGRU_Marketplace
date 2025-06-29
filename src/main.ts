@@ -85,17 +85,17 @@ const mobileLogoTagline = document.getElementById('mobile-logo-tagline');
 let isInitialShrinkComplete = false;
 
 // --- Define the 3 states ---
-// State 1: LARGEST (on load) - Will be measured dynamically from the rendered element
-let LARGEST_LOGO_HEIGHT = 64; 
-let LARGEST_CONTAINER_HEIGHT = 80;
+// State 1: LARGEST (on load)
+const LARGEST_LOGO_HEIGHT = 64; // h-16
+const LARGEST_CONTAINER_HEIGHT = 80; // h-20
 
 // State 2: MEDIUM (new "top")
-const MEDIUM_LOGO_HEIGHT = 40;
-const MEDIUM_CONTAINER_HEIGHT = 56;
+const MEDIUM_LOGO_HEIGHT = 40; // h-10
+const MEDIUM_CONTAINER_HEIGHT = 56; // h-14
 
 // State 3: SMALLEST (sticky)
-const SMALLEST_LOGO_HEIGHT = 32;
-const SMALLEST_CONTAINER_HEIGHT = 48;
+const SMALLEST_LOGO_HEIGHT = 32; // h-8
+const SMALLEST_CONTAINER_HEIGHT = 48; // h-12
 
 // --- Define Animation Ranges ---
 const PHASE1_DISTANCE = 80; // Scroll distance for Largest -> Medium
@@ -139,11 +139,7 @@ function updateHeaderOnScroll() {
     }
 }
 
-if (scrollContainer && mobileLogoContainer && mobileLogoImg) {
-    // Measure the dynamic "Largest" state right after the DOM is ready
-    LARGEST_LOGO_HEIGHT = mobileLogoImg.offsetHeight;
-    LARGEST_CONTAINER_HEIGHT = mobileLogoContainer.offsetHeight;
-
+if (scrollContainer) {
     scrollContainer.addEventListener('scroll', updateHeaderOnScroll);
     updateHeaderOnScroll(); // Set initial state on load
 } 
