@@ -75,18 +75,6 @@ let shoppingCart = [{quantity: 0}];
 // @ts-ignore
 let shoppingCartCountTopbar = {textContent: '0'};
 
-// Keep fab cart count in sync
-function updateCartDisplay(){
-   const total=shoppingCart.reduce((s,i)=>s+i.quantity,0);
-   const cartCountFab = document.getElementById('cart-count-fab');
-   if (cartCountFab) {
-       cartCountFab.textContent=String(total);
-   }
-   if (shoppingCartCountTopbar) {
-    shoppingCartCountTopbar.textContent=String(total);
-   }
-}
-
 // Mobile Header Scroll Animation
 const scrollContainer = document.getElementById('app-content-area');
 const mobileHeader = document.getElementById('mobile-top-bar');
