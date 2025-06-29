@@ -938,12 +938,17 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 
 /* Add a class to the mobile header when scrolled */
 .mobile-header {
-    /* ... other styles ... */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem; /* Increase padding for the larger initial state */
+    background-color: var(--secondary-color);
+    position: sticky;
     z-index: 40; /* Ensure it's above content but below modals */
 }
 
 #mobile-logo-img {
-    height: 2.5rem; /* 40px */
+    height: 3.75rem; /* 60px - This is the new LARGEST state */
 }
 
 #mobile-logo-tagline {

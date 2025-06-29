@@ -78,43 +78,72 @@ let shoppingCartCountTopbar = {textContent: '0'};
 // Mobile Header Scroll Animation
 const scrollContainer = document.getElementById('app-content-area');
 const mobileHeader = document.getElementById('mobile-top-bar');
+const mobileLogoContainer = document.getElementById('mobile-logo-container');
 const mobileLogoImg = document.getElementById('mobile-logo-img');
 const mobileLogoTagline = document.getElementById('mobile-logo-tagline');
 
-let isHeaderStateLocked = false;
+let isInitialShrinkComplete = false;
 
-if (scrollContainer && mobileHeader && mobileLogoImg && mobileLogoTagline) {
-    const animationScrollDistance = 80; // The distance over which the animation occurs (in pixels)
+// --- Define the 3 states ---
+// State 1: LARGEST (on load) - Will be measured dynamically from the rendered element
+let LARGEST_LOGO_HEIGHT = 64; 
+let LARGEST_CONTAINER_HEIGHT = 80;
 
-    scrollContainer.addEventListener('scroll', () => {
-        if (isHeaderStateLocked) { return; }
+// State 2: MEDIUM (new "top")
+const MEDIUM_LOGO_HEIGHT = 40;
+const MEDIUM_CONTAINER_HEIGHT = 56;
 
-        const scrollY = scrollContainer.scrollTop;
-        const progress = Math.min(scrollY / animationScrollDistance, 1); // Progress from 0.0 to 1.0
+// State 3: SMALLEST (sticky)
+const SMALLEST_LOGO_HEIGHT = 32;
+const SMALLEST_CONTAINER_HEIGHT = 48;
+
+// --- Define Animation Ranges ---
+const PHASE1_DISTANCE = 80; // Scroll distance for Largest -> Medium
+const PHASE2_DISTANCE = 80; // Scroll distance for Medium -> Smallest
+
+function updateHeaderOnScroll() {
+    if (!scrollContainer || !mobileHeader || !mobileLogoContainer || !mobileLogoImg || !mobileLogoTagline) return;
+    
+    const scrollY = scrollContainer.scrollTop;
+
+    if (!isInitialShrinkComplete) {
+        // --- PHASE 1: One-way shrink from LARGEST to MEDIUM. Tagline is always visible. ---
+        const progress = Math.min(scrollY / PHASE1_DISTANCE, 1);
+
+        const logoHeight = LARGEST_LOGO_HEIGHT - (LARGEST_LOGO_HEIGHT - MEDIUM_LOGO_HEIGHT) * progress;
+        const containerHeight = LARGEST_CONTAINER_HEIGHT - (LARGEST_CONTAINER_HEIGHT - MEDIUM_CONTAINER_HEIGHT) * progress;
+
+        requestAnimationFrame(() => {
+            mobileLogoContainer.style.height = `${containerHeight}px`;
+            mobileLogoImg.style.height = `${logoHeight}px`;
+            mobileLogoTagline.style.opacity = '1'; // Ensure tagline is visible
+        });
 
         if (progress >= 1) {
-            isHeaderStateLocked = true;
-            // Manually set final state to prevent rounding errors
-            requestAnimationFrame(() => {
-                mobileHeader.style.paddingTop = '4px';
-                mobileHeader.style.paddingBottom = '4px';
-                mobileLogoImg.style.height = '32px';
-                mobileLogoTagline.style.opacity = '0';
-            });
-            return;
+            isInitialShrinkComplete = true; // The handoff
         }
+    } else {
+        // --- PHASE 2: Reversible shrink from MEDIUM to SMALLEST. Tagline fades out. ---
+        const phase2ScrollY = Math.max(0, scrollY - PHASE1_DISTANCE);
+        const progress = Math.min(phase2ScrollY / PHASE2_DISTANCE, 1);
 
-        // Interpolate values based on progress
-        const headerPadding = 8 - (4 * progress); // From 8px (0.5rem) down to 4px (0.25rem)
-        const logoHeight = 40 - (8 * progress); // From 40px (2.5rem) down to 32px (2.0rem)
-        const taglineOpacity = 1 - progress;
+        const logoHeight = MEDIUM_LOGO_HEIGHT - (MEDIUM_LOGO_HEIGHT - SMALLEST_LOGO_HEIGHT) * progress;
+        const containerHeight = MEDIUM_CONTAINER_HEIGHT - (MEDIUM_CONTAINER_HEIGHT - SMALLEST_CONTAINER_HEIGHT) * progress;
+        const taglineOpacity = 1 - progress; // Tagline fades during this phase
 
-        // Apply styles directly
         requestAnimationFrame(() => {
-            mobileHeader.style.paddingTop = `${headerPadding}px`;
-            mobileHeader.style.paddingBottom = `${headerPadding}px`;
+            mobileLogoContainer.style.height = `${containerHeight}px`;
             mobileLogoImg.style.height = `${logoHeight}px`;
             mobileLogoTagline.style.opacity = `${taglineOpacity}`;
         });
-    });
+    }
+}
+
+if (scrollContainer && mobileLogoContainer && mobileLogoImg) {
+    // Measure the dynamic "Largest" state right after the DOM is ready
+    LARGEST_LOGO_HEIGHT = mobileLogoImg.offsetHeight;
+    LARGEST_CONTAINER_HEIGHT = mobileLogoContainer.offsetHeight;
+
+    scrollContainer.addEventListener('scroll', updateHeaderOnScroll);
+    updateHeaderOnScroll(); // Set initial state on load
 } 
