@@ -952,9 +952,10 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 }
 
 #mobile-logo-img {
-    width: 75%; /* This makes the logo fluid and responsive */
-    height: auto; /* This maintains the aspect ratio */
-    transition: all 0.2s ease-out; /* Animate both width and height smoothly */
+    width: 75%; /* The fluid welcome mat size */
+    height: auto; /* Guarantees correct aspect ratio */
+    transform-origin: center; /* Scale from the center for a clean look */
+    transition: transform 0.2s ease-out; /* Animate ONLY the transform property */
 }
 
 #mobile-logo-tagline {

@@ -77,57 +77,51 @@ let shoppingCartCountTopbar = {textContent: '0'};
 
 // Mobile Header Scroll Animation
 const scrollContainer = document.getElementById('app-content-area');
-const mobileHeader = document.getElementById('mobile-top-bar');
 const mobileLogoImg = document.getElementById('mobile-logo-img');
 const mobileLogoTagline = document.getElementById('mobile-logo-tagline');
 
-if (scrollContainer && mobileHeader && mobileLogoImg && mobileLogoTagline) {
+if (scrollContainer && mobileLogoImg && mobileLogoTagline) {
     let isHandoffComplete = false;
-    let initialFluidHeight = 0;
 
-    // State definitions
-    const MEDIUM_LOGO_HEIGHT = 40;
-    const SMALLEST_LOGO_HEIGHT = 32;
-    const ANIMATION_DISTANCE_PHASE1 = 80;
-    const ANIMATION_DISTANCE_PHASE2 = 80;
+    // --- Define Scale States ---
+    const SCALE_LARGEST = 1.0; // Initial fluid size
+    const SCALE_MEDIUM = 0.6;
+    const SCALE_SMALLEST = 0.5;
 
-    const setInitialState = () => {
-        // Measure the true rendered height of the fluid logo
-        initialFluidHeight = mobileLogoImg.offsetHeight;
-        // Ensure the initial state is set correctly
-        mobileLogoImg.style.height = `${initialFluidHeight}px`;
-        mobileLogoTagline.style.opacity = '1';
-    };
+    // --- Define Animation Ranges ---
+    const PHASE1_DISTANCE = 80;
+    const PHASE2_DISTANCE = 80;
     
     const handleScroll = () => {
         const scrollY = scrollContainer.scrollTop;
 
         if (!isHandoffComplete) {
-            // PHASE 1: Animate from fluid welcome mat to a fixed medium size
-            const progress = Math.min(scrollY / ANIMATION_DISTANCE_PHASE1, 1);
-            const currentHeight = initialFluidHeight - (initialFluidHeight - MEDIUM_LOGO_HEIGHT) * progress;
+            // PHASE 1: One-way shrink from LARGEST to MEDIUM scale.
+            const progress = Math.min(scrollY / PHASE1_DISTANCE, 1);
+            const scale = SCALE_LARGEST - (SCALE_LARGEST - SCALE_MEDIUM) * progress;
             
-            mobileLogoImg.style.height = `${currentHeight}px`;
+            requestAnimationFrame(() => {
+                mobileLogoImg.style.transform = `scale(${scale})`;
+                mobileLogoTagline.style.opacity = '1';
+            });
             
             if (progress >= 1) {
                 isHandoffComplete = true;
             }
         } else {
-            // PHASE 2: Animate between medium and smallest size
-            const phase2ScrollY = Math.max(0, scrollY - ANIMATION_DISTANCE_PHASE1);
-            const progress = Math.min(phase2ScrollY / ANIMATION_DISTANCE_PHASE2, 1);
+            // PHASE 2: Reversible shrink from MEDIUM to SMALLEST scale.
+            const phase2ScrollY = Math.max(0, scrollY - PHASE1_DISTANCE);
+            const progress = Math.min(phase2ScrollY / PHASE2_DISTANCE, 1);
 
-            const currentHeight = MEDIUM_LOGO_HEIGHT - (MEDIUM_LOGO_HEIGHT - SMALLEST_LOGO_HEIGHT) * progress;
+            const scale = SCALE_MEDIUM - (SCALE_MEDIUM - SCALE_SMALLEST) * progress;
             const taglineOpacity = 1 - progress;
 
-            mobileLogoImg.style.height = `${currentHeight}px`;
-            mobileLogoTagline.style.opacity = `${taglineOpacity}`;
+            requestAnimationFrame(() => {
+                mobileLogoImg.style.transform = `scale(${scale})`;
+                mobileLogoTagline.style.opacity = `${taglineOpacity}`;
+            });
         }
     };
 
-    // Set the initial state once the layout is stable, then attach scroll listener
-    window.addEventListener('load', () => {
-        setInitialState();
-        scrollContainer.addEventListener('scroll', handleScroll);
-    });
+    scrollContainer.addEventListener('scroll', handleScroll);
 } 
