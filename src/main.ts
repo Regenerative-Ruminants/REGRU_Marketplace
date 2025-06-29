@@ -82,79 +82,90 @@ const mobileLogoContainer = document.getElementById('mobile-logo-container');
 const mobileLogoImg = document.getElementById('mobile-logo-img');
 const mobileLogoTagline = document.getElementById('mobile-logo-tagline');
 
-let isInitialShrinkComplete = false;
+// State flags
+let hasScrolled = false; // Tracks if the user has scrolled at all
+let isSticky = false;    // Tracks if the header is in the final "sticky" state
 
-// --- Define the 3 states ---
-// State 1: LARGEST (on load)
-const LARGEST_LOGO_HEIGHT = 64; // h-16
-const LARGEST_CONTAINER_HEIGHT = 80; // h-20
+// --- Define Pixel-Based States ---
+// State 1: Welcome Mat (calculated dynamically)
+let welcomeHeightContainer: number; 
+let welcomeHeightLogo: number; 
 
-// State 2: MEDIUM (new "top")
-const MEDIUM_LOGO_HEIGHT = 40; // h-10
-const MEDIUM_CONTAINER_HEIGHT = 56; // h-14
+// State 2: Medium (after initial scroll)
+const MEDIUM_CONTAINER_HEIGHT = 80; // Corresponds to Tailwind's h-20
+const MEDIUM_LOGO_HEIGHT = 64;      // Corresponds to Tailwind's h-16
 
-// State 3: SMALLEST (sticky)
-const SMALLEST_LOGO_HEIGHT = 32; // h-8
-const SMALLEST_CONTAINER_HEIGHT = 48; // h-12
+// State 3: Smallest (sticky state)
+const SMALLEST_CONTAINER_HEIGHT = 56; // Corresponds to Tailwind's h-14
+const SMALLEST_LOGO_HEIGHT = 40;      // Corresponds to Tailwind's h-10
 
-// --- Define Animation Ranges ---
-const PHASE1_DISTANCE = 80; // Scroll distance for Largest -> Medium
-const PHASE2_DISTANCE = 80; // Scroll distance for Medium to Smallest
+// --- Animation Trigger Points ---
+const SHRINK_FINISH_SCROLL_Y = 150; // Scroll distance at which the header is fully shrunk
 
-function updateHeaderOnScroll() {
-    if (isHandoffAnimating) { return; }
-    if (!scrollContainer || !mobileHeader || !mobileLogoContainer || !mobileLogoImg || !mobileLogoTagline) return;
-    
-    const scrollY = scrollContainer.scrollTop;
+// --- Core Functions ---
 
-    if (!isInitialShrinkComplete) {
-        // --- PHASE 1: One-way shrink from LARGEST to MEDIUM. Tagline is always visible. ---
-        const progress = Math.min(scrollY / PHASE1_DISTANCE, 1);
+function setHeaderHeight(containerHeight: number, logoHeight: number) {
+    requestAnimationFrame(() => {
+        if (!mobileLogoContainer || !mobileLogoImg) return;
+        mobileLogoContainer.style.height = `${containerHeight}px`;
+        mobileLogoImg.style.height = `${logoHeight}px`;
+    });
+}
 
-        const logoHeight = LARGEST_LOGO_HEIGHT - (LARGEST_LOGO_HEIGHT - MEDIUM_LOGO_HEIGHT) * progress;
-        const containerHeight = LARGEST_CONTAINER_HEIGHT - (LARGEST_CONTAINER_HEIGHT - MEDIUM_CONTAINER_HEIGHT) * progress;
+function handleScroll() {
+    if (!scrollContainer || !mobileLogoTagline) return;
 
-        requestAnimationFrame(() => {
-            mobileLogoContainer.style.height = `${containerHeight}px`;
-            mobileLogoImg.style.height = `${logoHeight}px`;
-            mobileLogoTagline.style.opacity = '1'; // Ensure tagline is visible
-        });
-
-        if (progress >= 1) {
-            isInitialShrinkComplete = true; // The handoff
+    if (!hasScrolled) {
+        // This is the first scroll event.
+        hasScrolled = true;
+        // The one-time handoff: disable the resize listener.
+        window.removeEventListener('resize', initHeader);
+        
+        // Add CSS transitions now so the initial set doesn't animate, but subsequent scrolls do.
+        if (mobileLogoContainer && mobileLogoImg) {
+            mobileLogoContainer.style.transition = 'height 0.3s ease-in-out';
+            mobileLogoImg.style.transition = 'height 0.3s ease-in-out';
         }
-    } else {
-        // --- PHASE 2: Reversible shrink from MEDIUM to SMALLEST. Tagline fades out. ---
-        const phase2ScrollY = Math.max(0, scrollY - PHASE1_DISTANCE);
-        const progress = Math.min(phase2ScrollY / PHASE2_DISTANCE, 1);
+    }
 
-        const logoHeight = MEDIUM_LOGO_HEIGHT - (MEDIUM_LOGO_HEIGHT - SMALLEST_LOGO_HEIGHT) * progress;
-        const containerHeight = MEDIUM_CONTAINER_HEIGHT - (MEDIUM_CONTAINER_HEIGHT - SMALLEST_CONTAINER_HEIGHT) * progress;
-        const taglineOpacity = 1 - progress; // Tagline fades during this phase
+    const scrollY = scrollContainer.scrollTop;
+    
+    // Calculate the shrink progress (0 to 1)
+    const progress = Math.min(scrollY / SHRINK_FINISH_SCROLL_Y, 1);
+    
+    // Interpolate between Medium and Smallest states
+    const containerHeight = MEDIUM_CONTAINER_HEIGHT - (MEDIUM_CONTAINER_HEIGHT - SMALLEST_CONTAINER_HEIGHT) * progress;
+    const logoHeight = MEDIUM_LOGO_HEIGHT - (MEDIUM_LOGO_HEIGHT - SMALLEST_LOGO_HEIGHT) * progress;
+    const taglineOpacity = 1 - progress; // Fade out tagline as we shrink
+    
+    setHeaderHeight(containerHeight, logoHeight);
+    mobileLogoTagline.style.opacity = `${taglineOpacity}`;
+}
 
-        requestAnimationFrame(() => {
-            mobileLogoContainer.style.height = `${containerHeight}px`;
-            mobileLogoImg.style.height = `${logoHeight}px`;
-            mobileLogoTagline.style.opacity = `${taglineOpacity}`;
-        });
+function initHeader() {
+    // Calculate the initial "Welcome Mat" size in pixels
+    // Use 50% of the viewport height as the container, and 40% for the logo
+    welcomeHeightContainer = window.innerHeight * 0.5;
+    welcomeHeightLogo = window.innerHeight * 0.4;
+    
+    // Set the initial state without transitions
+    setHeaderHeight(welcomeHeightContainer, welcomeHeightLogo);
+
+    // Ensure tagline is fully visible initially
+    if (mobileLogoTagline) {
+        mobileLogoTagline.style.opacity = '1';
     }
 }
 
-if (scrollContainer) {
-    scrollContainer.addEventListener('scroll', updateHeaderOnScroll);
-}
 
-// --- Welcome Mat Handoff ---
-// This listener runs exactly once on the first scroll, then removes itself.
-const logo = document.getElementById('mobile-logo-img');
-let isHandoffAnimating = false;
+// --- Event Listeners ---
+if (scrollContainer && mobileHeader && mobileLogoContainer && mobileLogoImg && mobileLogoTagline) {
+    // 1. Set the initial state on load
+    document.addEventListener('DOMContentLoaded', initHeader);
 
-if (logo) {
-    window.addEventListener('scroll', () => {
-        logo.classList.remove('welcome-mat');
-        isHandoffAnimating = true;
-        setTimeout(() => {
-            isHandoffAnimating = false;
-        }, 300); // Must match the CSS transition duration
-    }, { once: true });
+    // 2. Add a resize listener to handle orientation changes BEFORE the first scroll
+    window.addEventListener('resize', initHeader);
+    
+    // 3. Add the main scroll listener
+    scrollContainer.addEventListener('scroll', handleScroll);
 } 
