@@ -141,7 +141,6 @@ function updateHeaderOnScroll() {
 
 if (scrollContainer) {
     scrollContainer.addEventListener('scroll', updateHeaderOnScroll);
-    updateHeaderOnScroll(); // Set initial state on load
 }
 
 // --- Welcome Mat Handoff ---
