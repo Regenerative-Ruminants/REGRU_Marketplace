@@ -86,8 +86,8 @@ let isInitialShrinkComplete = false;
 
 // --- Define the 3 states ---
 // State 1: LARGEST (on load)
-const LARGEST_LOGO_HEIGHT = 64; // h-16
-const LARGEST_CONTAINER_HEIGHT = 80; // h-20
+const LARGEST_LOGO_HEIGHT = 80; // h-20
+const LARGEST_CONTAINER_HEIGHT = 96; // h-24
 
 // State 2: MEDIUM (new "top")
 const MEDIUM_LOGO_HEIGHT = 40; // h-10
