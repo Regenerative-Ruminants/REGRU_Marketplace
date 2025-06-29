@@ -876,6 +876,7 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     #app-main-content {
         height: 100vh;
         overflow-y: auto;
+        overflow-x: hidden; /* Prevent horizontal scroll wobble */
         padding-top: 0; /* Override global padding */
         padding-bottom: 0; /* Remove padding from scroller */
     }
@@ -888,22 +889,64 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
         padding-bottom: 5rem; /* Space for bottom nav */
     }
 
-    /* Force single-column on mobile for all views */
-    .products-grid.grid-view,
-    .products-grid.list-view {
-        grid-template-columns: 1fr;
-        display: flex;
-        flex-direction: column;
+    /* --- MOBILE GRID VIEW (2-column) --- */
+    .products-grid.grid-view {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem; /* 12px */
     }
 
-    .products-grid .product-card {
+    .products-grid.grid-view .product-card {
+        flex-direction: column !important;
+    }
+    
+    .products-grid.grid-view .product-card .product-image {
+        height: 120px; /* Smaller image for compact grid */
+    }
+    
+    .products-grid.grid-view .product-card .product-content {
+        padding: 0.75rem;
+    }
+    
+    .products-grid.grid-view .product-card .product-title {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+    
+    .products-grid.grid-view .product-card .farm-info,
+    .products-grid.grid-view .product-card .product-description,
+    .products-grid.grid-view .product-card .product-tags {
+        display: none;
+    }
+    
+    .products-grid.grid-view .product-card .product-footer {
+        padding: 0.75rem;
+        padding-top: 0.5rem;
+        background-color: #f8f9fa;
+    }
+    
+    .products-grid.grid-view .product-card .price {
+        font-size: 16px;
+    }
+
+    .products-grid.grid-view .product-card .add-to-cart {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    /* --- MOBILE LIST VIEW (1-column) --- */
+    .products-grid.list-view {
+        display: flex;
+        flex-direction: column;
+        grid-template-columns: 1fr;
+    }
+
+    .products-grid.list-view .product-card {
         flex-direction: column !important;
     }
 
-    /* Reset list view image for mobile */
     .products-grid.list-view .product-card .product-image {
         width: 100%;
-        height: 180px;
+        height: 180px; /* Restore original full-card height */
         border-radius: 16px 16px 0 0;
     }
     
