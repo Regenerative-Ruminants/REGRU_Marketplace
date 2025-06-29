@@ -99,9 +99,10 @@ const SMALLEST_CONTAINER_HEIGHT = 48; // h-12
 
 // --- Define Animation Ranges ---
 const PHASE1_DISTANCE = 80; // Scroll distance for Largest -> Medium
-const PHASE2_DISTANCE = 80; // Scroll distance for Medium -> Smallest
+const PHASE2_DISTANCE = 80; // Scroll distance for Medium to Smallest
 
 function updateHeaderOnScroll() {
+    if (isHandoffAnimating) { return; }
     if (!scrollContainer || !mobileHeader || !mobileLogoContainer || !mobileLogoImg || !mobileLogoTagline) return;
     
     const scrollY = scrollContainer.scrollTop;
@@ -146,8 +147,14 @@ if (scrollContainer) {
 // --- Welcome Mat Handoff ---
 // This listener runs exactly once on the first scroll, then removes itself.
 const logo = document.getElementById('mobile-logo-img');
+let isHandoffAnimating = false;
+
 if (logo) {
     window.addEventListener('scroll', () => {
         logo.classList.remove('welcome-mat');
+        isHandoffAnimating = true;
+        setTimeout(() => {
+            isHandoffAnimating = false;
+        }, 300); // Must match the CSS transition duration
     }, { once: true });
 } 
