@@ -9,10 +9,14 @@ async function greet() {
   console.log("network:", await invoke("set_network", {
     network: "local"
   }));
+  console.log("Product:", await invoke("get_product", {
+    address: "b318775912059e97d18f420debf937b146f9b0dc107e6b054a9b195cd89d647efe8bbefdccfd7785ec038e39ca88ffb2"
+  }));
   console.log("current wallet:", await invoke("set_wallet", {
     wallet: "0x9827947598745987494982794387"
   }));
   console.log("app state:", await invoke("get_app_state"));
+
 }
 
 // Only call greet if running in Tauri environment and IPC is available

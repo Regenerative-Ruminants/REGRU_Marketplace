@@ -1,4 +1,4 @@
-use autonomi::Network;
+use autonomi::{Client, Network};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
@@ -65,34 +65,34 @@ pub fn load_state(file_path: &PathBuf) -> Result<AppState, String> {
 
 #[cfg(test)]
 mod tests {
-    
+
     mod save_state {
-        use tempfile::env::temp_dir;
         use crate::state::{save_state, AppState};
+        use tempfile::env::temp_dir;
 
         #[test]
         fn test_save_state() {
             // Arrange
             let tmp_dir = temp_dir();
             let path = tmp_dir.join("state.json");
-            
+
             let data = AppState {
                 network: String::from("testnet"),
                 wallet: Some(String::from("0x98204")),
             };
-            
+
             // Act
             let result = save_state(&data, &path);
-            
+
             // Assert
             assert!(result.is_ok());
         }
     }
-    
+
     mod load_state {
+        use crate::state::{load_state, AppState};
         use std::fs;
         use tempfile::env::temp_dir;
-        use crate::state::{load_state, AppState};
 
         #[test]
         fn test_load_state_file_not_found() {
@@ -116,14 +116,15 @@ mod tests {
             // Arrange
             let tmp_dir = temp_dir();
             let path = tmp_dir.join("state.json");
-            
+
             let data = AppState {
                 network: String::from("testnet"),
                 wallet: Some(String::from("0x98204")),
             };
 
-            let json_string = serde_json::to_string_pretty(&data).expect("Failed to serialize data to JSON");
-            
+            let json_string =
+                serde_json::to_string_pretty(&data).expect("Failed to serialize data to JSON");
+
             fs::write(path.clone(), json_string).unwrap();
 
             // Act

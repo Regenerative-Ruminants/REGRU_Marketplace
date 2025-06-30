@@ -5,6 +5,7 @@ mod commands;
 mod state;
 
 use crate::state::{get_state_file_path, load_state};
+use commands::products::get_product;
 use commands::state::{get_app_state, set_network, set_wallet};
 use commands::wallets::get_available_wallets;
 use std::sync::Mutex;
@@ -27,6 +28,7 @@ fn main() {
             set_network,
             set_wallet,
             get_app_state,
+            get_product
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

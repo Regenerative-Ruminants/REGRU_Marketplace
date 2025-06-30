@@ -15,7 +15,7 @@ pub async fn set_network(
 
     let mut state = state.lock().unwrap();
     state.network = network;
-    
+
     let path = get_state_file_path(&config);
     save_state(&state, &path)?;
 
