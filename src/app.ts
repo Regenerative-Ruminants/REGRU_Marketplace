@@ -191,6 +191,13 @@ const sortSelectControl = document.getElementById('sort-select-control') as HTML
 const filterTagsContainer = document.getElementById('filter-tags-container') as HTMLElement; // Phase 2.5: Filter tags
 const viewToggleControl = document.getElementById('view-toggle-control') as HTMLElement; // Phase 2.6: View toggle
 
+// --- Search Overlay Elements (Phase 3) ---
+const mobileSearchOpener = document.getElementById('mobile-search');
+const searchOverlay = document.getElementById('regru-search-overlay');
+const searchCloser = document.getElementById('regru-search-close');
+const searchInput = document.getElementById('regru-search-input') as HTMLInputElement;
+const searchResults = document.getElementById('regru-search-results');
+
 // --- App State (New) ---
 let currentView: string = 'browse_all_products'; // Default view
 let currentSearchTerm: string = ''; // Phase 2.3: For search functionality
@@ -205,7 +212,6 @@ const dynamicBadgeData = {
     unreadNotifications: 0,
     unreadMessages: 0,
 };
-
 
 // --- Core Functions (Phase 1 Refactor) ---
 
@@ -602,136 +608,146 @@ function updateCartDisplay(): void {
 // --- Initialization (Phase 1 Refactor) ---
 function initializeApp(): void {
     renderSidebar();
-    
-    const defaultNavItem = sidebarNavConfig.flatMap(s => s.items).find(item => item.isDefault);
+    renderFilterTags(); // Initial render for default view
+    updateViewToggleButtonsActiveState();
+
+    // Set initial view based on default in config
+    const defaultNavItem = sidebarNavConfig.flatMap(s => s.items).find(i => i.isDefault);
     if (defaultNavItem) {
         navigateTo(defaultNavItem.id, { title: defaultNavItem.label });
-    } else {
-         navigateTo('browse_all_products', { title: 'All Products' }); // Fallback
     }
 
-    updateCartDisplay();
-    renderFilterTags(); // Phase 2.5a: Initial render of filter tags
-    updateViewToggleButtonsActiveState(); // Phase 2.6a: Initial set active button state
-
-    // Event Listeners Setup
-    if (closeWalletModalButton) {
-        closeWalletModalButton.addEventListener('click', closeWalletsModal);
-    }
-    if (walletModal) { 
-        walletModal.addEventListener('click', (event) => { 
-            if (event.target === walletModal) closeWalletsModal();
-        });
-    }
-
+    // --- Event Listeners ---
     if (shoppingCartButtonTopbar) {
         shoppingCartButtonTopbar.addEventListener('click', () => {
-            navigateTo('shopping_cart_view', { title: 'Your Shopping Cart' });
-        });
-    }
-
-    if (searchInputMain) {
-        searchInputMain.addEventListener('input', (e) => {
-            currentSearchTerm = (e.target as HTMLInputElement).value;
-            navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' }); 
+            alert("Navigate to Shopping Cart page (to be implemented)");
         });
     }
 
     if (sortSelectControl) {
         sortSelectControl.addEventListener('change', (e) => {
             currentSortOption = (e.target as HTMLSelectElement).value;
-            navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' });
+            // Re-render the current view with the new sort option
+            navigateTo(currentView, {}); 
         });
     }
 
-    // Phase 2.6a: View Toggle Button Listeners
     if (viewToggleControl) {
-        const gridBtn = viewToggleControl.querySelector('[data-view="grid"]');
-        const listBtn = viewToggleControl.querySelector('[data-view="list"]');
+        viewToggleControl.addEventListener('click', (e) => {
+            const button = (e.target as HTMLElement).closest('.view-btn') as HTMLElement;
+            if (button && button.dataset.view) {
+                currentDisplayMode = button.dataset.view as 'grid' | 'list';
+                updateViewToggleButtonsActiveState();
+                const products = sampleProducts; // In a real app, this would be a more complex state lookup
+                renderProductGrid(products);
+            }
+        });
+    }
 
-        if (gridBtn) {
-            gridBtn.addEventListener('click', () => {
-                if (currentDisplayMode === 'grid') return; // Do nothing if already active
-                currentDisplayMode = 'grid';
-                updateViewToggleButtonsActiveState();
-                navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' });
-            });
-        }
-        if (listBtn) {
-            listBtn.addEventListener('click', () => {
-                if (currentDisplayMode === 'list') return; // Do nothing if already active
-                currentDisplayMode = 'list';
-                updateViewToggleButtonsActiveState();
-                navigateTo('browse_all_products', { title: pageTitleMain?.textContent || 'All Products' });
-            });
-        }
+    // Wallet Modal Listeners
+    if (closeWalletModalButton) {
+        closeWalletModalButton.addEventListener('click', closeWalletsModal);
     }
     
+    // --- Native Search Overlay Logic ---
+    console.log("Attaching search listeners...");
+    console.log({
+        mobileSearchOpener,
+        searchOverlay,
+        searchCloser,
+        searchInput,
+        searchResults
+    });
+    if (mobileSearchOpener && searchOverlay && searchCloser && searchInput && searchResults) {
+        const openSearch = () => {
+            // Add animation properties before making it visible
+            searchOverlay.style.transition = 'opacity 0.3s ease-in-out';
+            searchOverlay.style.opacity = '0';
+            
+            // Force the overlay to be visible and full-screen, bypassing all CSS issues.
+            searchOverlay.style.display = 'flex';
+            searchOverlay.style.position = 'fixed';
+            searchOverlay.style.top = '0px';
+            searchOverlay.style.left = '0px';
+            searchOverlay.style.width = '100%';
+            searchOverlay.style.height = '100vh';
+            searchOverlay.style.zIndex = '1000';
+
+            // Center the content and control its width via JS
+            searchOverlay.style.justifyContent = 'center';
+            searchOverlay.style.alignItems = 'flex-start';
+
+            // Apply styling via JS to bypass CSS conflicts
+            // @ts-ignore - for vendor prefix
+            searchOverlay.style.webkitBackdropFilter = 'blur(4px)'; // backdrop-blur-sm
+            searchOverlay.style.backdropFilter = 'blur(4px)';
+
+            // Find the inner container and set its max-width
+            const innerContainer = searchOverlay.querySelector('.w-full.max-w-xl') as HTMLElement;
+            if (innerContainer) {
+                innerContainer.style.marginTop = '10vh'; // Position it from the top
+            }
+
+            // Trigger the fade-in after a tiny delay
+            setTimeout(() => {
+                searchOverlay.style.opacity = '1';
+            }, 10);
+
+            document.body.style.overflow = 'hidden';
+            searchInput.focus();
+        };
+
+        const closeSearch = () => {
+            searchOverlay.style.opacity = '0';
+            setTimeout(() => {
+                searchOverlay.style.display = 'none';
+            }, 300); // Wait for transition to finish before hiding
+
+            document.body.style.overflow = '';
+            searchInput.value = '';
+            searchResults.innerHTML = '';
+        };
+
+        mobileSearchOpener.addEventListener('click', openSearch);
+        searchCloser.addEventListener('click', closeSearch);
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            if (!query) {
+                searchResults.innerHTML = '';
+                return;
+            }
+
+            if ((window as any).sampleProducts) {
+                const hits = (window as any).sampleProducts
+                    .filter((p: Product) => p.name.toLowerCase().includes(query))
+                    .slice(0, 5);
+
+                searchResults.innerHTML = hits.length
+                    ? hits.map((p: Product) => `
+                        <div class="flex items-center gap-4 p-4 rounded-lg hover:bg-white/10 cursor-pointer transition-colors" data-id="${p.id}" onclick="alert('Navigate to product ${p.id}')">
+                            <img src="${p.image}" class="w-14 h-14 rounded-md object-cover flex-shrink-0">
+                            <div>
+                                <div class="font-semibold text-white">${p.name}</div>
+                                <div class="text-sm text-white/70">${p.category}</div>
+                            </div>
+                        </div>
+                    `).join('')
+                    : '<p class="p-4 text-center text-white/70">No products found.</p>';
+            }
+        });
+    }
+
     console.log("app.ts (Phase 1 UI Refactor) loaded and initializeApp queued for DOMContentLoaded.");
 }
 
-// Run initialization when the DOM is ready
-document.addEventListener('DOMContentLoaded', initializeApp);
+// Global Exports
+(window as any).navigateTo = navigateTo;
+(window as any).updateCartDisplay = updateCartDisplay;
+(window as any).sampleProducts = sampleProducts; // For console debugging/other scripts
+(window as any).shoppingCart = shoppingCart;
+(window as any).activeFilters = activeFilters;
+(window as any).renderFilterTags = renderFilterTags;
 
-// Exposing functions to window - review if needed in Phase 2
-// (window as any).selectSecondPanelItem = selectSecondPanelItem; // Old function, should be removed
-
-/* --- OLD CODE TO BE REMOVED/REPLACED (Commented out for reference during refactor) ---
-
-// --- OLD Type Definitions ---
-// interface SecondPanelItem { id: string; label: string; iconClass?: string; }
-// interface SecondPanelGroup { groupLabel?: string; items: SecondPanelItem[]; }
-// interface PlatformItem { label: string; iconClass: string; searchPlaceholder?: string; secondPanelContent?: SecondPanelGroup[]; isBottomIcon?: boolean;}
-// interface PlatformData { [key: string]: PlatformItem; }
-// interface ContentEntry { title: string; htmlFactory?: () => string; html?: string; }
-// interface ContentData { [key: string]: ContentEntry; }
-// interface InfoPanelData { [key: string]: string; }
-
-
-// --- OLD Platform UI Data & Content Data ---
-// const platformData: PlatformData = { ... };
-// const contentData: ContentData = { ... };
-// const informationPanelData: InfoPanelData = { ... };
-
-
-// --- OLD DOM Elements ---
-// const firstPanelMainIconsContainer = document.getElementById('first-panel-main-icons') as HTMLElement;
-// const firstPanelBottomIconsContainer = document.getElementById('first-panel-bottom-icons') as HTMLElement;
-// const secondPanel = document.getElementById('second-panel') as HTMLElement;
-// const secondPanelSearch = document.getElementById('second-panel-search') as HTMLInputElement;
-// const secondPanelContentEl = document.getElementById('second-panel-content') as HTMLElement;
-// const mainHeading = document.getElementById('main-heading') as HTMLElement; // Replaced by pageTitleMain
-// const contentSection = document.getElementById('content-section') as HTMLElement; // Replaced by productsGridContainer or similar
-// const contentPlaceholder = document.getElementById('content-placeholder') as HTMLElement;
-// const infoPanel = document.getElementById('info-panel') as HTMLElement;
-// const infoPanelContentEl = document.getElementById('info-panel-content') as HTMLElement;
-// const toggleSecondPanelBtn = document.getElementById('toggle-second-panel') as HTMLButtonElement;
-// const toggleInfoPanelBtn = document.getElementById('toggle-info-panel') as HTMLButtonElement;
-// const toggleSecondIcon = document.getElementById('toggle-second-icon') as HTMLElement;
-// const toggleInfoIcon = document.getElementById('toggle-info-icon') as HTMLElement;
-// const shoppingCartButton = document.getElementById('shopping-cart-button') as HTMLButtonElement; // Replaced by shoppingCartButtonTopbar
-// const shoppingCartCountDisplay = document.getElementById('shopping-cart-count-display') as HTMLElement; // Replaced by shoppingCartCountTopbar
-
-
-// --- OLD App State ---
-// let activeFirstPanelKey: string | null = null;
-// let activeSecondPanelId: string | null = null;
-// let isSecondPanelOpen = true;
-// let isInfoPanelOpen = true;
-
-// --- OLD Core Functions ---
-// function renderFirstPanel(): void { ... }
-// function renderSecondPanel(key: string | null): void { ... }
-// function updateMainContent(itemId: string, itemLabelFromSecondPanel?: string): void { ... } // Replaced by navigateTo and specific renderers
-// function attachProfileTabListeners(): void { ... } // Will be re-added if profile view uses tabs
-// function selectFirstPanelItem(key: string): void { ... }
-// function selectSecondPanelItem(itemId: string, itemLabel: string, parentKey: string): void { ... }
-// (window as any).selectSecondPanelItem = selectSecondPanelItem;
-// function updateSecondPanelActiveState(): void { ... }
-// function toggleSecondPanelDisplay(forceOpen?: boolean): void { ... }
-// toggleSecondPanelBtn.addEventListener('click', () => toggleSecondPanelDisplay());
-// function toggleInfoPanelDisplay(forceOpen?: boolean): void { ... }
-// toggleInfoPanelBtn.addEventListener('click', () => toggleInfoPanelDisplay());
-// shoppingCartButton.addEventListener('click', () => { ... }); // Old cart button logic
-
-*/ 
+// Run the app once the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', initializeApp); 

@@ -146,5 +146,40 @@
             <i class="fas fa-user text-lg"></i><span>Profile</span>
         </button>
     </nav>
+
+    <!-- Native Search Overlay -->
+    <div id="regru-search-overlay" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-lg z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-2xl mx-auto">
+            <header class="flex items-center justify-between" style="padding: 1rem 2rem;">
+                <h2 class="font-oswald text-5xl font-bold text-white tracking-wider text-shadow-strong">Search</h2>
+                <button id="regru-search-close" class="relative bg-transparent border-none w-16 h-16 flex items-center justify-center text-6xl text-white/80 transition-transform duration-200 hover:scale-110">
+                    <div class="absolute inset-0 rounded-full bg-white/0 hover:bg-white/10 transition-colors duration-200"></div>
+                    <span class="relative font-light -mt-2 text-shadow-strong">&times;</span>
+                </button>
+            </header>
+            <div class="mt-12" style="padding: 0 2rem;">
+                <div class="relative w-[70%] mx-auto">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-3xl text-shadow-strong"></i>
+                    <input id="regru-search-input" type="search" placeholder="Search fresh produce, artisan cheese..."
+                           class="w-full text-2xl bg-transparent text-white placeholder:text-white/70 border-0 border-b-2 border-white/40 rounded-none py-4 pl-20 pr-4 focus:border-white focus:ring-0 outline-none transition-colors text-shadow-strong" />
+                </div>
+                <div id="regru-search-results" class="w-full mt-8 space-y-1">
+                    <!-- Placeholder search results - Final Design -->
+                    <div class="p-4 rounded-md cursor-pointer hover:bg-white/10 transition-colors duration-200">
+                        <p class="text-xl text-white text-shadow-strong">Organic Avocados</p>
+                        <p class="text-base text-white/70 text-shadow-strong">in Fresh Produce</p>
+                    </div>
+                    <div class="p-4 rounded-md cursor-pointer hover:bg-white/10 transition-colors duration-200">
+                        <p class="text-xl text-white text-shadow-strong">Artisan Sourdough</p>
+                        <p class="text-base text-white/70 text-shadow-strong">in Bakery</p>
+                    </div>
+                    <div class="p-4 rounded-md cursor-pointer hover:bg-white/10 transition-colors duration-200">
+                        <p class="text-xl text-white text-shadow-strong">Free-Range Eggs</p>
+                        <p class="text-base text-white/70 text-shadow-strong">in Dairy & Eggs</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html> 
