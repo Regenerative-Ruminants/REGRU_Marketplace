@@ -12,6 +12,7 @@ async function greet() {
   console.log("Product:", await invoke("get_product", {
     address: "b318775912059e97d18f420debf937b146f9b0dc107e6b054a9b195cd89d647efe8bbefdccfd7785ec038e39ca88ffb2"
   }));
+  console.log("All Products:", await invoke("get_all_products"));
   console.log("current wallet:", await invoke("set_wallet", {
     wallet: "0x9827947598745987494982794387"
   }));

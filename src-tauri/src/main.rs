@@ -4,6 +4,7 @@ mod autonomi;
 mod commands;
 mod state;
 
+use crate::commands::products::get_all_products;
 use crate::state::{get_state_file_path, load_state};
 use commands::products::get_product;
 use commands::state::{get_app_state, set_network, set_wallet};
@@ -28,7 +29,8 @@ fn main() {
             set_network,
             set_wallet,
             get_app_state,
-            get_product
+            get_product,
+            get_all_products,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
