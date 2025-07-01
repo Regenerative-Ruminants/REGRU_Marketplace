@@ -42,6 +42,64 @@ interface SidebarNavSection {
 
 // --- Sample Product Data (Preserved - will be used in Phase 2 for product grid) ---
 const sampleProducts: Product[] = [
+    // --- NEW PRODUCTS ADDED HERE ---
+    { 
+        id: 'prod_new_001', name: 'The Fauna', seller: 'Artisan Creations', provenance: 'Local Workshop', category: 'Crafts', animal: 'N/A', price: 75.00, 
+        image: '/images/products/The-Fauna.png', 
+        rating: 5, reviewCount: 15, 
+        description: 'A beautifully handcrafted item, perfect for any collection.',
+        tags: ['Handmade', 'Unique', 'Artisan'] 
+    },
+    { 
+        id: 'prod_new_002', name: 'Beautiful Washed BFL Curls', seller: 'Woolly Wonders Farm', provenance: 'Countryside', category: 'Crafts', animal: 'Sheep', price: 25.50, 
+        image: '/images/products/Big-bags-of-beautiful-washed-BFL-curls.png', 
+        rating: 5, reviewCount: 32, 
+        description: 'Premium, clean Bluefaced Leicester curls, ready for spinning or felting.',
+        tags: ['BFL', 'Spinning', 'Felting', 'Natural Fiber'] 
+    },
+    { 
+        id: 'prod_new_003', name: 'Whole Beef Shank', seller: 'Highland Heritage Farm', provenance: 'Scottish Highlands', category: 'Meat', animal: 'Cattle', price: 18.75, 
+        image: '/images/products/Whole-beef-shank.png', 
+        rating: 4, reviewCount: 41, 
+        description: 'A hearty and flavorful cut, perfect for slow cooking, stews, or broth.',
+        tags: ['Grass-fed', 'Slow-cook', 'Osso Buco'] 
+    },
+    { 
+        id: 'prod_new_004', name: 'Raw Milk', seller: 'Cotswold Creamery', provenance: 'Gloucestershire', category: 'Dairy', animal: 'Cattle', price: 3.20, 
+        image: '/images/products/Raw-Milk.png', 
+        rating: 5, reviewCount: 98, 
+        description: 'Fresh, unpasteurized raw milk from our grass-fed herd. Creamy and full of natural goodness.',
+        tags: ['Raw', 'Unpasteurized', 'Grass-fed'] 
+    },
+    { 
+        id: 'prod_new_005', name: 'Grass-Fed Chateaubriand Steak', seller: 'Highland Heritage Farm', provenance: 'Scottish Highlands', category: 'Meat', animal: 'Cattle', price: 45.00, 
+        image: '/images/products/Grass-Fed-Beef-Chateaubriand-Sharing-Steak.png', 
+        rating: 5, reviewCount: 62, 
+        description: 'The most tender and luxurious cut of beef, perfect for a special occasion.',
+        tags: ['Center-cut', 'Tenderloin', 'Sharing Steak'] 
+    },
+    { 
+        id: 'prod_new_006', name: 'Raw Organic A2 Grass-Fed Milk', seller: 'Cotswold Creamery', provenance: 'Gloucestershire', category: 'Dairy', animal: 'Cattle', price: 4.50, 
+        image: '/images/products/Raw-Organic-A2-Grass-Fed-milk.png', 
+        rating: 5, reviewCount: 150, 
+        description: 'Premium organic raw milk from A2 cows, easier to digest and exceptionally creamy.',
+        tags: ['A2 Milk', 'Organic', 'Raw', 'Grass-fed'] 
+    },
+    { 
+        id: 'prod_new_007', name: 'Stevie Bag in Black', seller: 'Artisan Creations', provenance: 'Local Workshop', category: 'Crafts', animal: 'N/A', price: 120.00, 
+        image: '/images/products/Stevie-Bag-in-Black.png', 
+        rating: 5, reviewCount: 8, 
+        description: 'A stylish and durable handcrafted bag, perfect for everyday use.',
+        tags: ['Handmade', 'Leather', 'Fashion'] 
+    },
+    { 
+        id: 'prod_new_008', name: 'Jacob Felted Fleece', seller: 'Woolly Wonders Farm', provenance: 'Countryside', category: 'Crafts', animal: 'Sheep', price: 35.00, 
+        image: '/images/products/Jacob-Felted-Fleece.png', 
+        rating: 5, reviewCount: 25, 
+        description: 'A beautiful and unique felted fleece from Jacob sheep, ideal for rugs or wall hangings.',
+        tags: ['Felted Fleece', 'Jacob Sheep', 'Natural', 'Crafting'] 
+    },
+    // --- EXISTING DUMMY PRODUCTS ---
     { 
         id: 'prod001', name: 'Heritage Rainbow Carrots', seller: 'Sunrise Organic Farm', provenance: 'Devon, England', category: 'Produce', animal: 'N/A', price: 3.50, 
         image: 'https://placehold.co/400x300/84cc16/FFFFFF?text=Organic+Carrots', 
@@ -215,6 +273,33 @@ const dynamicBadgeData = {
 
 // --- Core Functions (Phase 1 Refactor) ---
 
+/**
+ * Renders search results inside the search overlay.
+ * @param results - An array of products to display.
+ */
+function renderSearchResults(results: Product[]): void {
+    if (!searchResults) return;
+
+    searchResults.innerHTML = ''; // Clear previous results
+
+    if (results.length === 0) {
+        searchResults.innerHTML = `<p class="p-4 text-center text-white/70">No products found.</p>`;
+        return;
+    }
+
+    results.forEach(product => {
+        const resultDiv = document.createElement('div');
+        resultDiv.className = 'p-4 rounded-md cursor-pointer hover:bg-white/10 transition-colors duration-200';
+        resultDiv.innerHTML = `
+            <p class="text-xl text-white text-shadow-strong">${product.name}</p>
+            <p class="text-base text-white/70 text-shadow-strong">in ${product.category}</p>
+        `;
+        // Optional: Add a click listener to navigate to the product
+        // resultDiv.addEventListener('click', () => { /* navigate to product detail */ });
+        searchResults.appendChild(resultDiv);
+    });
+}
+
 function renderSidebar(): void {
     if (!sidebarNavContainer) return;
     sidebarNavContainer.innerHTML = ''; // Clear existing items
@@ -261,6 +346,52 @@ function renderSidebar(): void {
         });
         sidebarNavContainer.appendChild(sectionDiv);
     });
+
+    if (shoppingCartButtonTopbar && shoppingCartCountTopbar) {
+        // Event listeners for cart will be here
+    }
+
+    if (mobileSearchOpener && searchOverlay && searchCloser && searchInput && searchResults) {
+        const openSearch = () => {
+            if (!searchOverlay || !searchInput) return;
+            searchOverlay.classList.remove('hidden');
+            searchInput.value = ''; // Clear previous search
+            searchInput.focus();
+            renderSearchResults(sampleProducts); // Show all products initially
+        };
+
+        const closeSearch = () => {
+            if (!searchOverlay || !searchInput) return;
+            searchOverlay.classList.add('hidden');
+        };
+
+        mobileSearchOpener.addEventListener('click', openSearch);
+        searchCloser.addEventListener('click', closeSearch);
+
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            if (searchTerm === '') {
+                renderSearchResults(sampleProducts);
+                return;
+            }
+            const filteredProducts = sampleProducts.filter(product => 
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.seller.toLowerCase().includes(searchTerm) ||
+                product.category.toLowerCase().includes(searchTerm)
+            );
+            renderSearchResults(filteredProducts);
+        });
+
+        // Close on escape key
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !searchOverlay.classList.contains('hidden')) {
+                closeSearch();
+            }
+        });
+    }
+
+    // Initialize the default view
+    navigateTo(currentView, { title: 'Fresh Farm Products' });
 }
 
 function updateSidebarActiveState(): void {
