@@ -1,0 +1,35 @@
+[
+  {
+    "uuid": "a5bde979-c6ac-4df2-af35-5831615f97fe",
+    "name": "Product 1",
+    "description": "Product 1 description",
+    "price": {
+      "currency": "ANT",
+      "amount": 30
+    },
+    "image_address": "02c18b8fdff82f4cb405ff43eab4a494a8a4092d7647c1ebfaffdb90cf5c1e98",
+    "tags": ["Tag 1"]
+  },
+  {
+    "uuid": "c71f6d5f-7df9-4a75-8692-9b7eda44e079",
+    "name": "Product 2",
+    "description": "Product 2 description",
+    "price": {
+      "currency": "ANT",
+      "amount": 400
+    },
+    "image_address": "b9e0215f209f28fd078e78aa9a4a1bfdfec7572c5317bd9d7f19774f7e36ee6f",
+    "tags": ["Tag 2", "Tag3"]
+  },
+  {
+    "uuid": "49658575-445b-4027-a283-928818da5553",
+    "name": "Product 3",
+    "description": "Product 3 description",
+    "price": {
+      "currency": "ANT",
+      "amount": 1200
+    },
+    "image_address": "676e0f905ced58d3dd1645220e3bab524c41f9945079f833d69a27c4539da9f1",
+    "tags": ["Tag 4"]
+  }
+]
