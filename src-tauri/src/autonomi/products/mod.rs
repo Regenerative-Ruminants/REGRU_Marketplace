@@ -1,5 +1,5 @@
 use crate::commands::products::models::Product;
-use autonomi::{ChunkAddress, Client, PointerAddress};
+use autonomi::{Bytes, ChunkAddress, Client, PointerAddress};
 use std::sync::Arc;
 
 /// Pointer Address for all products
