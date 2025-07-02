@@ -1,4 +1,4 @@
-use autonomi::{Client, Network};
+use autonomi::Network;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
@@ -115,7 +115,7 @@ mod tests {
         fn test_load_state_file() {
             // Arrange
             let tmp_dir = temp_dir();
-            let path = tmp_dir.join("state.json");
+            let path = tmp_dir.join("test-state.json");
 
             let data = AppState {
                 network: String::from("testnet"),
