@@ -98,7 +98,7 @@ mod tests {
         fn test_load_state_file_not_found() {
             // Arrange
             let tmp_dir = temp_dir();
-            let path = tmp_dir.join("state.json");
+            let path = tmp_dir.join("missing-state-file.json");
 
             // Act
             let result = load_state(&path);
