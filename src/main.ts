@@ -6,6 +6,7 @@ async function greet() {
   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
   // setGreetMsg(await invoke("greet", { name: greetInputEl.value }));
   console.log("wallets:", await invoke("get_available_wallets"));
+  console.log("cart:", await invoke("get_cart"));
   console.log("network:", await invoke("set_network", {
     network: "local"
   }));
