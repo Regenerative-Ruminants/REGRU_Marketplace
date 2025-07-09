@@ -1144,15 +1144,9 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 }
 
 .search-result-category {
-    font-size: 0.875rem; /* text-sm */
-    color: rgba(255, 255, 255, 0.7);
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-}
-
-/* --- Product Detail Modal --- */
-#product-detail-modal-container {
-    backdrop-filter: blur(8px);
-    animation: fadeIn 0.3s ease-in-out forwards;
+    font-size: 0.85rem;
+    color: #b0a08d;
+    margin-top: 4px;
 }
 
 #product-detail-modal-container {
@@ -1355,4 +1349,89 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 @keyframes slideUp {
     from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
+}
+
+/* === MODAL RESPONSIVE STYLES === */
+@media (max-width: 767px) {
+    @keyframes grow-in {
+        from {
+            top: var(--start-top);
+            left: var(--start-left);
+            width: var(--start-width);
+            height: var(--start-height);
+            opacity: 0.5;
+            border-radius: 1rem;
+        }
+        to {
+            top: 50%;
+            left: 50%;
+            width: 90vw; /* Wider for mobile */
+            height: 85vh; /* Taller for mobile */
+            transform: translate(-50%, -50%);
+            opacity: 1;
+            border-radius: 2rem;
+        }
+    }
+
+    @keyframes shrink-out {
+        from {
+            top: 50%;
+            left: 50%;
+            width: 90vw;
+            height: 85vh;
+            transform: translate(-50%, -50%);
+            opacity: 1;
+            border-radius: 2rem;
+        }
+        to {
+            top: var(--start-top);
+            left: var(--start-left);
+            width: var(--start-width);
+            height: var(--start-height);
+            opacity: 0;
+            border-radius: 1rem;
+        }
+    }
+
+    .product-modal-card {
+        flex-direction: column;
+    }
+
+    .product-modal-image-container,
+    .product-modal-info {
+        width: 100%;
+    }
+
+    .product-modal-image-container {
+        height: 40%; /* Image takes top 40% of modal height */
+        padding: 1rem; /* Reduced padding */
+    }
+
+    .product-modal-info {
+        height: 60%;
+        padding: 1.5rem; /* Reduced padding */
+        overflow-y: auto; /* Allow info to scroll if it overflows */
+    }
+
+    .product-modal-title {
+        font-size: 1.75rem; /* Smaller title for mobile */
+    }
+
+    .product-modal-description {
+        font-size: 1rem;
+    }
+
+    .product-modal-footer {
+        padding-top: 1rem;
+        margin-top: 1rem;
+    }
+
+    .product-modal-price {
+        font-size: 1.5rem;
+    }
+
+    .product-modal-add-to-cart-btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
 }
