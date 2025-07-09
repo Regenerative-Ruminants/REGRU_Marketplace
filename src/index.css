@@ -1654,3 +1654,9 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
         width: 90vw;
     }
 }
+
+#regru-menu-close {
+    position: relative;
+    background-color: transparent;
+    border-style: none;
+}
