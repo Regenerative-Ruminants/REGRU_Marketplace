@@ -303,22 +303,25 @@ function renderSearchResults(results: Product[]): void {
             const productId = (item as HTMLElement).dataset.productId;
             const product = sampleProducts.find(p => p.id === productId);
             if (product) {
-                showProductModal(product);
+                showProductModal(product, item as HTMLElement);
             }
         });
     });
 }
 
 /**
- * Displays a modal with detailed information about a product.
+ * Displays a modal with detailed information about a product, animating from the clicked element.
  * @param product The product to display in the modal.
+ * @param clickedElement The search result item that was clicked.
  */
-function showProductModal(product: Product): void {
+function showProductModal(product: Product, clickedElement: HTMLElement): void {
     const modalContainer = document.getElementById('product-detail-modal-container') as HTMLElement;
     if (!modalContainer) return;
 
+    const startRect = clickedElement.getBoundingClientRect();
+
     const modalContentHTML = `
-        <div class="product-modal-card">
+        <div id="product-modal-card" class="product-modal-card" style="--start-top: ${startRect.top}px; --start-left: ${startRect.left}px; --start-width: ${startRect.width}px; --start-height: ${startRect.height}px;">
             <button id="close-product-modal" class="product-modal-close-btn">&times;</button>
             <div class="product-modal-image-container">
                 <img src="${product.image}" alt="${product.name}" class="product-modal-image">
@@ -328,7 +331,7 @@ function showProductModal(product: Product): void {
                 <p class="product-modal-seller">by ${product.seller}</p>
                 <p class="product-modal-description">${product.description || 'No description available.'}</p>
                 <div class="product-modal-footer">
-                    <span class="product-modal-price">£${product.price.toFixed(2)}</span>
+                    <span class="product-modal-price">$${product.price.toFixed(2)}</span>
                     <button class="product-modal-add-to-cart-btn">Add to Cart</button>
                 </div>
             </div>
@@ -338,26 +341,40 @@ function showProductModal(product: Product): void {
     modalContainer.innerHTML = modalContentHTML;
     modalContainer.classList.remove('hidden');
 
+    const card = document.getElementById('product-modal-card') as HTMLElement;
+    // Trigger the animation
+    requestAnimationFrame(() => {
+        card.classList.add('animate-in');
+    });
+
     // Add listener to the new close button
-    modalContainer.querySelector('#close-product-modal')?.addEventListener('click', hideProductModal);
+    modalContainer.querySelector('#close-product-modal')?.addEventListener('click', () => hideProductModal(startRect));
 
     // Add listener to close when clicking the backdrop
     modalContainer.addEventListener('click', (e) => {
         if (e.target === modalContainer) {
-            hideProductModal();
+            hideProductModal(startRect);
         }
     });
 }
 
 /**
- * Hides the product detail modal.
+ * Hides the product detail modal, animating back to the origin element.
+ * @param endRect The bounding rectangle of the element to animate back to.
  */
-function hideProductModal(): void {
+function hideProductModal(endRect: DOMRect): void {
     const modalContainer = document.getElementById('product-detail-modal-container') as HTMLElement;
-    if (modalContainer) {
+    const card = document.getElementById('product-modal-card') as HTMLElement;
+    if (!modalContainer || !card) return;
+
+    card.classList.remove('animate-in');
+    card.classList.add('animate-out');
+
+    // Listen for the animation to end before hiding the container
+    card.addEventListener('animationend', () => {
         modalContainer.classList.add('hidden');
         modalContainer.innerHTML = ''; // Clear content
-    }
+    }, { once: true });
 }
 
 function renderSidebar(): void {
