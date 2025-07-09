@@ -1352,6 +1352,24 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     to { transform: translateY(0); opacity: 1; }
 }
 
+/* === MOBILE DRAWER (HAMBURGER MENU) === */
+#mobile-drawer {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#drawer-backdrop {
+    transition: opacity 0.3s ease-in-out;
+}
+
+#mobile-drawer.is-open {
+    transform: translateX(0);
+}
+
+#mobile-drawer.is-open + #drawer-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 /* === WALLET MODAL STYLES === */
 .wallet-modal-card {
     background-color: #2a1a0c; /* Consistent with other modals */

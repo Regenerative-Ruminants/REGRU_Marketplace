@@ -12,52 +12,47 @@ if (typeof (window as any).__TAURI_IPC__ === 'function') {
   greet(); 
 }
 
-// --- Wallet Test Controls Logic ---
-// This now works independently of the Tauri IPC bridge
-const fetchWalletsButton = document.getElementById('fetch-wallets-button');
-const walletsResultDisplay = document.getElementById('wallets-result-display');
-
-if (fetchWalletsButton && walletsResultDisplay) {
-  fetchWalletsButton.addEventListener('click', async () => {
-    walletsResultDisplay.textContent = 'Fetching wallets...';
-    try {
-      // Phase 2: Replace Tauri invoke with fetch
-      const response = await fetch('/api/wallets');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const result = await response.json();
-      walletsResultDisplay.textContent = JSON.stringify(result, null, 2);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      walletsResultDisplay.textContent = `Error: ${errorMessage}`;
-    }
-  });
-} else {
-  console.error('Wallet test UI elements not found in the DOM.');
-}
-
 console.log("Hello from frontend!");
 
-// Drawer logic
-const sidebar      = document.getElementById('app-sidebar')!;
-const drawer       = document.getElementById('mobile-drawer')!;
-const drawerPanel  = document.getElementById('mobile-drawer-panel')!;
-const backdrop     = document.getElementById('drawer-backdrop')!;
-const hamburgerBtn = document.getElementById('hamburger')!;
+// --- Mobile Drawer (Hamburger Menu) Logic ---
+const sidebar = document.getElementById('app-sidebar') as HTMLElement;
+const drawer = document.getElementById('mobile-drawer') as HTMLElement;
+const drawerPanel = document.getElementById('mobile-drawer-panel') as HTMLElement;
+const backdrop = document.getElementById('drawer-backdrop') as HTMLElement;
+const hamburgerBtn = document.getElementById('hamburger') as HTMLElement;
 
 if (hamburgerBtn && drawer && drawerPanel && backdrop && sidebar) {
-    hamburgerBtn.addEventListener('click', () => {
-       // Only clone the content if the drawer is empty
-       if (!drawerPanel.innerHTML) {
+    let isDrawerInitialized = false;
+
+    const openDrawer = () => {
+        if (!isDrawerInitialized) {
             const navClone = sidebar.querySelector('#sidebar-nav-container')?.cloneNode(true);
             if (navClone) {
+                // Remove active states from the clone to prevent confusion
+                (navClone as HTMLElement).querySelectorAll('.active').forEach(el => el.classList.remove('active'));
                 drawerPanel.appendChild(navClone);
             }
-       }
-       drawer.classList.remove('-translate-x-full');
+            isDrawerInitialized = true;
+        }
+        drawer.classList.add('is-open');
+        document.body.style.overflow = 'hidden'; // Prevent background scroll
+    };
+
+    const closeDrawer = () => {
+        drawer.classList.remove('is-open');
+        document.body.style.overflow = ''; // Restore scroll
+    };
+
+    hamburgerBtn.addEventListener('click', openDrawer);
+    backdrop.addEventListener('click', closeDrawer);
+
+    // Add event listener to the drawer panel to close on nav item click
+    drawerPanel.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('.nav-item')) {
+            closeDrawer();
+        }
     });
-    backdrop.addEventListener('click', () => drawer.classList.add('-translate-x-full'));
 }
 
 // Bottom‑nav routing

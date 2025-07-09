@@ -179,12 +179,10 @@ async function openWalletsModal(): Promise<void> {
     if (!modalContainer) return;
 
     try {
-        // Fetch the modal's HTML content
         const response = await fetch('/src/components/wallets.html');
         if (!response.ok) throw new Error('Failed to load wallet modal content.');
         const modalHTML = await response.text();
 
-        // Inject the HTML and show the container
         modalContainer.innerHTML = modalHTML;
         modalContainer.classList.add('is-visible');
 
@@ -192,22 +190,32 @@ async function openWalletsModal(): Promise<void> {
         const errorP = document.getElementById('wallet-error-message') as HTMLParagraphElement;
         const spinner = document.getElementById('wallet-loading-spinner') as HTMLDivElement;
 
-        // Hide results/error and show spinner initially
         resultsPre.style.display = 'none';
         errorP.style.display = 'none';
         spinner.style.display = 'block';
 
-        // Set up the close button
         modalContainer.querySelector('#close-wallet-modal')?.addEventListener('click', () => {
             modalContainer.classList.remove('is-visible');
             modalContainer.innerHTML = '';
         });
 
-        // Invoke the Tauri command
-        const { invoke } = window.__TAURI__.tauri;
-        const wallets = await invoke<[{ address: string }]>('get_available_wallets');
+        let wallets: { address: string }[];
+
+        // Isomorphic fetch: check if running in Tauri or a web browser
+        if (window.__TAURI__ && window.__TAURI__.tauri) {
+            console.log("Running in Tauri, using invoke...");
+            const { invoke } = window.__TAURI__.tauri;
+            wallets = await invoke('get_available_wallets');
+        } else {
+            console.log("Running in web, using fetch...");
+            const apiResponse = await fetch('/api/wallets');
+            if (!apiResponse.ok) {
+                const errorBody = await apiResponse.text();
+                throw new Error(`API Error: ${apiResponse.status} ${errorBody}`);
+            }
+            wallets = await apiResponse.json();
+        }
         
-        // Display results
         resultsPre.textContent = JSON.stringify(wallets, null, 2);
         resultsPre.style.display = 'block';
 
@@ -219,7 +227,6 @@ async function openWalletsModal(): Promise<void> {
             errorP.style.display = 'block';
         }
     } finally {
-        // Hide spinner
         const spinner = document.getElementById('wallet-loading-spinner') as HTMLDivElement;
         if (spinner) spinner.style.display = 'none';
     }
