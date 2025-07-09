@@ -339,7 +339,7 @@ function showProductModal(product: Product, clickedElement: HTMLElement): void {
     `;
 
     modalContainer.innerHTML = modalContentHTML;
-    modalContainer.classList.remove('hidden');
+    modalContainer.classList.add('is-visible');
 
     const card = document.getElementById('product-modal-card') as HTMLElement;
     // Trigger the animation
@@ -370,11 +370,11 @@ function hideProductModal(endRect: DOMRect): void {
     card.classList.remove('animate-in');
     card.classList.add('animate-out');
 
-    // Use a timeout that matches the animation duration to hide the container
-    setTimeout(() => {
-        modalContainer.classList.add('hidden');
+    // Listen for the animation to end before hiding the container
+    card.addEventListener('animationend', () => {
+        modalContainer.classList.remove('is-visible');
         modalContainer.innerHTML = ''; // Clear content
-    }, 500); // 0.5s animation duration
+    }, { once: true });
 }
 
 function renderSidebar(): void {
