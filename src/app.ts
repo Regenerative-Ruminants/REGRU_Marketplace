@@ -1,4 +1,12 @@
 // --- Type Definitions (Phase 1 Refactor) ---
+interface Window {
+    __TAURI__: {
+        tauri: {
+            invoke: <T>(cmd: string, args?: unknown) => Promise<T>;
+        };
+    };
+}
+
 interface Product {
     id: string;
     name: string;
@@ -167,24 +175,53 @@ const closeWalletModalButton = document.getElementById('close-wallet-modal-butto
 
 // --- Wallet Modal Functions (Moved Up) ---
 async function openWalletsModal(): Promise<void> {
-    if (!walletModal || !walletModalResults) {
-        console.error("Wallet modal elements not found!");
-        return;
-    }
-    walletModalResults.textContent = 'Fetching available wallets...';
-    walletModal.classList.remove('hidden');
+    const modalContainer = document.getElementById('product-detail-modal-container') as HTMLElement;
+    if (!modalContainer) return;
 
     try {
-        const response = await fetch('/api/wallets'); 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        // Fetch the modal's HTML content
+        const response = await fetch('/src/components/wallets.html');
+        if (!response.ok) throw new Error('Failed to load wallet modal content.');
+        const modalHTML = await response.text();
+
+        // Inject the HTML and show the container
+        modalContainer.innerHTML = modalHTML;
+        modalContainer.classList.add('is-visible');
+
+        const resultsPre = document.getElementById('wallet-results-pre') as HTMLPreElement;
+        const errorP = document.getElementById('wallet-error-message') as HTMLParagraphElement;
+        const spinner = document.getElementById('wallet-loading-spinner') as HTMLDivElement;
+
+        // Hide results/error and show spinner initially
+        resultsPre.style.display = 'none';
+        errorP.style.display = 'none';
+        spinner.style.display = 'block';
+
+        // Set up the close button
+        modalContainer.querySelector('#close-wallet-modal')?.addEventListener('click', () => {
+            modalContainer.classList.remove('is-visible');
+            modalContainer.innerHTML = '';
+        });
+
+        // Invoke the Tauri command
+        const { invoke } = window.__TAURI__.tauri;
+        const wallets = await invoke<[{ address: string }]>('get_available_wallets');
+        
+        // Display results
+        resultsPre.textContent = JSON.stringify(wallets, null, 2);
+        resultsPre.style.display = 'block';
+
+    } catch (err) {
+        console.error('Error opening wallet modal or fetching wallets:', err);
+        const errorP = document.getElementById('wallet-error-message') as HTMLParagraphElement;
+        if (errorP) {
+            errorP.textContent = `Error: ${err instanceof Error ? err.message : String(err)}`;
+            errorP.style.display = 'block';
         }
-        const result = await response.json();
-        walletModalResults.textContent = JSON.stringify(result, null, 2);
-    } catch (error) {
-        console.error("Error fetching wallets:", error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        walletModalResults.textContent = `Error fetching wallets: ${errorMessage}`;
+    } finally {
+        // Hide spinner
+        const spinner = document.getElementById('wallet-loading-spinner') as HTMLDivElement;
+        if (spinner) spinner.style.display = 'none';
     }
 }
 
