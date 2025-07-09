@@ -1041,13 +1041,17 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 }
 
 #regru-search-input {
-    transition: background-color 0.3s ease-in-out, padding-left 0.3s ease-in-out, letter-spacing 0.3s ease-in-out;
+    transition: background-color 0.4s ease-in-out, padding-left 0.4s ease-in-out, letter-spacing 0.4s ease-in-out;
     text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.5); /* Stronger text shadow for readability */
+    caret-color: white; /* Makes the typing cursor white */
+    padding-left: 4rem; /* 64px, initial position */
+    padding-right: 1.5rem; /* 24px, initial position */
+    text-align: left; /* Explicitly keep text aligned to the left */
 }
 
 #search-container:focus-within #regru-search-input {
-    padding-left: 4.25rem; /* Nudge text to the right from the default 4rem (pl-16) */
     letter-spacing: 0.025em; /* Add a subtle expansion effect */
+    padding-left: 35%; /* Animate padding to push text toward the center */
 }
 
 #regru-search-input::placeholder {
