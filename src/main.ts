@@ -1,59 +1,82 @@
 import './index.css';
-import './app.ts';
+import { initializeApp, sidebarNavConfig } from './app'; // IMPORT THE APP and CONFIG
 
+// Greet function remains the same
 async function greet() {
-  // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-  // setGreetMsg(await invoke("greet", { name: greetInputEl.value }));
-  // console.log("wallets:", await invoke("get_available_wallets")); // Commented out initial call
+    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+    // setGreetMsg(await invoke("greet", { name: greetInputEl.value }));
+    // console.log("wallets:", await invoke("get_available_wallets"));
 }
 
-// Only call greet if running in Tauri environment and IPC is available
-if (typeof (window as any).__TAURI_IPC__ === 'function') {
+// Check for Tauri environment
+if (typeof (window as any).__TAURI__ === 'function') {
   greet(); 
 }
 
-console.log("Hello from frontend!");
+console.log("Hello from main.ts, the application entry point!");
 
-// --- Mobile Drawer (Hamburger Menu) Logic ---
-const sidebar = document.getElementById('app-sidebar') as HTMLElement;
-const drawer = document.getElementById('mobile-drawer') as HTMLElement;
-const drawerPanel = document.getElementById('mobile-drawer-panel') as HTMLElement;
-const backdrop = document.getElementById('drawer-backdrop') as HTMLElement;
-const hamburgerBtn = document.getElementById('hamburger') as HTMLElement;
+export function initializeHamburgerMenu() {
+    // --- Get Elements ---
+    const sidebar = document.getElementById('app-sidebar') as HTMLElement;
+    const hamburgerBtn = document.getElementById('hamburger') as HTMLElement;
+    const menuOverlay = document.getElementById('regru-menu-overlay') as HTMLElement;
+    const menuContent = document.getElementById('regru-menu-content') as HTMLElement;
+    const closeMenuBtn = document.getElementById('regru-menu-close') as HTMLElement;
+    const mainContent = document.getElementById('app-main-content') as HTMLElement;
 
-if (hamburgerBtn && drawer && drawerPanel && backdrop && sidebar) {
-    let isDrawerInitialized = false;
+    if (!hamburgerBtn || !menuOverlay || !menuContent || !closeMenuBtn || !sidebar || !mainContent) {
+        setTimeout(initializeHamburgerMenu, 50);
+        return;
+    }
 
-    const openDrawer = () => {
-        if (!isDrawerInitialized) {
-            const navClone = sidebar.querySelector('#sidebar-nav-container')?.cloneNode(true);
+    let isMenuContentInitialized = false;
+
+    const openMenu = () => {
+        mainContent.style.overflowY = 'hidden';
+
+        if (!isMenuContentInitialized) {
+            const navClone = sidebar.querySelector('#sidebar-nav-container')?.cloneNode(true) as HTMLElement;
             if (navClone) {
-                // Remove active states from the clone to prevent confusion
-                (navClone as HTMLElement).querySelectorAll('.active').forEach(el => el.classList.remove('active'));
-                drawerPanel.appendChild(navClone);
+                // Remove active states from the clone
+                navClone.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
+                
+                // Re-attach event listeners based on the config
+                navClone.querySelectorAll('[data-nav-id]').forEach(clonedItem => {
+                    const navId = (clonedItem as HTMLElement).dataset.navId;
+                    const navConfigItem = sidebarNavConfig
+                        .flatMap(section => section.items)
+                        .find(item => item.id === navId);
+
+                    if (navConfigItem && navConfigItem.action) {
+                        clonedItem.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            navConfigItem.action!(); // The 'action' function (e.g., openWalletsModal)
+                        });
+                    }
+                });
+                
+                menuContent.innerHTML = ''; // Clear previous content
+                menuContent.appendChild(navClone);
             }
-            isDrawerInitialized = true;
+            isMenuContentInitialized = true;
         }
-        drawer.classList.add('is-open');
-        document.body.style.overflow = 'hidden'; // Prevent background scroll
+        menuOverlay.classList.remove('hidden');
     };
 
-    const closeDrawer = () => {
-        drawer.classList.remove('is-open');
-        document.body.style.overflow = ''; // Restore scroll
+    const closeMenu = () => {
+        mainContent.style.overflowY = 'scroll';
+        menuOverlay.classList.add('hidden');
     };
 
-    hamburgerBtn.addEventListener('click', openDrawer);
-    backdrop.addEventListener('click', closeDrawer);
-
-    // Add event listener to the drawer panel to close on nav item click
-    drawerPanel.addEventListener('click', (e) => {
-        const target = e.target as HTMLElement;
-        if (target.closest('.nav-item')) {
-            closeDrawer();
-        }
-    });
+    hamburgerBtn.addEventListener('click', openMenu);
+    closeMenuBtn.addEventListener('click', closeMenu);
 }
+
+// --- App Entry Point ---
+document.addEventListener('DOMContentLoaded', () => {
+    initializeApp();
+    initializeHamburgerMenu();
+});
 
 // Bottom‑nav routing
 // @ts-ignore

@@ -1,0 +1,17 @@
+<div class="wallet-modal-header">
+    <h3 class="wallet-modal-title">Your Wallets</h3>
+    <button id="wallet-modal-close-btn" class="wallet-modal-close-btn" aria-label="Close">&times;</button>
+</div>
+<div id="wallet-modal-content" class="wallet-modal-content">
+    <div id="wallet-loading-spinner" class="wallet-spinner" style="display: none;"></div>
+    <p id="wallet-error-message" class="wallet-error-message" style="display: none;"></p>
+    <div id="wallet-list-container" class="wallet-list-container">
+        <!-- Wallet items will be dynamically injected here by app.ts -->
+    </div>
+</div>
+<div class="wallet-modal-footer">
+    <button id="add-wallet-btn" class="add-wallet-btn">
+        <i class="fas fa-plus-circle"></i>
+        Add New Wallet
+    </button>
+</div> 

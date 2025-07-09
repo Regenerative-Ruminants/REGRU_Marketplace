@@ -9848,3 +9848,28 @@ dependencies = [
  "cc",
  "pkg-config",
 ]
+
+[[patch.unused]]
+name = "ant-bootstrap"
+version = "0.2.4"
+source = "git+https://github.com/maidsafe/autonomi?tag=ant-bootstrap-v0.2.4#53b5e5100697e8f0d342bf03678c29b002d634f7"
+
+[[patch.unused]]
+name = "ant-evm"
+version = "0.1.15"
+source = "git+https://github.com/maidsafe/autonomi?tag=ant-evm-v0.1.15#53b5e5100697e8f0d342bf03678c29b002d634f7"
+
+[[patch.unused]]
+name = "ant-logging"
+version = "0.2.50"
+source = "git+https://github.com/maidsafe/autonomi?tag=ant-logging-v0.2.50#53b5e5100697e8f0d342bf03678c29b002d634f7"
+
+[[patch.unused]]
+name = "ant-protocol"
+version = "1.0.6"
+source = "git+https://github.com/maidsafe/autonomi?tag=ant-protocol-v1.0.6#53b5e5100697e8f0d342bf03678c29b002d634f7"
+
+[[patch.unused]]
+name = "evmlib"
+version = "0.4.1"
+source = "git+https://github.com/maidsafe/autonomi?tag=evmlib-v0.4.1#53b5e5100697e8f0d342bf03678c29b002d634f7"

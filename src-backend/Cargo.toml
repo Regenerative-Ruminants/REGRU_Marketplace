@@ -22,11 +22,3 @@ color-eyre = "0.6" # For consistent error reporting, optional
 
 [lints]
 workspace = true
-
-[patch.crates-io]
-autonomi = { git = "https://github.com/maidsafe/autonomi", tag = "autonomi-v0.4.6" }
-ant-bootstrap = { git = "https://github.com/maidsafe/autonomi", tag = "ant-bootstrap-v0.2.4" }
-ant-evm = { git = "https://github.com/maidsafe/autonomi", tag = "ant-evm-v0.1.15" }
-ant-protocol = { git = "https://github.com/maidsafe/autonomi", tag = "ant-protocol-v1.0.6" }
-evmlib = { git = "https://github.com/maidsafe/autonomi", tag = "evmlib-v0.4.1" }
-ant-logging = { git = "https://github.com/maidsafe/autonomi", tag = "ant-logging-v0.2.50" }

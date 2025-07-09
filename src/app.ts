@@ -1,10 +1,11 @@
 // --- Type Definitions (Phase 1 Refactor) ---
 interface Window {
-    __TAURI__: {
+    __TAURI__?: { // Optional chaining for web compatibility
         tauri: {
             invoke: <T>(cmd: string, args?: unknown) => Promise<T>;
         };
     };
+    // Add other custom window properties here if needed
 }
 
 interface Product {
@@ -173,73 +174,121 @@ const walletModal = document.getElementById('wallet-modal') as HTMLElement;
 const walletModalResults = document.getElementById('wallet-modal-results') as HTMLPreElement;
 const closeWalletModalButton = document.getElementById('close-wallet-modal-button') as HTMLButtonElement;
 
-// --- Wallet Modal Functions (Moved Up) ---
+// --- Wallet Modal Functions (New Neumorphic Version) ---
 async function openWalletsModal(): Promise<void> {
-    const modalContainer = document.getElementById('product-detail-modal-container') as HTMLElement;
+    const modalContainer = document.getElementById('wallet-modal-container');
     if (!modalContainer) return;
 
+    modalContainer.classList.remove('hidden');
+    
     try {
-        const response = await fetch('/src/components/wallets.html');
-        if (!response.ok) throw new Error('Failed to load wallet modal content.');
+        const response = await fetch('/src/components/wallet-modal.html');
+        if (!response.ok) throw new Error('Failed to load wallet modal template.');
         const modalHTML = await response.text();
+        
+        const walletModalCard = document.getElementById('wallet-modal-card');
+        if (walletModalCard) {
+            walletModalCard.innerHTML = modalHTML;
+        }
 
-        modalContainer.innerHTML = modalHTML;
-        modalContainer.classList.add('is-visible');
+        document.getElementById('wallet-modal-close-btn')?.addEventListener('click', closeWalletsModal);
+        
+        const listContainer = document.getElementById('wallet-list-container');
+        const errorP = document.getElementById('wallet-error-message');
+        const spinner = document.getElementById('wallet-loading-spinner');
 
-        const resultsPre = document.getElementById('wallet-results-pre') as HTMLPreElement;
-        const errorP = document.getElementById('wallet-error-message') as HTMLParagraphElement;
-        const spinner = document.getElementById('wallet-loading-spinner') as HTMLDivElement;
+        if (!listContainer || !errorP || !spinner) return;
 
-        resultsPre.style.display = 'none';
+        listContainer.style.display = 'none';
         errorP.style.display = 'none';
-        spinner.style.display = 'block';
-
-        modalContainer.querySelector('#close-wallet-modal')?.addEventListener('click', () => {
-            modalContainer.classList.remove('is-visible');
-            modalContainer.innerHTML = '';
-        });
+        spinner.style.display = 'flex';
 
         let wallets: { address: string }[];
-
-        // Isomorphic fetch: check if running in Tauri or a web browser
-        if (window.__TAURI__ && window.__TAURI__.tauri) {
-            console.log("Running in Tauri, using invoke...");
+        
+        if (window.__TAURI__?.tauri) {
             const { invoke } = window.__TAURI__.tauri;
             wallets = await invoke('get_available_wallets');
         } else {
-            console.log("Running in web, using fetch...");
-            const apiResponse = await fetch('/api/wallets');
-            if (!apiResponse.ok) {
-                const errorBody = await apiResponse.text();
-                throw new Error(`API Error: ${apiResponse.status} ${errorBody}`);
-            }
-            wallets = await apiResponse.json();
+            await new Promise(resolve => setTimeout(resolve, 800));
+            wallets = [
+                { address: "0x1234567890123456789012345678901234567890" },
+                { address: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd" },
+                { address: "0xfedcba9876543210fedcba9876543210fedcba98" }
+            ];
         }
         
-        resultsPre.textContent = JSON.stringify(wallets, null, 2);
-        resultsPre.style.display = 'block';
+        listContainer.innerHTML = ''; // Clear previous results
+        wallets.forEach(wallet => {
+            const walletItem = document.createElement('div');
+            walletItem.className = 'wallet-item';
+
+            const truncatedAddress = `${wallet.address.substring(0, 6)}...${wallet.address.substring(wallet.address.length - 4)}`;
+
+            walletItem.innerHTML = `
+                <div class="wallet-info">
+                    <i class="fas fa-wallet"></i>
+                    <span class="wallet-address">${truncatedAddress}</span>
+                </div>
+                <button class="copy-wallet-btn" data-full-address="${wallet.address}" aria-label="Copy address">
+                    <i class="far fa-copy"></i>
+                </button>
+            `;
+            listContainer.appendChild(walletItem);
+        });
+
+        // Add event listeners to the new copy buttons
+        listContainer.querySelectorAll('.copy-wallet-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const button = e.currentTarget as HTMLButtonElement;
+                const address = button.dataset.fullAddress;
+                if (!address) return;
+
+                try {
+                    await navigator.clipboard.writeText(address);
+                    const icon = button.querySelector('i');
+                    if(icon) {
+                        icon.classList.remove('far', 'fa-copy');
+                        icon.classList.add('fas', 'fa-check');
+                        button.disabled = true;
+
+                        setTimeout(() => {
+                            icon.classList.remove('fas', 'fa-check');
+                            icon.classList.add('far', 'fa-copy');
+                            button.disabled = false;
+                        }, 2000);
+                    }
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    alert('Failed to copy address.');
+                }
+            });
+        });
+
+        listContainer.style.display = 'block';
 
     } catch (err) {
-        console.error('Error opening wallet modal or fetching wallets:', err);
-        const errorP = document.getElementById('wallet-error-message') as HTMLParagraphElement;
+        console.error('Error processing wallets:', err);
+        const errorP = document.getElementById('wallet-error-message');
         if (errorP) {
             errorP.textContent = `Error: ${err instanceof Error ? err.message : String(err)}`;
             errorP.style.display = 'block';
         }
     } finally {
-        const spinner = document.getElementById('wallet-loading-spinner') as HTMLDivElement;
+        const spinner = document.getElementById('wallet-loading-spinner');
         if (spinner) spinner.style.display = 'none';
     }
 }
 
 function closeWalletsModal(): void {
-    if (walletModal) {
-        walletModal.classList.add('hidden');
+    const modalContainer = document.getElementById('wallet-modal-container');
+    if (modalContainer) {
+        modalContainer.classList.add('hidden');
+        modalContainer.innerHTML = ''; // Clear content
     }
 }
 
 // --- Sidebar Navigation Configuration (New - Defined after Wallet functions) ---
-const sidebarNavConfig: SidebarNavSection[] = [
+export const sidebarNavConfig: SidebarNavSection[] = [
     {
         title: "Browse",
         items: [
@@ -275,7 +324,7 @@ const sidebarNavConfig: SidebarNavSection[] = [
     {
         title: "Account",
         items: [
-            { id: "wallets_view", label: "Wallets", iconClass: "fas fa-wallet", action: () => openWalletsModal() },
+            { id: "wallets_view", label: "Wallets", iconClass: "fas fa-wallet", action: openWalletsModal },
             { id: "profile_view", label: "Profile", iconClass: "fas fa-user-circle" },
             { id: "help_view", label: "Help", iconClass: "fas fa-question-circle" }
         ]
@@ -857,8 +906,10 @@ function updateCartDisplay(): void {
 }
 
 // --- Initialization (Phase 1 Refactor) ---
-function initializeApp(): void {
+export function initializeApp(): void {
+    console.log("Initializing application...");
     renderSidebar();
+    renderProductGrid(sampleProducts);
     renderFilterTags(); // Initial render for default view
     updateViewToggleButtonsActiveState();
 
@@ -999,6 +1050,7 @@ function initializeApp(): void {
 (window as any).shoppingCart = shoppingCart;
 (window as any).activeFilters = activeFilters;
 (window as any).renderFilterTags = renderFilterTags;
+(window as any).sidebarNavConfig = sidebarNavConfig; // Export config
 
 // Run the app once the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', initializeApp); 
+// document.addEventListener('DOMContentLoaded', initializeApp); 
