@@ -1166,6 +1166,14 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     align-items: center;
     justify-content: center;
     z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+#product-detail-modal-container:not(.hidden) {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 @keyframes grow-in {

@@ -370,11 +370,11 @@ function hideProductModal(endRect: DOMRect): void {
     card.classList.remove('animate-in');
     card.classList.add('animate-out');
 
-    // Listen for the animation to end before hiding the container
-    card.addEventListener('animationend', () => {
+    // Use a timeout that matches the animation duration to hide the container
+    setTimeout(() => {
         modalContainer.classList.add('hidden');
         modalContainer.innerHTML = ''; // Clear content
-    }, { once: true });
+    }, 500); // 0.5s animation duration
 }
 
 function renderSidebar(): void {
