@@ -283,7 +283,6 @@ function closeWalletsModal(): void {
     const modalContainer = document.getElementById('wallet-modal-container');
     if (modalContainer) {
         modalContainer.classList.add('hidden');
-        modalContainer.innerHTML = ''; // Clear content
     }
 }
 
