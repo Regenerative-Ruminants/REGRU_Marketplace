@@ -103,10 +103,11 @@ const MEDIUM_LOGO_HEIGHT = 64;      // Corresponds to Tailwind's h-16
 const SMALLEST_CONTAINER_HEIGHT = 56; // Corresponds to Tailwind's h-14
 const SMALLEST_LOGO_HEIGHT = 40;      // Corresponds to Tailwind's h-10
 
-// --- Icon Size States ---
-const LARGE_ICON_SIZE = 32;     // px, Welcome Mat
-const MEDIUM_ICON_SIZE = 26;    // px, Medium
-const SMALL_ICON_SIZE = 22;     // px, Small
+// --- Icon Size States (in REM for cross-browser consistency) ---
+const LARGE_ICON_SIZE = 2;      // 32px / 16px
+const MEDIUM_ICON_SIZE = 1.625; // 26px / 16px
+const SMALL_ICON_SIZE = 1.375;  // 22px / 16px
+
 const LARGE_ICON_PADDING = 24;  // px, Welcome Mat (readjusted)
 const MEDIUM_ICON_PADDING = 18; // px, Medium (readjusted)
 const SMALL_ICON_PADDING = 12;  // px, Small
@@ -129,8 +130,9 @@ function setHeaderAppearance(containerHeight: number, logoHeight: number, iconSi
         mobileLogoContainer.style.height = `${containerHeight}px`;
         mobileLogoImg.style.height = `${logoHeight}px`;
         
-        hamburgerIcon.style.fontSize = `${iconSize}px`;
-        searchIcon.style.fontSize = `${iconSize}px`;
+        hamburgerIcon.style.fontSize = `${iconSize}rem`;
+        searchIcon.style.fontSize = `${iconSize}rem`;
+        
         hamburgerButton.style.padding = `${padding}px`;
         searchButton.style.padding = `${padding}px`;
         

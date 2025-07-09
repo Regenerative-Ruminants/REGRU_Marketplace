@@ -15,6 +15,14 @@
     --warning-color: #ffc107;
 }
 
+html {
+    font-size: 16px; /* Set a consistent base font size for the entire document */
+    -webkit-text-size-adjust: 100%; /* Prevent font scaling in Safari */
+    text-size-adjust: 100%; /* Prevent font scaling in other browsers */
+    -webkit-font-smoothing: antialiased; /* Use a consistent, lighter anti-aliasing method */
+    -moz-osx-font-smoothing: grayscale; /* A similar fix for Firefox */
+}
+
 body {
     font-family: var(--font-garamond);
     color: var(--main-color);
@@ -1024,6 +1032,8 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 /* --- Native Search Overlay --- */
 #regru-search-overlay {
     /* Main overlay styles */
+    /* Force hardware acceleration to fix rendering glitches with backdrop-filter in some browsers */
+    transform: translateZ(0);
 }
 
 #search-container {
@@ -1047,7 +1057,24 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     padding-left: 4rem; /* 64px, initial position */
     padding-right: 1.5rem; /* 24px, initial position */
     text-align: left; /* Explicitly keep text aligned to the left */
+    color: white; /* Ensure typed text is white */
 }
+
+/* --- Override Browser Autofill Styles --- */
+#regru-search-input:-webkit-autofill,
+#regru-search-input:-webkit-autofill:hover,
+#regru-search-input:-webkit-autofill:focus,
+#regru-search-input:-webkit-autofill:active {
+    -webkit-text-fill-color: white !important;
+    /* This box-shadow trick is used to override the browser's white background on autofill */
+    box-shadow: 0 0 0 1000px rgba(245, 158, 11, 0.1) inset !important;
+    -webkit-box-shadow: 0 0 0 1000px rgba(245, 158, 11, 0.1) inset !important;
+    /* Ensure the text shadow and caret color from the original input are preserved */
+    text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.5) !important;
+    caret-color: white !important;
+    transition: background-color 5000s ease-in-out 0s; /* Another trick to prevent color change */
+}
+
 
 #search-container:focus-within #regru-search-input {
     letter-spacing: 0.025em; /* Add a subtle expansion effect */
@@ -1071,4 +1098,53 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 }
 #regru-search-results::-webkit-scrollbar {
     display: none;  /* Safari and Chrome */
+}
+
+/* --- Styling for the new Search Result Items --- */
+.search-result-placeholder {
+    text-align: center;
+    padding: 2rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.125rem; /* text-lg */
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem; /* 12px 24px */
+    margin: 0 -1.5rem; /* Counteract padding to make the hover effect full-width */
+    border-radius: 12px;
+    transition: background-color 0.2s ease-in-out;
+    text-decoration: none;
+}
+
+.search-result-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.search-result-image {
+    width: 56px; /* w-14 */
+    height: 56px; /* h-14 */
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 1rem; /* 16px */
+    background-color: rgba(0,0,0,0.1); /* Placeholder bg */
+}
+
+.search-result-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-result-name {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 500;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+}
+
+.search-result-category {
+    font-size: 0.875rem; /* text-sm */
+    color: rgba(255, 255, 255, 0.7);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }

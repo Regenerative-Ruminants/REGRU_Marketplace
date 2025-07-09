@@ -274,30 +274,27 @@ const dynamicBadgeData = {
 // --- Core Functions (Phase 1 Refactor) ---
 
 /**
- * Renders search results inside the search overlay.
- * @param results - An array of products to display.
+ * Renders the search results in the search overlay.
+ * @param results The products to display in the search results area.
  */
 function renderSearchResults(results: Product[]): void {
-    if (!searchResults) return;
-
-    searchResults.innerHTML = ''; // Clear previous results
+    const resultsContainer = document.getElementById('regru-search-results') as HTMLElement;
+    if (!resultsContainer) return;
 
     if (results.length === 0) {
-        searchResults.innerHTML = `<p class="p-4 text-center text-white/70">No products found.</p>`;
+        resultsContainer.innerHTML = '<p class="search-result-placeholder">No products found. Try a different search.</p>';
         return;
     }
 
-    results.forEach(product => {
-        const resultDiv = document.createElement('div');
-        resultDiv.className = 'p-4 rounded-md cursor-pointer hover:bg-white/10 transition-colors duration-200';
-        resultDiv.innerHTML = `
-            <p class="text-xl text-white text-shadow-strong">${product.name}</p>
-            <p class="text-base text-white/70 text-shadow-strong">in ${product.category}</p>
-        `;
-        // Optional: Add a click listener to navigate to the product
-        // resultDiv.addEventListener('click', () => { /* navigate to product detail */ });
-        searchResults.appendChild(resultDiv);
-    });
+    resultsContainer.innerHTML = results.map(product => `
+        <a href="#" class="search-result-item">
+            <img src="${product.image}" alt="${product.name}" class="search-result-image">
+            <div class="search-result-info">
+                <div class="search-result-name">${product.name}</div>
+                <div class="search-result-category">in ${product.category}</div>
+            </div>
+        </a>
+    `).join('');
 }
 
 function renderSidebar(): void {
