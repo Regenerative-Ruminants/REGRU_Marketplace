@@ -287,7 +287,7 @@ function renderSearchResults(results: Product[]): void {
     }
 
     resultsContainer.innerHTML = results.map(product => `
-        <a href="#" class="search-result-item">
+        <a href="#" class="search-result-item" data-product-id="${product.id}">
             <img src="${product.image}" alt="${product.name}" class="search-result-image">
             <div class="search-result-info">
                 <div class="search-result-name">${product.name}</div>
@@ -295,6 +295,69 @@ function renderSearchResults(results: Product[]): void {
             </div>
         </a>
     `).join('');
+
+    // Add click listeners to the new result items
+    resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const productId = (item as HTMLElement).dataset.productId;
+            const product = sampleProducts.find(p => p.id === productId);
+            if (product) {
+                showProductModal(product);
+            }
+        });
+    });
+}
+
+/**
+ * Displays a modal with detailed information about a product.
+ * @param product The product to display in the modal.
+ */
+function showProductModal(product: Product): void {
+    const modalContainer = document.getElementById('product-detail-modal-container') as HTMLElement;
+    if (!modalContainer) return;
+
+    const modalContentHTML = `
+        <div class="product-modal-card">
+            <button id="close-product-modal" class="product-modal-close-btn">&times;</button>
+            <div class="product-modal-image-container">
+                <img src="${product.image}" alt="${product.name}" class="product-modal-image">
+            </div>
+            <div class="product-modal-info">
+                <h3 class="product-modal-title">${product.name}</h3>
+                <p class="product-modal-seller">by ${product.seller}</p>
+                <p class="product-modal-description">${product.description || 'No description available.'}</p>
+                <div class="product-modal-footer">
+                    <span class="product-modal-price">£${product.price.toFixed(2)}</span>
+                    <button class="product-modal-add-to-cart-btn">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    modalContainer.innerHTML = modalContentHTML;
+    modalContainer.classList.remove('hidden');
+
+    // Add listener to the new close button
+    modalContainer.querySelector('#close-product-modal')?.addEventListener('click', hideProductModal);
+
+    // Add listener to close when clicking the backdrop
+    modalContainer.addEventListener('click', (e) => {
+        if (e.target === modalContainer) {
+            hideProductModal();
+        }
+    });
+}
+
+/**
+ * Hides the product detail modal.
+ */
+function hideProductModal(): void {
+    const modalContainer = document.getElementById('product-detail-modal-container') as HTMLElement;
+    if (modalContainer) {
+        modalContainer.classList.add('hidden');
+        modalContainer.innerHTML = ''; // Clear content
+    }
 }
 
 function renderSidebar(): void {

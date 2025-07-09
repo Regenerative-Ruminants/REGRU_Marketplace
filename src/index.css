@@ -1148,3 +1148,119 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     color: rgba(255, 255, 255, 0.7);
     text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
+
+/* --- Product Detail Modal --- */
+#product-detail-modal-container {
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+.product-modal-card {
+    position: relative;
+    background: linear-gradient(145deg, #f0f2f5, #caced1);
+    border-radius: 20px;
+    color: #4A5568;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2), -10px -10px 20px rgba(255, 255, 255, 0.1);
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.4s ease-out forwards;
+}
+
+.product-modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2.5rem;
+    color: #4A5568;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+.product-modal-close-btn:hover { transform: scale(1.2); }
+
+.product-modal-image-container {
+    padding: 1rem;
+}
+
+.product-modal-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 12px;
+    /* Sunken effect for the image */
+    box-shadow: inset 5px 5px 10px #babecc, inset -5px -5px 10px #ffffff;
+}
+
+.product-modal-info {
+    padding: 1.5rem;
+    background-color: #e0e5ec;
+    border-radius: 0 0 20px 20px;
+}
+
+.product-modal-title {
+    font-family: var(--font-oswald);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.product-modal-seller {
+    font-size: 1rem;
+    color: #718096;
+    margin-bottom: 1rem;
+}
+
+.product-modal-description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.product-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    padding-top: 1rem;
+}
+
+.product-modal-price {
+    font-family: var(--font-oswald);
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.product-modal-add-to-cart-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: linear-gradient(145deg, #22c55e, #16a34a);
+    color: white;
+    box-shadow: 5px 5px 10px #babecc, -5px -5px 10px #ffffff;
+}
+
+.product-modal-add-to-cart-btn:hover {
+    box-shadow: 2px 2px 5px #babecc, -2px -2px 5px #ffffff;
+}
+
+.product-modal-add-to-cart-btn:active {
+    box-shadow: inset 2px 2px 5px #babecc, inset -2px -2px 5px #ffffff;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
