@@ -1095,6 +1095,7 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 #regru-search-results {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+    margin-top: 1.5rem; /* Add space between search bar and results */
 }
 #regru-search-results::-webkit-scrollbar {
     display: none;  /* Safari and Chrome */
