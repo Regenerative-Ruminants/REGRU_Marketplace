@@ -1044,13 +1044,7 @@ export function initializeApp(): void {
 }
 
 // Global Exports
-(window as any).navigateTo = navigateTo;
-(window as any).updateCartDisplay = updateCartDisplay;
-(window as any).sampleProducts = sampleProducts; // For console debugging/other scripts
-(window as any).shoppingCart = shoppingCart;
-(window as any).activeFilters = activeFilters;
-(window as any).renderFilterTags = renderFilterTags;
-(window as any).sidebarNavConfig = sidebarNavConfig; // Export config
-
-// Run the app once the DOM is fully loaded
-// document.addEventListener('DOMContentLoaded', initializeApp); 
+export {
+    navigateTo,
+    // any other functions you might need globally
+};
