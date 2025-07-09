@@ -1161,19 +1161,20 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(245, 158, 11, 0.1); /* Semi-transparent backdrop */
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 100;
     opacity: 0;
     pointer-events: none; /* Non-interactive when invisible */
-    transition: opacity 0.3s ease-in-out;
+    transition: opacity 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    background-color: transparent; /* Ensures no background by default */
 }
 
 #product-detail-modal-container.is-visible {
     opacity: 1;
     pointer-events: auto; /* Interactive when visible */
+    background-color: rgba(245, 158, 11, 0.1); /* Semi-transparent backdrop */
 }
 
 @keyframes grow-in {
