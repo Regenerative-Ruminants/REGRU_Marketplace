@@ -348,21 +348,20 @@ function showProductModal(product: Product, clickedElement: HTMLElement): void {
     });
 
     // Add listener to the new close button
-    modalContainer.querySelector('#close-product-modal')?.addEventListener('click', () => hideProductModal(startRect));
+    modalContainer.querySelector('#close-product-modal')?.addEventListener('click', () => hideProductModal());
 
     // Add listener to close when clicking the backdrop
     modalContainer.addEventListener('click', (e) => {
         if (e.target === modalContainer) {
-            hideProductModal(startRect);
+            hideProductModal();
         }
     });
 }
 
 /**
- * Hides the product detail modal, animating back to the origin element.
- * @param endRect The bounding rectangle of the element to animate back to.
+ * Hides the product detail modal, animating it out.
  */
-function hideProductModal(endRect: DOMRect): void {
+function hideProductModal(): void {
     const modalContainer = document.getElementById('product-detail-modal-container') as HTMLElement;
     const card = document.getElementById('product-modal-card') as HTMLElement;
     if (!modalContainer || !card) return;
