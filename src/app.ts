@@ -1,13 +1,4 @@
 // --- Type Definitions (Phase 1 Refactor) ---
-interface Window {
-    __TAURI__?: { // Optional chaining for web compatibility
-        tauri: {
-            invoke: <T>(cmd: string, args?: unknown) => Promise<T>;
-        };
-    };
-    // Add other custom window properties here if needed
-}
-
 interface Product {
     id: string;
     name: string;
@@ -167,115 +158,55 @@ const sampleProducts: Product[] = [
 
 // --- Shopping Cart (Preserved) ---
 let shoppingCart: ShoppingCartItem[] = [];
-let favorites: Set<string> = new Set(); // For favorite product IDs, will be used later
 
 // --- Wallet Modal Elements (Moved Up) ---
-const walletModal = document.getElementById('wallet-modal') as HTMLElement;
-const walletModalResults = document.getElementById('wallet-modal-results') as HTMLPreElement;
 const closeWalletModalButton = document.getElementById('close-wallet-modal-button') as HTMLButtonElement;
 
 // --- Wallet Modal Functions (New Neumorphic Version) ---
 async function openWalletsModal(): Promise<void> {
     const modalContainer = document.getElementById('wallet-modal-container');
-    if (!modalContainer) return;
-
+    if (!modalContainer) {
+        console.error("Wallet modal container not found.");
+        return;
+    }
     modalContainer.classList.remove('hidden');
-    
-    try {
-        const response = await fetch('/src/components/wallet-modal.html');
-        if (!response.ok) throw new Error('Failed to load wallet modal template.');
-        const modalHTML = await response.text();
-        
-        const walletModalCard = document.getElementById('wallet-modal-card');
-        if (walletModalCard) {
-            walletModalCard.innerHTML = modalHTML;
-        }
 
-        document.getElementById('wallet-modal-close-btn')?.addEventListener('click', closeWalletsModal);
-        
-        const listContainer = document.getElementById('wallet-list-container');
-        const errorP = document.getElementById('wallet-error-message');
-        const spinner = document.getElementById('wallet-loading-spinner');
+    const listContainer = document.getElementById('wallet-list-container');
+    const spinner = document.getElementById('wallet-loading-spinner');
+    const errorP = document.getElementById('wallet-error-message');
 
-        if (!listContainer || !errorP || !spinner) return;
-
-        listContainer.style.display = 'none';
+    if (listContainer && spinner && errorP) {
+        listContainer.innerHTML = ''; // Clear previous results
         errorP.style.display = 'none';
         spinner.style.display = 'flex';
 
-        let wallets: { address: string }[];
-        
-        if (window.__TAURI__?.tauri) {
-            const { invoke } = window.__TAURI__.tauri;
-            wallets = await invoke('get_available_wallets');
-        } else {
-            await new Promise(resolve => setTimeout(resolve, 800));
-            wallets = [
-                { address: "0x1234567890123456789012345678901234567890" },
-                { address: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd" },
-                { address: "0xfedcba9876543210fedcba9876543210fedcba98" }
-            ];
+        try {
+            const response = await fetch('/api/wallets');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ details: 'Could not parse error response.' }));
+                throw new Error(`Failed to fetch wallets: ${response.statusText} - ${errorData.details}`);
+            }
+            const wallets: { address: string }[] = await response.json();
+            
+            if (wallets.length > 0) {
+                wallets.forEach(wallet => {
+                    const walletItem = document.createElement('div');
+                    walletItem.className = 'wallet-item'; // Add styling as needed
+                    walletItem.textContent = wallet.address;
+                    listContainer.appendChild(walletItem);
+                });
+            } else {
+                listContainer.textContent = 'No wallets found.';
+            }
+        } catch (error) {
+            console.error("Error fetching wallets:", error);
+            if (errorP) {
+                errorP.textContent = `Error: ${error instanceof Error ? error.message : 'An unknown error occurred.'}`;
+                errorP.style.display = 'block';
+            }
+        } finally {
+            if (spinner) spinner.style.display = 'none';
         }
-        
-        listContainer.innerHTML = ''; // Clear previous results
-        wallets.forEach(wallet => {
-            const walletItem = document.createElement('div');
-            walletItem.className = 'wallet-item';
-
-            const truncatedAddress = `${wallet.address.substring(0, 6)}...${wallet.address.substring(wallet.address.length - 4)}`;
-
-            walletItem.innerHTML = `
-                <div class="wallet-info">
-                    <i class="fas fa-wallet"></i>
-                    <span class="wallet-address">${truncatedAddress}</span>
-                </div>
-                <button class="copy-wallet-btn" data-full-address="${wallet.address}" aria-label="Copy address">
-                    <i class="far fa-copy"></i>
-                </button>
-            `;
-            listContainer.appendChild(walletItem);
-        });
-
-        // Add event listeners to the new copy buttons
-        listContainer.querySelectorAll('.copy-wallet-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const button = e.currentTarget as HTMLButtonElement;
-                const address = button.dataset.fullAddress;
-                if (!address) return;
-
-                try {
-                    await navigator.clipboard.writeText(address);
-                    const icon = button.querySelector('i');
-                    if(icon) {
-                        icon.classList.remove('far', 'fa-copy');
-                        icon.classList.add('fas', 'fa-check');
-                        button.disabled = true;
-
-                        setTimeout(() => {
-                            icon.classList.remove('fas', 'fa-check');
-                            icon.classList.add('far', 'fa-copy');
-                            button.disabled = false;
-                        }, 2000);
-                    }
-                } catch (err) {
-                    console.error('Failed to copy text: ', err);
-                    alert('Failed to copy address.');
-                }
-            });
-        });
-
-        listContainer.style.display = 'block';
-
-    } catch (err) {
-        console.error('Error processing wallets:', err);
-        const errorP = document.getElementById('wallet-error-message');
-        if (errorP) {
-            errorP.textContent = `Error: ${err instanceof Error ? err.message : String(err)}`;
-            errorP.style.display = 'block';
-        }
-    } finally {
-        const spinner = document.getElementById('wallet-loading-spinner');
-        if (spinner) spinner.style.display = 'none';
     }
 }
 
@@ -333,7 +264,7 @@ export const sidebarNavConfig: SidebarNavSection[] = [
 // --- DOM Element References (New Structure from index.html - after sidebarNavConfig) ---
 const sidebarNavContainer = document.getElementById('sidebar-nav-container') as HTMLElement;
 const pageTitleMain = document.getElementById('page-title-main') as HTMLElement;
-const searchInputMain = document.getElementById('search-input-main') as HTMLInputElement;
+// const searchInputMain = document.getElementById('search-input-main') as HTMLInputElement;
 const shoppingCartButtonTopbar = document.getElementById('shopping-cart-button-topbar') as HTMLButtonElement;
 const shoppingCartCountTopbar = document.getElementById('shopping-cart-count-topbar') as HTMLElement;
 const productsGridContainer = document.getElementById('products-grid-container') as HTMLElement; // Main content display area
@@ -865,44 +796,39 @@ function addToCart(productId: string, productName: string, productPrice: number,
     updateCartDisplay();
     console.log(`${productName} added to cart. Cart:`, shoppingCart);
 }
-// Expose to window if called by dynamically generated HTML not using event listeners (review in Phase 2)
-// (window as any).addToCart = addToCart; 
 
 function removeFromCart(productId: string): void {
     shoppingCart = shoppingCart.filter(item => item.id !== productId);
     updateCartDisplay();
-    if (currentView === 'shopping_cart_view') { // If on cart page, refresh it (Phase 2)
-        navigateTo('shopping_cart_view', { title: 'Your Shopping Cart' }); 
-    }
 }
-// (window as any).removeFromCart = removeFromCart;
 
 function updateCartQuantity(productId: string, newQuantityString: string): void {
-    const quantity = parseInt(newQuantityString);
+    const quantity = parseInt(newQuantityString, 10);
     const itemIndex = shoppingCart.findIndex(item => item.id === productId);
 
     if (itemIndex > -1) {
         if (quantity > 0) {
             shoppingCart[itemIndex].quantity = quantity;
         } else {
-            shoppingCart.splice(itemIndex, 1); 
+            shoppingCart.splice(itemIndex, 1);
         }
     }
     updateCartDisplay();
-    if (currentView === 'shopping_cart_view') { // If on cart page, refresh it (Phase 2)
-         navigateTo('shopping_cart_view', { title: 'Your Shopping Cart' });
-    }
 }
-// (window as any).updateCartQuantity = updateCartQuantity;
 
 function updateCartDisplay(): void {
     const totalItems = shoppingCart.reduce((sum, item) => sum + item.quantity, 0);
-    if (shoppingCartCountTopbar) { // Updated ID
+    if (shoppingCartCountTopbar) {
         shoppingCartCountTopbar.textContent = totalItems.toString();
-        // Use mockup's class logic for visibility if it has one, or simple display style
-        shoppingCartCountTopbar.style.display = totalItems > 0 ? 'inline-block' : 'none'; 
+        shoppingCartCountTopbar.style.display = totalItems > 0 ? 'inline-block' : 'none';
     }
 }
+
+// Expose functions to be callable from onclick attributes in dynamically generated HTML
+(window as any).addToCart = addToCart;
+(window as any).removeFromCart = removeFromCart;
+(window as any).updateCartQuantity = updateCartQuantity;
+
 
 // --- Initialization (Phase 1 Refactor) ---
 export function initializeApp(): void {
