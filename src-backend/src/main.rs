@@ -1,7 +1,12 @@
-use actix_web::{get, App, HttpServer, Responder, HttpResponse};
+use actix_web::{get, App, HttpServer, Responder, HttpResponse, middleware, web};
+use actix_cors::Cors;
 use actix_files as fs;
 use dotenv::dotenv;
+// use dotenv::from_path;
 use std::env;
+
+#[macro_use]
+extern crate log;
 
 // Import from our shared core library
 use autonomi_core::wallets::get_wallets;
@@ -12,7 +17,7 @@ async fn health_check() -> impl Responder {
 }
 
 #[get("/api/wallets")]
-async fn get_wallets_route() -> impl Responder {
+async fn get_wallets_handler() -> impl Responder {
     match get_wallets() {
         Ok(wallets) => HttpResponse::Ok().json(wallets),
         Err(e) => {
@@ -25,7 +30,7 @@ async fn get_wallets_route() -> impl Responder {
     }
 }
 
-#[actix_web::main]
+#[tokio::main]
 async fn main() -> std::io::Result<()> {
     // Load environment variables from .env file
     dotenv().ok();
@@ -33,9 +38,9 @@ async fn main() -> std::io::Result<()> {
     // Initialize logger
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    let app_host = env::var("APP_HOST").unwrap_or_else(|_| "0.0.0.0".to_string());
+    let app_host = env::var("APP_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
     let app_port_str = env::var("APP_PORT").unwrap_or_else(|_| "8000".to_string());
-    
+
     let app_port = match app_port_str.parse::<u16>() {
         Ok(port) => port,
         Err(_) => {
@@ -47,12 +52,20 @@ async fn main() -> std::io::Result<()> {
     log::info!("Starting server at http://{}:{}", app_host, app_port);
 
     HttpServer::new(move || {
+        let cors = Cors::default()
+            .allowed_origin("http://localhost:1420")
+            .allowed_methods(vec!["GET", "POST"])
+            .allowed_headers(vec!["authorization", "accept"])
+            .allowed_header("content-type")
+            .max_age(3600);
+
         App::new()
-            .wrap(actix_web::middleware::Logger::default()) // Basic request logging
+            .wrap(cors)
+            .wrap(middleware::Logger::default())
             .service(health_check)
-            .service(get_wallets_route)
+            .service(get_wallets_handler)
             .service(
-                fs::Files::new("/", "./dist")
+                fs::Files::new("/", "../dist")
                     .index_file("index.html")
                     .use_last_modified(true),
             )

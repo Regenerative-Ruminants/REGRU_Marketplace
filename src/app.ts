@@ -159,63 +159,121 @@ const sampleProducts: Product[] = [
 // --- Shopping Cart (Preserved) ---
 let shoppingCart: ShoppingCartItem[] = [];
 
-// --- Wallet Modal Elements (Moved Up) ---
-const closeWalletModalButton = document.getElementById('close-wallet-modal-button') as HTMLButtonElement;
-
-// --- Wallet Modal Functions (New Neumorphic Version) ---
-async function openWalletsModal(): Promise<void> {
-    const modalContainer = document.getElementById('wallet-modal-container');
-    if (!modalContainer) {
-        console.error("Wallet modal container not found.");
-        return;
-    }
-    modalContainer.classList.remove('hidden');
-
-    const listContainer = document.getElementById('wallet-list-container');
-    const spinner = document.getElementById('wallet-loading-spinner');
-    const errorP = document.getElementById('wallet-error-message');
-
-    if (listContainer && spinner && errorP) {
-        listContainer.innerHTML = ''; // Clear previous results
-        errorP.style.display = 'none';
-        spinner.style.display = 'flex';
-
-        try {
-            const response = await fetch('/api/wallets');
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ details: 'Could not parse error response.' }));
-                throw new Error(`Failed to fetch wallets: ${response.statusText} - ${errorData.details}`);
-            }
-            const wallets: { address: string }[] = await response.json();
-            
-            if (wallets.length > 0) {
-                wallets.forEach(wallet => {
-                    const walletItem = document.createElement('div');
-                    walletItem.className = 'wallet-item'; // Add styling as needed
-                    walletItem.textContent = wallet.address;
-                    listContainer.appendChild(walletItem);
-                });
-            } else {
-                listContainer.textContent = 'No wallets found.';
-            }
-        } catch (error) {
-            console.error("Error fetching wallets:", error);
-            if (errorP) {
-                errorP.textContent = `Error: ${error instanceof Error ? error.message : 'An unknown error occurred.'}`;
-                errorP.style.display = 'block';
-            }
-        } finally {
-            if (spinner) spinner.style.display = 'none';
-        }
-    }
-}
+// --- Wallet Modal (Refactored for Robustness) ---
 
 function closeWalletsModal(): void {
     const modalContainer = document.getElementById('wallet-modal-container');
     if (modalContainer) {
         modalContainer.classList.add('hidden');
     }
+    // Clean up the backdrop listener
+    const modalBackdrop = document.getElementById('wallet-modal-backdrop');
+    if(modalBackdrop) {
+        modalBackdrop.removeEventListener('click', closeWalletsModal);
+    }
 }
+
+function setupModalEventListeners(modalCard: HTMLElement): void {
+    const closeButton = modalCard.querySelector('#wallet-modal-close-btn');
+    if (closeButton) {
+        // Ensure we don't add multiple listeners if modal is re-opened
+        closeButton.addEventListener('click', closeWalletsModal, { once: true });
+    }
+    const modalBackdrop = document.getElementById('wallet-modal-backdrop');
+    if(modalBackdrop) {
+        modalBackdrop.addEventListener('click', closeWalletsModal, { once: true });
+    }
+}
+
+async function loadWalletsIntoModal(modalCard: HTMLElement): Promise<void> {
+    const listContainer = modalCard.querySelector('#wallet-list-container') as HTMLElement;
+    const spinner = modalCard.querySelector('#wallet-loading-spinner') as HTMLElement;
+    const errorP = modalCard.querySelector('#wallet-error-message') as HTMLElement;
+
+    if (!listContainer || !spinner || !errorP) {
+        console.error("Wallet modal is missing required content elements (list, spinner, error).");
+        errorP.textContent = "Modal content is malformed.";
+        errorP.style.display = 'block';
+        return;
+    }
+
+    spinner.style.display = 'flex';
+    errorP.style.display = 'none';
+    listContainer.innerHTML = '';
+
+    try {
+        const response = await fetch('/api/wallets');
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+        const wallets = await response.json();
+        
+        if (wallets && wallets.length > 0) {
+            listContainer.innerHTML = wallets.map((w: { name: string, address: string, balance: string }) => `
+                <div class="wallet-item">
+                    <span class="wallet-name">${w.name}</span>
+                    <span class="wallet-address">${w.address}</span>
+                    <span class="wallet-balance">${w.balance}</span>
+                </div>
+            `).join('');
+        } else {
+            listContainer.innerHTML = `<p class="p-4 text-center">No wallets found.</p>`;
+        }
+    } catch (error) {
+        console.error("Failed to load wallets:", error);
+        errorP.textContent = 'Could not load wallets. Is the server running?';
+        errorP.style.display = 'block';
+    } finally {
+        spinner.style.display = 'none';
+    }
+}
+
+
+async function openWalletsModal(): Promise<void> {
+    const modalContainer = document.getElementById('wallet-modal-container');
+    if (!modalContainer) {
+        console.error("Fatal: #wallet-modal-container not found in DOM.");
+        return;
+    }
+    modalContainer.classList.remove('hidden');
+
+    const modalCard = document.getElementById('wallet-modal-card');
+    if (!modalCard) {
+        console.error("Fatal: #wallet-modal-card not found in DOM.");
+        return;
+    }
+
+    // Only fetch and build the modal content once.
+    if (modalCard.children.length === 0) {
+        try {
+            const response = await fetch('/wallet-modal.html');
+            if (!response.ok) {
+                throw new Error(`Failed to fetch modal HTML: ${response.status}`);
+            }
+            const htmlText = await response.text();
+
+            // Use DOMParser to safely parse the HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+            
+            // Append the parsed nodes from the body of the new document
+            while (doc.body.firstChild) {
+                modalCard.appendChild(doc.body.firstChild);
+            }
+            
+            setupModalEventListeners(modalCard);
+            await loadWalletsIntoModal(modalCard);
+
+        } catch (error) {
+            console.error("Error building wallet modal:", error);
+            modalCard.innerHTML = `<p class="p-4 text-center text-red-500">Could not load modal content.</p>`;
+        }
+    } else {
+        // If modal is already built, just refresh the wallet list.
+        await loadWalletsIntoModal(modalCard);
+    }
+}
+
 
 // --- Sidebar Navigation Configuration (New - Defined after Wallet functions) ---
 export const sidebarNavConfig: SidebarNavSection[] = [
@@ -872,10 +930,8 @@ export function initializeApp(): void {
     }
 
     // Wallet Modal Listeners
-    if (closeWalletModalButton) {
-        closeWalletModalButton.addEventListener('click', closeWalletsModal);
-    }
-    
+    // The event listeners are now handled within openWalletsModal and closeWalletsModal
+
     // --- Native Search Overlay Logic ---
     console.log("Attaching search listeners...");
     console.log({

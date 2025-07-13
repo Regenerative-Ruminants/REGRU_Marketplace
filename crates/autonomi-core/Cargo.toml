@@ -4,12 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-autonomi = { git = "https://github.com/maidsafe/autonomi", tag = "autonomi-v0.4.6" }
-anyhow = "1.0"
-thiserror = "1.0"
-color-eyre = "0.6"
-serde = { version = "1.0", features = ["derive"] }
-dirs-next = "2.0.0"
+autonomi = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+color-eyre = { workspace = true }
+serde = { workspace = true }
+dirs-next = { workspace = true }
 
 [dev-dependencies]
 temp-env = "0.3.6"
