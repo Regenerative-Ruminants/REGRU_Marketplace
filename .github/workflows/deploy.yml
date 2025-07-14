@@ -79,8 +79,8 @@ jobs:
             docker stop regru-app || true
             docker rm regru-app || true
             
-            # Run the new container
-            docker run -d -p 80:8000 --name regru-app \
+            # Run the new container, exposing the port ONLY to the droplet's localhost
+            docker run -d -p 127.0.0.1:8000:8000 --name regru-app \
               -e SECRET_KEY="${{ secrets.SECRET_KEY }}" \
               -e EVM_NETWORK="arbitrum-sepolia-test" \
               registry.digitalocean.com/regru-marketplace/app:latest 
