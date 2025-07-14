@@ -201,21 +201,60 @@ async function loadWalletsIntoModal(modalCard: HTMLElement): Promise<void> {
     errorP.style.display = 'none';
     listContainer.innerHTML = '';
 
+    const abbreviateAddress = (address: string) => {
+        if (address.length <= 9) return address;
+        return `${address.slice(0, 5)}...${address.slice(-4)}`;
+    };
+
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+
     try {
-        const response = await fetch('/api/wallets');
+        const response = await fetch(`${apiBaseUrl}/api/wallets`);
         if (!response.ok) {
             throw new Error(`API error: ${response.status}`);
         }
         const wallets = await response.json();
         
         if (wallets && wallets.length > 0) {
-            listContainer.innerHTML = wallets.map((w: { name: string, address: string, balance: string }) => `
+            listContainer.innerHTML = wallets.map((w: { name: string, address: string, balance: string }, index: number) => `
                 <div class="wallet-item">
                     <span class="wallet-name">${w.name}</span>
-                    <span class="wallet-address">${w.address}</span>
+                    <div class="wallet-address-container">
+                        <span 
+                            class="wallet-address" 
+                            title="Click to copy: ${w.address}" 
+                            data-full-address="${w.address}"
+                            data-wallet-id="wallet-address-${index}"
+                        >
+                            ${abbreviateAddress(w.address)}
+                        </span>
+                        <span class="copy-indicator" id="copy-indicator-${index}">Copied!</span>
+                    </div>
                     <span class="wallet-balance">${w.balance}</span>
                 </div>
             `).join('');
+
+            // Add event listeners after rendering
+            wallets.forEach((_w: any, index: number) => {
+                const addressSpan = listContainer.querySelector(`[data-wallet-id="wallet-address-${index}"]`);
+                if (addressSpan) {
+                    addressSpan.addEventListener('click', () => {
+                        const fullAddress = addressSpan.getAttribute('data-full-address');
+                        if (fullAddress) {
+                            navigator.clipboard.writeText(fullAddress).then(() => {
+                                const indicator = document.getElementById(`copy-indicator-${index}`);
+                                if (indicator) {
+                                    indicator.classList.add('visible');
+                                    setTimeout(() => {
+                                        indicator.classList.remove('visible');
+                                    }, 1500);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
         } else {
             listContainer.innerHTML = `<p class="p-4 text-center">No wallets found.</p>`;
         }
