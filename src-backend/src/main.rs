@@ -65,7 +65,7 @@ async fn main() -> std::io::Result<()> {
             .service(health_check)
             .service(get_wallets_handler)
             .service(
-                fs::Files::new("/", "../dist")
+                fs::Files::new("/", "./dist")
                     .index_file("index.html")
                     .use_last_modified(true),
             )
