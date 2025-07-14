@@ -62,15 +62,8 @@ jobs:
           username: ${{ secrets.DO_DROPLET_USER }}
           key: ${{ secrets.DO_DROPLET_KEY }}
           script: |
-            # Update package list and install Docker if not present
-            apt-get update
-            apt-get install -y docker.io
-
             # Log in to DigitalOcean Container Registry on the droplet
             echo "${{ secrets.DO_REGISTRY_PASSWORD }}" | docker login registry.digitalocean.com -u "${{ secrets.DO_REGISTRY_USER }}" --password-stdin
-
-            # Find and kill any process using port 80
-            fuser -k 80/tcp || true
 
             # Pull the latest image from the registry
             docker pull registry.digitalocean.com/regru-marketplace/app:latest
@@ -83,4 +76,7 @@ jobs:
             docker run -d -p 127.0.0.1:8000:8000 --name regru-app \
               -e SECRET_KEY='${{ secrets.SECRET_KEY }}' \
               -e EVM_NETWORK='arbitrum-sepolia-test' \
-              registry.digitalocean.com/regru-marketplace/app:latest 
+              registry.digitalocean.com/regru-marketplace/app:latest
+            
+            # Gracefully restart Caddy to apply changes
+            systemctl restart caddy 
