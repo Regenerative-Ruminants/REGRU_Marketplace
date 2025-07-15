@@ -1,5 +1,6 @@
 import './index.css';
 import { initializeApp, sidebarNavConfig, SidebarNavSection } from './app'; // IMPORT THE APP and CONFIG
+import { initializeWallet } from './wallet'; // IMPORT THE NEW WALLET MODULE
 
 // Greet function remains the same
 async function greet() {
@@ -78,8 +79,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         await initializeApp();
         initializeHamburgerMenu();
     } catch (error) {
-        console.error("Failed to initialize the application:", error);
-        // Optionally, display a user-friendly error message on the page
+        console.error("Fatal error during application initialization:", error);
+        // Display a fallback error message in the main content area
         const container = document.getElementById('products-grid-container');
         if (container) {
             container.innerHTML = `<div class="col-span-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">

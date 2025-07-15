@@ -28,7 +28,7 @@ interface ShoppingCartItem {
 }
 
 // New types for the redesigned sidebar
-interface SidebarNavItem {
+export interface SidebarNavItem {
     id: string; // e.g., 'browse_all_products', 'my_purchases', 'wallets_view'
     label: string;
     iconClass: string;
@@ -37,7 +37,7 @@ interface SidebarNavItem {
     isDefault?: boolean;
 }
 
-interface SidebarNavSection {
+export interface SidebarNavSection {
     title: string;
     items: SidebarNavItem[];
 }
@@ -645,14 +645,14 @@ function renderProductCard(product: Product): string {
                     <i class="far fa-heart"></i>
                 </button>
             </div>
-            <div class="product-content">
+            <div class="product-card-content">
                 <h3 class="product-title">${product.name}</h3>
                 <div class="farm-info">
                     <span class="farm-name">${product.seller}</span>
                     <span class="location">${product.provenance}</span>
                 </div>
                 ${product.description ? `<p class="product-description">${product.description}</p>` : ''}
-                ${product.tags && product.tags.length > 0 ? `<div class="product-tags">${tagsHTML}</div>` : ''}
+                ${product.tags && product.tags.length > 0 ? `<div class="product-card-tags">${tagsHTML}</div>` : ''}
                 
                 <div class="rating-section mb-2"> <!-- Added a wrapper for rating and review count -->
                     <span class="stars">${generateStarRatingHTML(product.rating)}</span>
@@ -925,7 +925,7 @@ function updateCartDisplay(): void {
 (window as any).updateCartQuantity = updateCartQuantity;
 
 // --- New API Integration ---
-interface ApiProduct {
+export interface ApiProduct {
     id: string;
     name: string;
     description: string;
