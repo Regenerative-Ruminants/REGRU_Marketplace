@@ -1,5 +1,5 @@
 import './index.css';
-import { initializeApp, sidebarNavConfig } from './app'; // IMPORT THE APP and CONFIG
+import { initializeApp, sidebarNavConfig, SidebarNavSection } from './app'; // IMPORT THE APP and CONFIG
 
 // Greet function remains the same
 async function greet() {
@@ -41,10 +41,10 @@ export function initializeHamburgerMenu() {
                 navClone.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
                 
                 // Re-attach event listeners based on the config
-                navClone.querySelectorAll('[data-nav-id]').forEach(clonedItem => {
-                    const navId = (clonedItem as HTMLElement).dataset.navId;
+                navClone.querySelectorAll('[data-view-id]').forEach(clonedItem => {
+                    const navId = (clonedItem as HTMLElement).dataset.viewId;
                     const navConfigItem = sidebarNavConfig
-                        .flatMap(section => section.items)
+                        .flatMap((section: SidebarNavSection) => section.items)
                         .find(item => item.id === navId);
 
                     if (navConfigItem && navConfigItem.action) {
@@ -73,9 +73,21 @@ export function initializeHamburgerMenu() {
 }
 
 // --- App Entry Point ---
-document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
-    initializeHamburgerMenu();
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        await initializeApp();
+        initializeHamburgerMenu();
+    } catch (error) {
+        console.error("Failed to initialize the application:", error);
+        // Optionally, display a user-friendly error message on the page
+        const container = document.getElementById('products-grid-container');
+        if (container) {
+            container.innerHTML = `<div class="col-span-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Fatal Error!</strong>
+                <span class="block sm:inline">Could not load the application. Please try again later.</span>
+            </div>`;
+        }
+    }
 });
 
 // Bottom‑nav routing
@@ -248,35 +260,35 @@ function handleScroll() {
         const iconPadding = MEDIUM_ICON_PADDING - (MEDIUM_ICON_PADDING - SMALL_ICON_PADDING) * progress;
         const taglineSize = MEDIUM_TAGLINE_SIZE - (MEDIUM_TAGLINE_SIZE - SMALL_TAGLINE_SIZE) * progress;
         const taglineOpacity = 1 - progress; // Fade out during phase 2
-        
+
         setHeaderAppearance(containerHeight, logoHeight, iconSize, iconPadding, taglineSize, taglineOpacity);
     }
 }
 
-function initHeader() {
-    // Calculate the initial "Welcome Mat" size in pixels
-    welcomeHeightContainer = window.innerHeight * 0.30; // Reduced from 0.35
-    welcomeHeightLogo = window.innerHeight * 0.20;      // Reduced from 0.25
-    
-    // Dynamically calculate the scroll distance for phase 1 to feel responsive
-    // The animation will complete over a scroll distance 60% of the header's shrink size.
-    PHASE1_DISTANCE = (welcomeHeightContainer - MEDIUM_CONTAINER_HEIGHT) * 0.6;
 
-    // Set the initial state without transitions, using the new comprehensive function
-    setHeaderAppearance(welcomeHeightContainer, welcomeHeightLogo, LARGE_ICON_SIZE, LARGE_ICON_PADDING, LARGE_TAGLINE_SIZE, 1);
+function initHeader() {
+    if (!scrollContainer) {
+        console.warn("Scroll container not found. Cannot init header animation.");
+        return;
+    }
+
+    if (!hasScrolled) {
+        const screenHeight = window.innerHeight;
+        welcomeHeightContainer = screenHeight * 0.4;
+        welcomeHeightLogo = welcomeHeightContainer * 0.5;
+        PHASE1_DISTANCE = welcomeHeightContainer - MEDIUM_CONTAINER_HEIGHT; // Dynamic distance
+
+        setHeaderAppearance(welcomeHeightContainer, welcomeHeightLogo, LARGE_ICON_SIZE, LARGE_ICON_PADDING, LARGE_TAGLINE_SIZE, 1);
+    }
 }
 
-// --- Event Listeners ---
-if (scrollContainer && mobileHeader && mobileLogoContainer && mobileLogoImg && mobileLogoTagline && hamburgerIcon && searchIcon && hamburgerButton && searchButton) {
-    // 1. Set the initial state on load
-    document.addEventListener('DOMContentLoaded', () => {
-        setupButtonPositioning(); // Set static positions first
-        initHeader(); // Then set initial sizes
-    });
 
-    // 2. Add a resize listener to handle orientation changes BEFORE the first scroll
-    window.addEventListener('resize', initHeader);
-    
-    // 3. Add the main scroll listener
-    scrollContainer.addEventListener('scroll', handleScroll);
-} 
+// --- Initialize Everything ---
+document.addEventListener('DOMContentLoaded', () => {
+    if (scrollContainer) {
+        initHeader();
+        scrollContainer.addEventListener('scroll', handleScroll);
+        window.addEventListener('resize', initHeader);
+    }
+    setupButtonPositioning();
+});

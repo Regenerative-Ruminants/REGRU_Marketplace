@@ -1,78 +1,118 @@
-use actix_web::{get, App, HttpServer, Responder, HttpResponse, middleware, web};
+mod api;
+mod models;
+
 use actix_cors::Cors;
-use actix_files as fs;
-use dotenv::dotenv;
-// use dotenv::from_path;
-use std::env;
+use actix_web::{web, App, HttpServer, middleware};
+use std::sync::Arc;
+use parking_lot::RwLock;
+use chrono::Utc;
 
-#[macro_use]
-extern crate log;
+use crate::models::{Product, ShoppingCart};
 
-// Import from our shared core library
-use autonomi_core::wallets::get_wallets;
-
-#[get("/health")]
-async fn health_check() -> impl Responder {
-    HttpResponse::Ok().json(serde_json::json!({ "status": "UP" }))
+// In-memory "database"
+pub struct AppState {
+    products: RwLock<Vec<Product>>,
+    shopping_cart: RwLock<ShoppingCart>,
 }
 
-#[get("/api/wallets")]
-async fn get_wallets_handler() -> impl Responder {
-    match get_wallets() {
-        Ok(wallets) => HttpResponse::Ok().json(wallets),
-        Err(e) => {
-            log::error!("Failed to get available wallets: {:?}", e);
-            HttpResponse::InternalServerError().json(serde_json::json!({
-                "error": "Failed to retrieve wallets",
-                "details": e.to_string()
-            }))
-        }
-    }
-}
-
-#[tokio::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // Load environment variables from .env file
-    dotenv().ok();
+    std::env::set_var("RUST_LOG", "actix_web=info,info");
+    env_logger::init();
 
-    // Initialize logger
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
-
-    let app_host = env::var("APP_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
-    let app_port_str = env::var("APP_PORT").unwrap_or_else(|_| "8000".to_string());
-
-    let app_port = match app_port_str.parse::<u16>() {
-        Ok(port) => port,
-        Err(_) => {
-            log::error!("Invalid APP_PORT value: {}. Defaulting to 8000.", app_port_str);
-            8000
+    // Initialize with the correct, full list of sample products
+    let sample_products = vec![
+        Product { 
+            id: "prod_new_001".to_string(), name: "The Fauna".to_string(),
+            description: "A beautifully handcrafted item, perfect for any collection.".to_string(),
+            image_url: "/images/products/The-Fauna.png".to_string(), 
+            price: 75.00, 
+            tags: vec!["Handmade".to_string(), "Unique".to_string(), "Artisan".to_string()] 
+        },
+        Product { 
+            id: "prod_new_002".to_string(), name: "Beautiful Washed BFL Curls".to_string(), 
+            description: "Premium, clean Bluefaced Leicester curls, ready for spinning or felting.".to_string(),
+            image_url: "/images/products/Big-bags-of-beautiful-washed-BFL-curls.png".to_string(), 
+            price: 25.50, 
+            tags: vec!["BFL".to_string(), "Spinning".to_string(), "Felting".to_string(), "Natural Fiber".to_string()] 
+        },
+        Product { 
+            id: "prod_new_003".to_string(), name: "Whole Beef Shank".to_string(), 
+            description: "A hearty and flavorful cut, perfect for slow cooking, stews, or broth.".to_string(),
+            image_url: "/images/products/Whole-beef-shank.png".to_string(), 
+            price: 18.75, 
+            tags: vec!["Grass-fed".to_string(), "Slow-cook".to_string(), "Osso Buco".to_string()] 
+        },
+        Product { 
+            id: "prod_new_004".to_string(), name: "Raw Milk".to_string(), 
+            description: "Fresh, unpasteurized raw milk from our grass-fed herd. Creamy and full of natural goodness.".to_string(),
+            image_url: "/images/products/Raw-Milk.png".to_string(), 
+            price: 3.20, 
+            tags: vec!["Raw".to_string(), "Unpasteurized".to_string(), "Grass-fed".to_string()] 
+        },
+        Product { 
+            id: "prod_new_005".to_string(), name: "Grass-Fed Chateaubriand Steak".to_string(), 
+            description: "The most tender and luxurious cut of beef, perfect for a special occasion.".to_string(),
+            image_url: "/images/products/Grass-Fed-Beef-Chateaubriand-Sharing-Steak.png".to_string(), 
+            price: 45.00, 
+            tags: vec!["Center-cut".to_string(), "Tenderloin".to_string(), "Sharing Steak".to_string()] 
+        },
+        Product { 
+            id: "prod_new_006".to_string(), name: "Raw Organic A2 Grass-Fed Milk".to_string(), 
+            description: "Premium organic raw milk from A2 cows, easier to digest and exceptionally creamy.".to_string(),
+            image_url: "/images/products/Raw-Organic-A2-Grass-Fed-milk.png".to_string(), 
+            price: 4.50, 
+            tags: vec!["A2 Milk".to_string(), "Organic".to_string(), "Raw".to_string(), "Grass-fed".to_string()] 
+        },
+        Product { 
+            id: "prod_new_007".to_string(), name: "Stevie Bag in Black".to_string(), 
+            description: "A stylish and durable handcrafted bag, perfect for everyday use.".to_string(),
+            image_url: "/images/products/Stevie-Bag-in-Black.png".to_string(), 
+            price: 120.00, 
+            tags: vec!["Handmade".to_string(), "Leather".to_string(), "Fashion".to_string()] 
+        },
+        Product { 
+            id: "prod_new_008".to_string(), name: "Jacob Felted Fleece".to_string(), 
+            description: "A beautiful and unique felted fleece from Jacob sheep, ideal for rugs or wall hangings.".to_string(),
+            image_url: "/images/products/Jacob-Felted-Fleece.png".to_string(), 
+            price: 35.00, 
+            tags: vec!["Felted Fleece".to_string(), "Jacob Sheep".to_string(), "Natural".to_string(), "Crafting".to_string()] 
         }
-    };
+    ];
 
-    log::info!("Starting server at http://{}:{}", app_host, app_port);
+    let app_state = Arc::new(AppState {
+        products: RwLock::new(sample_products),
+        shopping_cart: RwLock::new(ShoppingCart {
+            items: vec![],
+            last_updated: Utc::now(),
+        }),
+    });
+
+    log::info!("Starting server at http://127.0.0.1:8000");
 
     HttpServer::new(move || {
         let cors = Cors::default()
             .allowed_origin("http://localhost:1420")
-            .allowed_methods(vec!["GET", "POST"])
-            .allowed_headers(vec!["authorization", "accept"])
-            .allowed_header("content-type")
+            .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
+            .allow_any_header()
             .max_age(3600);
 
         App::new()
+            .app_data(web::Data::new(app_state.clone()))
             .wrap(cors)
             .wrap(middleware::Logger::default())
-            .service(health_check)
-            .service(get_wallets_handler)
             .service(
-                fs::Files::new("/", "./dist")
-                    .index_file("index.html")
-                    .use_last_modified(true),
+                web::scope("/api")
+                    .service(api::get_products)
+                    .service(api::get_cart)
+                    .service(api::add_to_cart)
+                    .service(api::update_cart_item)
+                    .service(api::remove_from_cart)
             )
-            // We will add more services (routes) here later
-            // .configure(crate::handlers::config) // Example for modular routing
+            .service(actix_files::Files::new("/", "./dist").index_file("index.html"))
+
     })
-    .bind((app_host, app_port))?
+    .bind("127.0.0.1:8000")?
     .run()
     .await
-} 
+}

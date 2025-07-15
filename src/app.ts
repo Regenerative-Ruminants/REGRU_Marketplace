@@ -40,123 +40,8 @@ interface SidebarNavSection {
     items: SidebarNavItem[];
 }
 
-// --- Sample Product Data (Preserved - will be used in Phase 2 for product grid) ---
-const sampleProducts: Product[] = [
-    // --- NEW PRODUCTS ADDED HERE ---
-    { 
-        id: 'prod_new_001', name: 'The Fauna', seller: 'Artisan Creations', provenance: 'Local Workshop', category: 'Crafts', animal: 'N/A', price: 75.00, 
-        image: '/images/products/The-Fauna.png', 
-        rating: 5, reviewCount: 15, 
-        description: 'A beautifully handcrafted item, perfect for any collection.',
-        tags: ['Handmade', 'Unique', 'Artisan'] 
-    },
-    { 
-        id: 'prod_new_002', name: 'Beautiful Washed BFL Curls', seller: 'Woolly Wonders Farm', provenance: 'Countryside', category: 'Crafts', animal: 'Sheep', price: 25.50, 
-        image: '/images/products/Big-bags-of-beautiful-washed-BFL-curls.png', 
-        rating: 5, reviewCount: 32, 
-        description: 'Premium, clean Bluefaced Leicester curls, ready for spinning or felting.',
-        tags: ['BFL', 'Spinning', 'Felting', 'Natural Fiber'] 
-    },
-    { 
-        id: 'prod_new_003', name: 'Whole Beef Shank', seller: 'Highland Heritage Farm', provenance: 'Scottish Highlands', category: 'Meat', animal: 'Cattle', price: 18.75, 
-        image: '/images/products/Whole-beef-shank.png', 
-        rating: 4, reviewCount: 41, 
-        description: 'A hearty and flavorful cut, perfect for slow cooking, stews, or broth.',
-        tags: ['Grass-fed', 'Slow-cook', 'Osso Buco'] 
-    },
-    { 
-        id: 'prod_new_004', name: 'Raw Milk', seller: 'Cotswold Creamery', provenance: 'Gloucestershire', category: 'Dairy', animal: 'Cattle', price: 3.20, 
-        image: '/images/products/Raw-Milk.png', 
-        rating: 5, reviewCount: 98, 
-        description: 'Fresh, unpasteurized raw milk from our grass-fed herd. Creamy and full of natural goodness.',
-        tags: ['Raw', 'Unpasteurized', 'Grass-fed'] 
-    },
-    { 
-        id: 'prod_new_005', name: 'Grass-Fed Chateaubriand Steak', seller: 'Highland Heritage Farm', provenance: 'Scottish Highlands', category: 'Meat', animal: 'Cattle', price: 45.00, 
-        image: '/images/products/Grass-Fed-Beef-Chateaubriand-Sharing-Steak.png', 
-        rating: 5, reviewCount: 62, 
-        description: 'The most tender and luxurious cut of beef, perfect for a special occasion.',
-        tags: ['Center-cut', 'Tenderloin', 'Sharing Steak'] 
-    },
-    { 
-        id: 'prod_new_006', name: 'Raw Organic A2 Grass-Fed Milk', seller: 'Cotswold Creamery', provenance: 'Gloucestershire', category: 'Dairy', animal: 'Cattle', price: 4.50, 
-        image: '/images/products/Raw-Organic-A2-Grass-Fed-milk.png', 
-        rating: 5, reviewCount: 150, 
-        description: 'Premium organic raw milk from A2 cows, easier to digest and exceptionally creamy.',
-        tags: ['A2 Milk', 'Organic', 'Raw', 'Grass-fed'] 
-    },
-    { 
-        id: 'prod_new_007', name: 'Stevie Bag in Black', seller: 'Artisan Creations', provenance: 'Local Workshop', category: 'Crafts', animal: 'N/A', price: 120.00, 
-        image: '/images/products/Stevie-Bag-in-Black.png', 
-        rating: 5, reviewCount: 8, 
-        description: 'A stylish and durable handcrafted bag, perfect for everyday use.',
-        tags: ['Handmade', 'Leather', 'Fashion'] 
-    },
-    { 
-        id: 'prod_new_008', name: 'Jacob Felted Fleece', seller: 'Woolly Wonders Farm', provenance: 'Countryside', category: 'Crafts', animal: 'Sheep', price: 35.00, 
-        image: '/images/products/Jacob-Felted-Fleece.png', 
-        rating: 5, reviewCount: 25, 
-        description: 'A beautiful and unique felted fleece from Jacob sheep, ideal for rugs or wall hangings.',
-        tags: ['Felted Fleece', 'Jacob Sheep', 'Natural', 'Crafting'] 
-    },
-    // --- EXISTING DUMMY PRODUCTS ---
-    { 
-        id: 'prod001', name: 'Heritage Rainbow Carrots', seller: 'Sunrise Organic Farm', provenance: 'Devon, England', category: 'Produce', animal: 'N/A', price: 3.50, 
-        image: 'https://placehold.co/400x300/84cc16/FFFFFF?text=Organic+Carrots', 
-        mockupImagePlaceholderClass: 'produce-bg',
-        mockupBadges: [{ text: 'Organic', class: 'organic' }, { text: 'Traceable', class: 'traceable' }],
-        rating: 5, reviewCount: 127, 
-        description: 'Hand-harvested heritage carrots in vibrant colors. Sweet, crisp, and packed with nutrients.',
-        tags: ['Heirloom', 'No-till', 'Seasonal'] 
-    },
-    { 
-        id: 'prod002', name: 'Aged Cheddar Wheel', seller: 'Cotswold Creamery', provenance: 'Gloucestershire', category: 'Dairy', animal: 'Cattle', price: 12.99, 
-        image: 'https://placehold.co/400x300/0ea5e9/FFFFFF?text=Artisan+Cheese', 
-        mockupImagePlaceholderClass: 'dairy-bg',
-        mockupBadges: [{ text: 'Local', class: 'local' }, { text: 'Traceable', class: 'traceable' }],
-        rating: 5, reviewCount: 89, 
-        description: '18-month aged traditional cheddar. Made from grass-fed Jersey cow milk using traditional methods.',
-        tags: ['Grass-fed', 'Aged 18mo', 'Artisan'] 
-    },
-    { 
-        id: 'prod003', name: 'Grass-Fed Ribeye Steak', seller: 'Highland Heritage Farm', provenance: 'Scottish Highlands', category: 'Meat', animal: 'Cattle', price: 24.99, 
-        image: 'https://placehold.co/400x300/8b4513/FFFFFF?text=Grass-Fed+Beef', 
-        mockupImagePlaceholderClass: 'meat-bg',
-        mockupBadges: [{ text: 'Organic', class: 'organic' }, { text: 'Local', class: 'local' }, { text: 'Traceable', class: 'traceable' }],
-        rating: 5, reviewCount: 156, 
-        description: 'Premium grass-fed ribeye from Highland cattle. Aged 28 days for exceptional flavor and tenderness.',
-        tags: ['28-day aged', 'Grass-fed', 'Highland'] 
-    },
-    { 
-        id: 'prod004', name: 'Mixed Spring Bouquet', seller: 'Meadow Bloom Flowers', provenance: 'Kent, England', category: 'Flowers', animal: 'N/A', price: 18.00, 
-        image: 'https://placehold.co/400x300/ec4899/FFFFFF?text=Cut+Flowers', 
-        mockupImagePlaceholderClass: 'flowers-bg',
-        mockupBadges: [{ text: 'Seasonal', class: 'seasonal' }, { text: 'Local', class: 'local' }],
-        rating: 4, reviewCount: 73, 
-        description: 'Seasonal mixed bouquet featuring tulips, daffodils, and cherry blossoms. Freshly cut this morning.',
-        tags: ['Seasonal', 'Fresh cut', 'Mixed'] 
-    },
-    { 
-        id: 'prod005', name: 'Stone-Ground Spelt Flour', seller: 'Ancient Grains Collective', provenance: 'Norfolk, England', category: 'Grains', animal: 'N/A', price: 4.75, 
-        image: 'https://placehold.co/400x300/d97706/FFFFFF?text=Heritage+Grains', 
-        mockupImagePlaceholderClass: 'grains-bg',
-        mockupBadges: [{ text: 'Organic', class: 'organic' }, { text: 'Traceable', class: 'traceable' }],
-        rating: 5, reviewCount: 94, 
-        description: 'Ancient spelt wheat, stone-ground in small batches. Perfect for artisan breads and baking.',
-        tags: ['Stone-ground', 'Ancient grain', 'Small batch'] 
-    },
-    { 
-        id: 'prod006', name: 'Hand-Spun Wool Yarn', seller: 'Woolly Wonders Farm', provenance: 'Lake District', category: 'Crafts', animal: 'Sheep', price: 16.50, 
-        image: 'https://placehold.co/400x300/8b5cf6/FFFFFF?text=Handmade+Crafts', 
-        mockupImagePlaceholderClass: 'crafts-bg',
-        mockupBadges: [{ text: 'Local', class: 'local' }, { text: 'Traceable', class: 'traceable' }],
-        rating: 5, reviewCount: 112, 
-        description: 'Hand-spun yarn from rare breed sheep. Naturally dyed with plants grown on our farm.',
-        tags: ['Hand-spun', 'Natural dye', 'Rare breed'] 
-    }
-];
-
-// --- Shopping Cart (Preserved) ---
+// --- App State ---
+let allProducts: Product[] = []; // This will hold the single source of truth for products.
 let shoppingCart: ShoppingCartItem[] = [];
 
 // --- Wallet Modal (Refactored for Robustness) ---
@@ -421,7 +306,7 @@ function renderSearchResults(results: Product[]): void {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const productId = (item as HTMLElement).dataset.productId;
-            const product = sampleProducts.find(p => p.id === productId);
+            const product = allProducts.find(p => p.id === productId);
             if (product) {
                 showProductModal(product, item as HTMLElement);
             }
@@ -553,7 +438,7 @@ function renderSidebar(): void {
             searchOverlay.classList.remove('hidden');
             searchInput.value = ''; // Clear previous search
             searchInput.focus();
-            renderSearchResults(sampleProducts); // Show all products initially
+            renderSearchResults(allProducts); // Show all products initially
         };
 
         const closeSearch = () => {
@@ -567,10 +452,10 @@ function renderSidebar(): void {
         searchInput.addEventListener('input', () => {
             const searchTerm = searchInput.value.toLowerCase().trim();
             if (searchTerm === '') {
-                renderSearchResults(sampleProducts);
+                renderSearchResults(allProducts);
                 return;
             }
-            const filteredProducts = sampleProducts.filter(product => 
+            const filteredProducts = allProducts.filter(product => 
                 product.name.toLowerCase().includes(searchTerm) ||
                 product.seller.toLowerCase().includes(searchTerm) ||
                 product.category.toLowerCase().includes(searchTerm)
@@ -741,7 +626,7 @@ function renderProductGrid(productsToDisplay: Product[]): void {
 function renderFilterTags(): void {
     if (!filterTagsContainer) return;
 
-    const categories = [...new Set(sampleProducts.map(p => p.category))].sort();
+    const categories = [...new Set(allProducts.map(p => p.category))].sort();
     
     const allCategoriesClass = !activeFilters.category ? 'active' : '';
     let tagsHTML = `<div class="filter-tag ${allCategoriesClass}" data-filter-type="category" data-filter-value="all">All Categories</div>`;
@@ -803,7 +688,7 @@ function navigateTo(viewId: string, data?: { title?: string }): void {
 
     if (productsGridContainer) {
         if (viewId === "browse_all_products") {
-            let productsToDisplay = sampleProducts;
+            let productsToDisplay = allProducts; // Use the live data
 
             // 0. Apply Category Filter (Phase 2.5b)
             if (activeFilters.category) {
@@ -926,19 +811,68 @@ function updateCartDisplay(): void {
 (window as any).removeFromCart = removeFromCart;
 (window as any).updateCartQuantity = updateCartQuantity;
 
+// --- New API Integration ---
+interface ApiProduct {
+    id: string;
+    name: string;
+    description: string;
+    image_url: string;
+    price: number;
+    tags: string[];
+}
+
+async function fetchAndSetProducts(): Promise<void> {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+    try {
+        const response = await fetch(`${apiBaseUrl}/api/products`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const apiProducts: ApiProduct[] = await response.json();
+
+        // Transform API products to the main Product interface and store them
+        allProducts = apiProducts.map(apiProduct => ({
+            id: apiProduct.id,
+            name: apiProduct.name,
+            description: apiProduct.description,
+            price: apiProduct.price,
+            tags: apiProduct.tags,
+            image: apiProduct.image_url,
+            seller: 'Regru Market', 
+            provenance: 'Local Sourced',
+            category: 'Fresh Produce', // This might need to be derived from tags in the future
+            animal: 'N/A',
+            rating: (Math.random() * (5 - 3.5) + 3.5),
+            reviewCount: Math.floor(Math.random() * 200),
+        }));
+
+        // Initial render after fetching
+        navigateTo(currentView, { title: 'Fresh Farm Products' });
+
+    } catch (error) {
+        console.error("Failed to fetch or set products:", error);
+        if (productsGridContainer) {
+            productsGridContainer.innerHTML = '<p class="col-span-full text-center p-8 text-red-500">Could not load products from the server.</p>';
+        }
+    }
+}
+
 
 // --- Initialization (Phase 1 Refactor) ---
-export function initializeApp(): void {
+export async function initializeApp(): Promise<void> {
     console.log("Initializing application...");
     renderSidebar();
-    renderProductGrid(sampleProducts);
-    renderFilterTags(); // Initial render for default view
+    
+    // Fetch products from the API first. The initial render will happen inside fetchAndSetProducts.
+    await fetchAndSetProducts(); 
+    
+    renderFilterTags();
     updateViewToggleButtonsActiveState();
 
-    // Set initial view based on default in config
     const defaultNavItem = sidebarNavConfig.flatMap(s => s.items).find(i => i.isDefault);
     if (defaultNavItem) {
-        navigateTo(defaultNavItem.id, { title: defaultNavItem.label });
+        // The initial navigation is now handled within fetchAndSetProducts to avoid a race condition
+        // navigateTo(defaultNavItem.id, { title: defaultNavItem.label });
     }
 
     // --- Event Listeners ---
@@ -962,7 +896,7 @@ export function initializeApp(): void {
             if (button && button.dataset.view) {
                 currentDisplayMode = button.dataset.view as 'grid' | 'list';
                 updateViewToggleButtonsActiveState();
-                const products = sampleProducts; // In a real app, this would be a more complex state lookup
+                const products = allProducts; // In a real app, this would be a more complex state lookup
                 renderProductGrid(products);
             }
         });
@@ -1040,8 +974,8 @@ export function initializeApp(): void {
                 return;
             }
 
-            if ((window as any).sampleProducts) {
-                const hits = (window as any).sampleProducts
+            if (allProducts) {
+                const hits = allProducts
                     .filter((p: Product) => p.name.toLowerCase().includes(query))
                     .slice(0, 5);
 
