@@ -137,7 +137,7 @@ let shoppingCart = [{quantity: 0}];
 let shoppingCartCountTopbar = {textContent: '0'};
 
 // Mobile Header Scroll Animation
-const scrollContainer = document.getElementById('app-content-area');
+const scrollContainer = document.getElementById('app-main-content'); // <-- CORRECTED
 const mobileHeader = document.getElementById('mobile-top-bar');
 const mobileLogoContainer = document.getElementById('mobile-logo-container');
 const mobileLogoImg = document.getElementById('mobile-logo-img');
