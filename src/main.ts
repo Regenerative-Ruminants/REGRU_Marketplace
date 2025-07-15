@@ -1,6 +1,6 @@
 import './index.css';
 import { initializeApp, sidebarNavConfig, SidebarNavSection } from './app'; // IMPORT THE APP and CONFIG
-import { initializeWallet } from './wallet'; // IMPORT THE NEW WALLET MODULE
+import { walletService } from './walletService'; // IMPORT THE NEW WALLET SERVICE
 
 // Greet function remains the same
 async function greet() {
@@ -78,6 +78,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         await initializeApp();
         initializeHamburgerMenu();
+        
+        // Attempt to connect wallet on load, but don't block initialization
+        walletService.connect().catch(console.error);
+
+        // --- Add Disconnect and Connect Event Listeners ---
+        document.body.addEventListener('click', (event) => {
+            const target = event.target as HTMLElement;
+            
+            // Handle disconnect via the profile button
+            const profileButton = target.closest('[data-nav="profile_view"]');
+            if (profileButton) {
+                console.log("Profile button clicked, disconnecting wallet.");
+                walletService.disconnect();
+            }
+
+            // Handle connect via the mobile connect button
+            const mobileConnectButton = target.closest('#mobile-connect-wallet-button');
+            if (mobileConnectButton) {
+                console.log("Mobile connect button clicked, initiating connection.");
+                walletService.connect();
+            }
+
+            // Handle connect via the desktop connect button
+            const desktopConnectButton = target.closest('#connect-wallet-button');
+            if (desktopConnectButton) {
+                console.log("Desktop connect button clicked, initiating connection.");
+                walletService.connect();
+            }
+        });
+
     } catch (error) {
         console.error("Fatal error during application initialization:", error);
         // Display a fallback error message in the main content area
