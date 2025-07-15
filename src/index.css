@@ -894,22 +894,28 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 
 /* === MOBILE RESPONSIVE STYLES === */
 @media (max-width: 767px) {
-    /* Kill the outer scrollbar */
+
     body {
-        overflow: hidden;
+        /* Add padding to the bottom to prevent content from being obscured by the bottom nav */
+        padding-bottom: 56px; /* Height of the bottom nav */
     }
 
-    /* Hide desktop elements */
+    /* Hide desktop-specific elements */
     #app-sidebar, #app-top-bar {
         display: none;
     }
 
-    /* Show mobile elements */
-    #mobile-top-bar, #mobile-bottom-nav, #hamburger {
-        display: flex; /* or block, as appropriate */
+    /* Ensure mobile-specific elements are visible */
+    #mobile-top-bar, #hamburger {
+        display: flex; 
     }
+    
+    #mobile-bottom-nav {
+        display: flex; /* This was the missing rule */
+    }
+
     #mobile-drawer {
-        display: none; /* Keep drawer hidden by default */
+        display: block; 
     }
 
     /* Adjust main content for mobile overlay elements */
@@ -1009,25 +1015,27 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 }
 
 @media (min-width: 768px) {
-    /* Apply desktop-specific layout to the body */
+    /* Set up a two-column layout for desktop */
     body {
-        display: flex;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: 1fr;
         height: 100vh;
         overflow: hidden;
     }
-
-    /* Show desktop elements */
+    
+    /* Ensure desktop elements are visible */
     #app-sidebar, #app-top-bar {
         display: flex;
     }
 
-    /* Hide mobile elements */
+    /* Hide mobile-specific elements on desktop */
     #mobile-top-bar, #mobile-bottom-nav, #hamburger, #mobile-drawer {
         display: none;
     }
 
     .products-grid.list-view .product-card .product-content {
-        padding: 20px;
+        padding: 1rem; /* Restore padding for list view on desktop */
     }
 }
 

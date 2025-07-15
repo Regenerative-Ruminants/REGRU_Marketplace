@@ -48,23 +48,55 @@ let activeWallet: Wallet | null = null;
 let availableWallets: Wallet[] = [];
 
 /**
- * Updates the visibility of wallet connection buttons based on connection state.
+ * Formats a wallet address for display (e.g., 0x1234...5678).
+ * @param address The full wallet address.
+ * @returns A shortened, formatted address.
+ */
+function formatAddress(address: string): string {
+    if (address.length < 10) return address;
+    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+}
+
+
+/**
+ * Updates the visibility and content of wallet connection buttons based on connection state.
+ * This function provides the single source of truth for the wallet UI.
  */
 function updateWalletButtonUI() {
     const desktopBtn = document.getElementById('connect-wallet-button');
-    const mobileBtn = document.getElementById('mobile-connect-wallet-button');
+    const mobileConnectBtn = document.getElementById('mobile-connect-wallet-button');
     const profileBtn = document.querySelector('[data-nav="profile_view"]');
+    
+    if (!profileBtn) return; // Can't do anything if the profile button isn't there.
+
+    const profileIcon = profileBtn.querySelector('i');
+    const profileLabel = profileBtn.querySelector('span');
 
     if (activeWallet) {
-        // Wallet is connected
+        // --- WALLET IS CONNECTED ---
         if (desktopBtn) desktopBtn.classList.add('hidden');
-        if (mobileBtn) mobileBtn.classList.add('hidden');
-        if (profileBtn) profileBtn.classList.remove('hidden'); // Ensure profile is visible
+        if (mobileConnectBtn) mobileConnectBtn.classList.add('hidden');
+        
+        profileBtn.classList.remove('hidden');
+        if (profileIcon) profileIcon.className = 'fas fa-link text-lg'; // Change to a "connected" icon
+        if (profileLabel) profileLabel.textContent = formatAddress(activeWallet.address);
+
     } else {
-        // Wallet is disconnected
+        // --- WALLET IS DISCONNECTED ---
         if (desktopBtn) desktopBtn.classList.remove('hidden');
-        if (mobileBtn) mobileBtn.classList.remove('hidden');
-        if (profileBtn) profileBtn.classList.add('hidden'); // Hide profile, show connect
+        if (mobileConnectBtn) mobileConnectBtn.classList.remove('hidden');
+
+        // On mobile, hide the "Profile" button and show the dedicated "Connect" button.
+        // On desktop, the profile button isn't used for connection, so we just reset it.
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            profileBtn.classList.add('hidden');
+        } else {
+             profileBtn.classList.remove('hidden');
+        }
+        
+        if (profileIcon) profileIcon.className = 'fas fa-user text-lg'; // Reset to profile icon
+        if (profileLabel) profileLabel.textContent = 'Profile'; // Reset to default text
     }
 }
 
@@ -145,17 +177,26 @@ export const walletService = {
     async connect(): Promise<Wallet | null> {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
         let connectedWallet: Wallet | null = null;
-        if (window.__TAURI__) {
-            console.log("Tauri environment detected. Using native wallet connection.");
-            connectedWallet = await connectNative();
-        } else if (isMobile) {
-            console.log("Mobile web browser detected. Using WalletConnect.");
-            connectedWallet = await connectWalletConnect();
-        } else {
-            console.log("Desktop web environment detected. Using browser wallet extension.");
-            connectedWallet = await connectWeb();
+
+        try {
+            if (window.__TAURI__) {
+                console.log("Tauri environment detected. Using native wallet connection.");
+                connectedWallet = await connectNative();
+            } else if (isMobile) {
+                console.log("Mobile web browser detected. Using WalletConnect.");
+                connectedWallet = await connectWalletConnect();
+            } else {
+                console.log("Desktop web environment detected. Using browser wallet extension.");
+                connectedWallet = await connectWeb();
+            }
+        } catch (error) {
+            console.error("Connection failed:", error);
+            // Ensure state is clean on failure
+            activeWallet = null;
+        } finally {
+            updateWalletButtonUI();
         }
-        updateWalletButtonUI();
+        
         return connectedWallet;
     },
 
@@ -194,6 +235,8 @@ export const walletService = {
 
 // Set initial button state on load
 document.addEventListener('DOMContentLoaded', updateWalletButtonUI);
+// Also update on resize to handle desktop/mobile transitions
+window.addEventListener('resize', updateWalletButtonUI);
 
 
 // Add ethereum to the Window interface for web wallet support

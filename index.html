@@ -130,9 +130,7 @@
         </main>
     </div>
 
-    <script type="module" src="/src/main.ts"></script>
-
-    <!-- Bottom Navigation -->
+    <!-- Bottom Navigation - MOVED OUTSIDE of the scrollable container -->
     <nav id="mobile-bottom-nav" class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 h-14 flex justify-around items-center text-xs font-medium text-slate-600">
         <button data-nav="browse_all_products" class="nav-btn flex flex-col items-center gap-0.5">
             <i class="fas fa-store text-lg"></i><span>Home</span>
@@ -187,5 +185,7 @@
             <!-- Modal will be injected here by app.ts -->
         </div>
     </div>
+
+    <script type="module" src="/src/main.ts"></script>
 </body>
 </html> 
