@@ -1,3 +1,5 @@
+import { BrowserProvider, EtherscanProvider, JsonRpcSigner } from "ethers";
+
 // --- Type Definitions (Phase 1 Refactor) ---
 interface Product {
     id: string;
@@ -44,6 +46,49 @@ interface SidebarNavSection {
 let allProducts: Product[] = []; // This will hold the single source of truth for products.
 let shoppingCart: ShoppingCartItem[] = [];
 
+// --- Wallet State ---
+let provider: BrowserProvider | null = null;
+let signer: JsonRpcSigner | null = null;
+
+// --- Wallet Connection Logic ---
+
+async function connectWallet() {
+    if (typeof window.ethereum !== 'undefined') {
+        try {
+            // Create a new provider
+            provider = new BrowserProvider(window.ethereum);
+            // Request account access
+            signer = await provider.getSigner();
+            console.log("Wallet connected:", await signer.getAddress());
+        } catch (error) {
+            console.error("User rejected connection:", error);
+            provider = null;
+            signer = null;
+        }
+    } else {
+        console.error("MetaMask is not installed!");
+        alert("Please install MetaMask to use this feature.");
+    }
+    updateWalletUI(); // Update UI after connection attempt
+    openWalletsModal(); // Open modal to show connection status
+}
+
+
+function updateWalletUI() {
+    const connectButton = document.getElementById('connect-wallet-button') as HTMLButtonElement;
+    if (!connectButton) return;
+
+    if (signer) {
+        signer.getAddress().then(address => {
+            const truncatedAddress = `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+            connectButton.textContent = truncatedAddress;
+        });
+    } else {
+        connectButton.textContent = 'Connect Wallet';
+    }
+}
+
+
 // --- Wallet Modal (Refactored for Robustness) ---
 
 function closeWalletsModal(): void {
@@ -74,81 +119,149 @@ async function loadWalletsIntoModal(modalCard: HTMLElement): Promise<void> {
     const listContainer = modalCard.querySelector('#wallet-list-container') as HTMLElement;
     const spinner = modalCard.querySelector('#wallet-loading-spinner') as HTMLElement;
     const errorP = modalCard.querySelector('#wallet-error-message') as HTMLElement;
+    const modalTitle = modalCard.querySelector('#wallet-modal-title') as HTMLElement;
 
-    if (!listContainer || !spinner || !errorP) {
-        console.error("Wallet modal is missing required content elements (list, spinner, error).");
+
+    if (!listContainer || !spinner || !errorP || !modalTitle) {
+        console.error("Wallet modal is missing required content elements (title, list, spinner, error).");
         errorP.textContent = "Modal content is malformed.";
         errorP.style.display = 'block';
         return;
     }
 
-    spinner.style.display = 'flex';
+    spinner.style.display = 'none'; // Hide spinner by default
     errorP.style.display = 'none';
     listContainer.innerHTML = '';
 
-    const abbreviateAddress = (address: string) => {
-        if (address.length <= 9) return address;
-        return `${address.slice(0, 5)}...${address.slice(-4)}`;
-    };
+    if (signer) {
+        // --- USER WALLET VIEW ---
+        modalTitle.textContent = 'Connected Wallet';
+        const address = await signer.getAddress();
+        const balance = await provider!.getBalance(address);
+        const etherBalance = parseFloat(balance.toString()) / 1e18;
 
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
 
-    try {
-        const response = await fetch(`${apiBaseUrl}/api/wallets`);
-        if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
-        }
-        const wallets = await response.json();
-        
-        if (wallets && wallets.length > 0) {
-            listContainer.innerHTML = wallets.map((w: { name: string, address: string, balance: string }, index: number) => `
-                <div class="wallet-item">
-                    <span class="wallet-name">${w.name}</span>
-                    <div class="wallet-address-container">
-                        <span 
-                            class="wallet-address" 
-                            title="Click to copy: ${w.address}" 
-                            data-full-address="${w.address}"
-                            data-wallet-id="wallet-address-${index}"
-                        >
-                            ${abbreviateAddress(w.address)}
-                        </span>
-                        <span class="copy-indicator" id="copy-indicator-${index}">Copied!</span>
-                    </div>
-                    <span class="wallet-balance">${w.balance}</span>
+        const abbreviateAddress = (address: string) => {
+            if (address.length <= 11) return address;
+            return `${address.slice(0, 6)}...${address.slice(-5)}`;
+        };
+
+        listContainer.innerHTML = `
+            <div class="wallet-item">
+                <span class="wallet-name">Your Wallet</span>
+                <div class="wallet-address-container">
+                    <span 
+                        class="wallet-address" 
+                        title="Click to copy: ${address}" 
+                        data-full-address="${address}"
+                        data-wallet-id="user-wallet-address"
+                    >
+                        ${abbreviateAddress(address)}
+                    </span>
+                    <span class="copy-indicator" id="copy-indicator-user">Copied!</span>
                 </div>
-            `).join('');
+                <span class="wallet-balance">${etherBalance.toFixed(4)} ETH</span>
+            </div>
+            <button id="disconnect-wallet-btn" class="mt-4 w-full px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700">
+                Disconnect
+            </button>
+        `;
 
-            // Add event listeners after rendering
-            wallets.forEach((_w: any, index: number) => {
-                const addressSpan = listContainer.querySelector(`[data-wallet-id="wallet-address-${index}"]`);
-                if (addressSpan) {
-                    addressSpan.addEventListener('click', () => {
-                        const fullAddress = addressSpan.getAttribute('data-full-address');
-                        if (fullAddress) {
-                            navigator.clipboard.writeText(fullAddress).then(() => {
-                                const indicator = document.getElementById(`copy-indicator-${index}`);
-                                if (indicator) {
-                                    indicator.classList.add('visible');
-                                    setTimeout(() => {
-                                        indicator.classList.remove('visible');
-                                    }, 1500);
-                                }
-                            });
+        // Add event listeners for copy and disconnect
+        const addressSpan = listContainer.querySelector('[data-wallet-id="user-wallet-address"]');
+        if (addressSpan) {
+            addressSpan.addEventListener('click', () => {
+                const fullAddress = addressSpan.getAttribute('data-full-address');
+                if (fullAddress) {
+                    navigator.clipboard.writeText(fullAddress).then(() => {
+                        const indicator = document.getElementById(`copy-indicator-user`);
+                        if (indicator) {
+                            indicator.classList.add('visible');
+                            setTimeout(() => indicator.classList.remove('visible'), 1500);
                         }
                     });
                 }
             });
-
-        } else {
-            listContainer.innerHTML = `<p class="p-4 text-center">No wallets found.</p>`;
         }
-    } catch (error) {
-        console.error("Failed to load wallets:", error);
-        errorP.textContent = 'Could not load wallets. Is the server running?';
-        errorP.style.display = 'block';
-    } finally {
-        spinner.style.display = 'none';
+
+        const disconnectBtn = document.getElementById('disconnect-wallet-btn');
+        if (disconnectBtn) {
+            disconnectBtn.addEventListener('click', () => {
+                provider = null;
+                signer = null;
+                updateWalletUI();
+                closeWalletsModal();
+            });
+        }
+
+    } else {
+        // --- APPLICATION WALLET VIEW (Original behavior) ---
+        modalTitle.textContent = 'Application Wallets';
+        spinner.style.display = 'flex';
+        const abbreviateAddress = (address: string) => {
+            if (address.length <= 9) return address;
+            return `${address.slice(0, 5)}...${address.slice(-4)}`;
+        };
+
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+
+        try {
+            const response = await fetch(`${apiBaseUrl}/api/wallets`);
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status}`);
+            }
+            const wallets = await response.json();
+            
+            if (wallets && wallets.length > 0) {
+                listContainer.innerHTML = wallets.map((w: { name: string, address: string, balance: string }, index: number) => `
+                    <div class="wallet-item">
+                        <span class="wallet-name">${w.name}</span>
+                        <div class="wallet-address-container">
+                            <span 
+                                class="wallet-address" 
+                                title="Click to copy: ${w.address}" 
+                                data-full-address="${w.address}"
+                                data-wallet-id="wallet-address-${index}"
+                            >
+                                ${abbreviateAddress(w.address)}
+                            </span>
+                            <span class="copy-indicator" id="copy-indicator-${index}">Copied!</span>
+                        </div>
+                        <span class="wallet-balance">${w.balance}</span>
+                    </div>
+                `).join('');
+
+                // Add event listeners after rendering
+                wallets.forEach((_w: any, index: number) => {
+                    const addressSpan = listContainer.querySelector(`[data-wallet-id="wallet-address-${index}"]`);
+                    if (addressSpan) {
+                        addressSpan.addEventListener('click', () => {
+                            const fullAddress = addressSpan.getAttribute('data-full-address');
+                            if (fullAddress) {
+                                navigator.clipboard.writeText(fullAddress).then(() => {
+                                    const indicator = document.getElementById(`copy-indicator-${index}`);
+                                    if (indicator) {
+                                        indicator.classList.add('visible');
+                                        setTimeout(() => {
+                                            indicator.classList.remove('visible');
+                                        }, 1500);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+            } else {
+                listContainer.innerHTML = `<p class="p-4 text-center">No application wallets found.</p>`;
+            }
+        } catch (error) {
+            console.error("Failed to load wallets:", error);
+            errorP.textContent = 'Could not load application wallets. Is the server running?';
+            errorP.style.display = 'block';
+        } finally {
+            spinner.style.display = 'none';
+        }
     }
 }
 
@@ -861,28 +974,59 @@ async function fetchAndSetProducts(): Promise<void> {
 
 // --- Initialization (Phase 1 Refactor) ---
 export async function initializeApp(): Promise<void> {
-    console.log("Initializing application...");
-    renderSidebar();
-    
-    // Fetch products from the API first. The initial render will happen inside fetchAndSetProducts.
-    await fetchAndSetProducts(); 
-    
-    renderFilterTags();
-    updateViewToggleButtonsActiveState();
+    try {
+        console.log("Initializing application...");
+        
+        // --- Initial Data Fetch & Render ---
+        renderSidebar(); // Initial render of the static sidebar structure
+        await fetchAndSetProducts(); // Fetch data and then render products, filters, etc.
 
-    const defaultNavItem = sidebarNavConfig.flatMap(s => s.items).find(i => i.isDefault);
-    if (defaultNavItem) {
-        // The initial navigation is now handled within fetchAndSetProducts to avoid a race condition
-        // navigateTo(defaultNavItem.id, { title: defaultNavItem.label });
+        // --- Event Listener Setup ---
+        setupEventListeners();
+
+        // Check wallet connection status on load
+        updateWalletUI();
+
+        console.log("Application initialized successfully.");
+    } catch (error) {
+        console.error("Error during application initialization:", error);
+    }
+}
+
+function setupEventListeners() {
+    console.log("Setting up event listeners...");
+
+    const connectButton = document.getElementById('connect-wallet-button');
+    if (connectButton) {
+        connectButton.addEventListener('click', connectWallet);
     }
 
-    // --- Event Listeners ---
+    // Sidebar Navigation
+    sidebarNavContainer.addEventListener('click', (event) => {
+        const target = event.target as HTMLElement;
+        if (target.matches('.nav-item')) {
+            const navId = target.getAttribute('data-nav-id');
+            if (navId) {
+                const navItem = sidebarNavConfig.flatMap(s => s.items).find(i => i.id === navId);
+                if (navItem) {
+                    if (navItem.action) {
+                        navItem.action();
+                    } else {
+                        navigateTo(navItem.id, { title: navItem.label });
+                    }
+                }
+            }
+        }
+    });
+
+    // Shopping Cart Button
     if (shoppingCartButtonTopbar) {
         shoppingCartButtonTopbar.addEventListener('click', () => {
             alert("Navigate to Shopping Cart page (to be implemented)");
         });
     }
 
+    // Sort Select Listener
     if (sortSelectControl) {
         sortSelectControl.addEventListener('change', (e) => {
             currentSortOption = (e.target as HTMLSelectElement).value;
@@ -891,6 +1035,7 @@ export async function initializeApp(): Promise<void> {
         });
     }
 
+    // View Toggle Button Listeners
     if (viewToggleControl) {
         viewToggleControl.addEventListener('click', (e) => {
             const button = (e.target as HTMLElement).closest('.view-btn') as HTMLElement;
