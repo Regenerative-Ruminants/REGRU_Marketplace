@@ -819,6 +819,7 @@ interface ApiProduct {
     image_url: string;
     price: number;
     tags: string[];
+    category: string;
 }
 
 async function fetchAndSetProducts(): Promise<void> {
@@ -840,7 +841,7 @@ async function fetchAndSetProducts(): Promise<void> {
             image: apiProduct.image_url,
             seller: 'Regru Market', 
             provenance: 'Local Sourced',
-            category: 'Fresh Produce', // This might need to be derived from tags in the future
+            category: apiProduct.category, // Use the category from the API
             animal: 'N/A',
             rating: (Math.random() * (5 - 3.5) + 3.5),
             reviewCount: Math.floor(Math.random() * 200),

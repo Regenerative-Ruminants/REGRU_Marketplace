@@ -16,6 +16,12 @@ async fn get_cart(data: web::Data<Arc<AppState>>) -> impl Responder {
     HttpResponse::Ok().json(&*cart)
 }
 
+#[get("/wallets")]
+pub async fn get_wallets(data: web::Data<Arc<AppState>>) -> impl Responder {
+    let wallets = data.wallets.read();
+    HttpResponse::Ok().json(&*wallets)
+}
+
 #[post("/cart")]
 async fn add_to_cart(data: web::Data<Arc<AppState>>, item: web::Json<CartItem>) -> impl Responder {
     let mut cart = data.shopping_cart.write();
