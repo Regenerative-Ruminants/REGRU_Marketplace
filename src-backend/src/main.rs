@@ -116,7 +116,11 @@ async fn main() -> std::io::Result<()> {
         wallets: RwLock::new(vec![]),
     });
 
-    log::info!("Starting server at http://127.0.0.1:8000");
+    let host = std::env::var("APP_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
+    let port = std::env::var("APP_PORT").unwrap_or_else(|_| "8000".to_string());
+    let addr = format!("{}:{}", host, port);
+
+    log::info!("Starting server at http://{}", addr);
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -141,7 +145,7 @@ async fn main() -> std::io::Result<()> {
             .service(actix_files::Files::new("/", "./dist").index_file("index.html"))
 
     })
-    .bind("127.0.0.1:8000")?
+    .bind(&addr)?
     .run()
     .await
 }
