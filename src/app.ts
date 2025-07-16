@@ -1,4 +1,3 @@
-import { BrowserProvider, EtherscanProvider, JsonRpcSigner } from "ethers";
 import { walletService } from './walletService'; // IMPORT THE NEW WALLET SERVICE
 
 // --- Type Definitions (Phase 1 Refactor) ---
@@ -49,8 +48,6 @@ let shoppingCart: ShoppingCartItem[] = [];
 
 // --- Wallet State ---
 // This state is being deprecated in favor of walletService.ts, but kept for the modal logic for now.
-let provider: BrowserProvider | null = null;
-let signer: JsonRpcSigner | null = null;
 
 // --- Wallet Connection Logic ---
 
@@ -851,6 +848,7 @@ export interface ApiProduct {
     price: number;
     tags: string[];
     category: string;
+    updated_at: string;
 }
 
 async function fetchAndSetProducts(): Promise<void> {
