@@ -1,0 +1,74 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - button "Open menu": 
+  - img "REGRU Logo"
+  - text: FARM TO CUSTOMER
+  - button "Search": 
+- main:
+  - heading "Fresh Farm Products" [level=1]
+  - combobox:
+    - 'option "Sort by: Featured" [selected]'
+    - 'option "Sort by: Price Low to High"'
+    - 'option "Sort by: Price High to Low"'
+    - option "Newest"
+  - button ""
+  - button ""
+  - text: All Categories Crafts Dairy Meat
+  - img "Beef Burgers"
+  - button "Favorite Beef Burgers": 
+  - heading "Beef Burgers" [level=3]
+  - text: beef burgers      (146 reviews) £12.99 / kg
+  - button " Add to Cart"
+  - img "Mince (500g)"
+  - button "Favorite Mince (500g)": 
+  - heading "Mince (500g)" [level=3]
+  - text: beef mince      (20 reviews) £8.50 / kg
+  - button " Add to Cart"
+  - img "The Fauna"
+  - button "Favorite The Fauna": 
+  - heading "The Fauna" [level=3]
+  - text: Handmade Unique Artisan      (193 reviews) £75.00 / unit
+  - button " Add to Cart"
+  - img "Beautiful Washed BFL Curls"
+  - button "Favorite Beautiful Washed BFL Curls": 
+  - heading "Beautiful Washed BFL Curls" [level=3]
+  - text: BFL Spinning Felting Natural Fiber      (105 reviews) £25.50 / unit
+  - button " Add to Cart"
+  - img "Whole Beef Shank"
+  - button "Favorite Whole Beef Shank": 
+  - heading "Whole Beef Shank" [level=3]
+  - text: Grass-fed Slow-cook Osso Buco      (118 reviews) £18.75 / kg
+  - button " Add to Cart"
+  - img "Raw Milk"
+  - button "Favorite Raw Milk": 
+  - heading "Raw Milk" [level=3]
+  - text: Raw Unpasteurized Grass-fed      (18 reviews) £3.20 / kg
+  - button " Add to Cart"
+  - img "Grass-Fed Chateaubriand Steak"
+  - button "Favorite Grass-Fed Chateaubriand Steak": 
+  - heading "Grass-Fed Chateaubriand Steak" [level=3]
+  - text: Center-cut Tenderloin Sharing Steak      (157 reviews) £45.00 / kg
+  - button " Add to Cart"
+  - img "Raw Organic A2 Grass-Fed Milk"
+  - button "Favorite Raw Organic A2 Grass-Fed Milk": 
+  - heading "Raw Organic A2 Grass-Fed Milk" [level=3]
+  - text: A2 Milk Organic Raw Grass-fed      (35 reviews) £4.50 / kg
+  - button " Add to Cart"
+  - img "Stevie Bag in Black"
+  - button "Favorite Stevie Bag in Black": 
+  - heading "Stevie Bag in Black" [level=3]
+  - text: Handmade Leather Fashion      (17 reviews) £120.00 / unit
+  - button " Add to Cart"
+  - img "Jacob Felted Fleece"
+  - button "Favorite Jacob Felted Fleece": 
+  - heading "Jacob Felted Fleece" [level=3]
+  - text: Felted Fleece Jacob Sheep Natural Crafting      (3 reviews) £35.00 / unit
+  - button " Add to Cart"
+- navigation:
+  - button " Home"
+  - button " Categories"
+  - button " 0"
+  - button " Connect"
+```

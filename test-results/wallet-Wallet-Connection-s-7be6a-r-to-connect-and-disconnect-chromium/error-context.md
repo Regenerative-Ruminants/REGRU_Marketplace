@@ -1,0 +1,132 @@
+# Page snapshot
+
+```yaml
+- heading "Your Wallets" [level=3]
+- button "Close": ×
+- paragraph: Modal content is malformed.
+- button " Add New Wallet"
+- img "REGRU Logo"
+- text: Farm to Customer
+- navigation:
+  - text: Browse
+  - link " All Products":
+    - /url: "#"
+  - link " By Category":
+    - /url: "#"
+  - link " By Seller":
+    - /url: "#"
+  - link " By Provenance":
+    - /url: "#"
+  - text: My Buying
+  - link " My Purchases":
+    - /url: "#"
+  - link " Favourites":
+    - /url: "#"
+  - text: My Selling
+  - link " Products":
+    - /url: "#"
+  - link " Orders":
+    - /url: "#"
+  - link " Analytics":
+    - /url: "#"
+  - link " Finance":
+    - /url: "#"
+  - text: Communication
+  - link " Notifications":
+    - /url: "#"
+  - link " Messages":
+    - /url: "#"
+  - text: Account
+  - link " Wallets":
+    - /url: "#"
+  - link " Profile":
+    - /url: "#"
+  - link " Help":
+    - /url: "#"
+- banner:
+  - text: 
+  - textbox "Search fresh produce, artisan cheese, organic meat..."
+  - button " Filters"
+  - button "Connect Wallet"
+  - button " Cart"
+- main:
+  - heading "Fresh Farm Products" [level=1]
+  - combobox:
+    - 'option "Sort by: Featured" [selected]'
+    - 'option "Sort by: Price Low to High"'
+    - 'option "Sort by: Price High to Low"'
+    - option "Newest"
+  - button ""
+  - button ""
+  - text: All Categories Crafts Dairy Meat
+  - img "Beef Burgers"
+  - button "Favorite Beef Burgers": 
+  - heading "Beef Burgers" [level=3]
+  - text: Regru Market Local Sourced
+  - paragraph: 4 x 1/4lb Beef Burgers
+  - text: beef burgers      (123 reviews) £12.99 / kg
+  - button " Add to Cart"
+  - img "Mince (500g)"
+  - button "Favorite Mince (500g)": 
+  - heading "Mince (500g)" [level=3]
+  - text: Regru Market Local Sourced
+  - paragraph: 500g grass-fed beef mince
+  - text: beef mince      (198 reviews) £8.50 / kg
+  - button " Add to Cart"
+  - img "The Fauna"
+  - button "Favorite The Fauna": 
+  - heading "The Fauna" [level=3]
+  - text: Regru Market Local Sourced
+  - paragraph: A beautifully handcrafted item...
+  - text: Handmade Unique Artisan      (66 reviews) £75.00 / unit
+  - button " Add to Cart"
+  - img "Beautiful Washed BFL Curls"
+  - button "Favorite Beautiful Washed BFL Curls": 
+  - heading "Beautiful Washed BFL Curls" [level=3]
+  - text: Regru Market Local Sourced
+  - paragraph: Premium, clean Bluefaced Leicester curls...
+  - text: BFL Spinning Felting Natural Fiber      (0 reviews) £25.50 / unit
+  - button " Add to Cart"
+  - img "Whole Beef Shank"
+  - button "Favorite Whole Beef Shank": 
+  - heading "Whole Beef Shank" [level=3]
+  - text: Regru Market Local Sourced
+  - paragraph: A hearty and flavorful cut...
+  - text: Grass-fed Slow-cook Osso Buco      (137 reviews) £18.75 / kg
+  - button " Add to Cart"
+  - img "Raw Milk"
+  - button "Favorite Raw Milk": 
+  - heading "Raw Milk" [level=3]
+  - text: Regru Market Local Sourced
+  - paragraph: Fresh, unpasteurized raw milk...
+  - text: Raw Unpasteurized Grass-fed      (185 reviews) £3.20 / kg
+  - button " Add to Cart"
+  - img "Grass-Fed Chateaubriand Steak"
+  - button "Favorite Grass-Fed Chateaubriand Steak": 
+  - heading "Grass-Fed Chateaubriand Steak" [level=3]
+  - text: Regru Market Local Sourced
+  - paragraph: The most tender and luxurious cut of beef...
+  - text: Center-cut Tenderloin Sharing Steak      (66 reviews) £45.00 / kg
+  - button " Add to Cart"
+  - img "Raw Organic A2 Grass-Fed Milk"
+  - button "Favorite Raw Organic A2 Grass-Fed Milk": 
+  - heading "Raw Organic A2 Grass-Fed Milk" [level=3]
+  - text: Regru Market Local Sourced
+  - paragraph: Premium organic raw milk from A2 cows...
+  - text: A2 Milk Organic Raw Grass-fed      (127 reviews) £4.50 / kg
+  - button " Add to Cart"
+  - img "Stevie Bag in Black"
+  - button "Favorite Stevie Bag in Black": 
+  - heading "Stevie Bag in Black" [level=3]
+  - text: Regru Market Local Sourced
+  - paragraph: A stylish and durable handcrafted bag...
+  - text: Handmade Leather Fashion      (60 reviews) £120.00 / unit
+  - button " Add to Cart"
+  - img "Jacob Felted Fleece"
+  - button "Favorite Jacob Felted Fleece": 
+  - heading "Jacob Felted Fleece" [level=3]
+  - text: Regru Market Local Sourced
+  - paragraph: A beautiful and unique felted fleece...
+  - text: Felted Fleece Jacob Sheep Natural Crafting      (168 reviews) £35.00 / unit
+  - button " Add to Cart"
+```
