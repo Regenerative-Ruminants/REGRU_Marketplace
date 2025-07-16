@@ -1,4 +1,5 @@
 import { BrowserProvider, EtherscanProvider, JsonRpcSigner } from "ethers";
+import { walletService } from './walletService'; // IMPORT THE NEW WALLET SERVICE
 
 // --- Type Definitions (Phase 1 Refactor) ---
 interface Product {
@@ -47,85 +48,78 @@ let allProducts: Product[] = []; // This will hold the single source of truth fo
 let shoppingCart: ShoppingCartItem[] = [];
 
 // --- Wallet State ---
+// This state is being deprecated in favor of walletService.ts, but kept for the modal logic for now.
 let provider: BrowserProvider | null = null;
 let signer: JsonRpcSigner | null = null;
 
 // --- Wallet Connection Logic ---
 
 async function connectWallet() {
-    if (typeof window.ethereum !== 'undefined') {
-        try {
-            // Create a new provider
-            provider = new BrowserProvider(window.ethereum);
-            // Request account access
-            signer = await provider.getSigner();
-            console.log("Wallet connected:", await signer.getAddress());
-        } catch (error) {
-            console.error("User rejected connection:", error);
-            provider = null;
-            signer = null;
-        }
-    } else {
-        console.error("MetaMask is not installed!");
-        alert("Please install MetaMask to use this feature.");
-    }
-    updateWalletUI(); // Update UI after connection attempt
-    openWalletsModal(); // Open modal to show connection status
+    // This function is now simplified to call the centralized service.
+    // The service itself will handle UI updates.
+    await walletService.connect();
+    openWalletsModal(); // Open modal to show connection status or allow connection.
 }
 
-
-function updateWalletUI() {
-    const connectButton = document.getElementById('connect-wallet-button') as HTMLButtonElement;
-    if (!connectButton) return;
-
-    if (signer) {
-        signer.getAddress().then(address => {
-            const truncatedAddress = `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
-            connectButton.textContent = truncatedAddress;
-        });
-    } else {
-        connectButton.textContent = 'Connect Wallet';
-    }
-}
-
+// updateWalletUI is now handled by walletService.ts and can be removed.
 
 // --- Wallet Modal (Refactored for Robustness) ---
 
 function closeWalletsModal(): void {
     const modalContainer = document.getElementById('wallet-modal-container');
     if (modalContainer) {
-        modalContainer.classList.add('hidden');
-    }
-    // Clean up the backdrop listener
-    const modalBackdrop = document.getElementById('wallet-modal-backdrop');
-    if(modalBackdrop) {
-        modalBackdrop.removeEventListener('click', closeWalletsModal);
+        modalContainer.classList.remove('is-visible');
     }
 }
 
-function setupModalEventListeners(modalCard: HTMLElement): void {
-    const closeButton = modalCard.querySelector('#wallet-modal-close-btn');
+function setupModalEventListeners(): void {
+    const closeButton = document.getElementById('wallet-modal-close-btn');
     if (closeButton) {
-        // Ensure we don't add multiple listeners if modal is re-opened
-        closeButton.addEventListener('click', closeWalletsModal, { once: true });
+        closeButton.addEventListener('click', closeWalletsModal);
     }
-    const modalBackdrop = document.getElementById('wallet-modal-backdrop');
-    if(modalBackdrop) {
-        modalBackdrop.addEventListener('click', closeWalletsModal, { once: true });
+    
+    const modalContainer = document.getElementById('wallet-modal-container');
+    if (modalContainer) {
+        modalContainer.addEventListener('click', (event) => {
+            // Close modal only if the click is on the container itself (the backdrop)
+            if (event.target === modalContainer) {
+                closeWalletsModal();
+            }
+        });
     }
 }
 
-async function loadWalletsIntoModal(modalCard: HTMLElement): Promise<void> {
-    const listContainer = modalCard.querySelector('#wallet-list-container') as HTMLElement;
-    const spinner = modalCard.querySelector('#wallet-loading-spinner') as HTMLElement;
-    const errorP = modalCard.querySelector('#wallet-error-message') as HTMLElement;
-    const modalTitle = modalCard.querySelector('#wallet-modal-title') as HTMLElement;
+async function loadWalletsIntoModal(): Promise<void> {
+    const modalCard = document.getElementById('wallet-modal-card');
+    if (!modalCard) return;
+
+    // Fetch and inject the modal content from the HTML file
+    try {
+        const response = await fetch('/components/wallet-modal.html');
+        if (!response.ok) throw new Error('Failed to load wallet modal template.');
+        modalCard.innerHTML = await response.text();
+
+        // Now that content is loaded, set up listeners on the *new* elements
+        setupModalEventListeners();
+
+    } catch (error) {
+        console.error("Error loading wallet modal content:", error);
+        modalCard.innerHTML = `<p class="p-4 text-red-500">Error: Could not load wallet interface.</p>`;
+        return;
+    }
+    
+    const listContainer = document.getElementById('wallet-list-container') as HTMLElement;
+    const spinner = document.getElementById('wallet-loading-spinner') as HTMLElement;
+    const errorP = document.getElementById('wallet-error-message') as HTMLElement;
+    const modalTitle = document.getElementById('wallet-modal-title') as HTMLElement;
 
 
     if (!listContainer || !spinner || !errorP || !modalTitle) {
         console.error("Wallet modal is missing required content elements (title, list, spinner, error).");
-        errorP.textContent = "Modal content is malformed.";
-        errorP.style.display = 'block';
+        if (errorP) {
+            errorP.textContent = "Modal content is malformed.";
+            errorP.style.display = 'block';
+        }
         return;
     }
 
@@ -133,13 +127,14 @@ async function loadWalletsIntoModal(modalCard: HTMLElement): Promise<void> {
     errorP.style.display = 'none';
     listContainer.innerHTML = '';
 
-    if (signer) {
+    const activeWallet = walletService.getActiveWallet();
+
+    if (activeWallet) {
         // --- USER WALLET VIEW ---
         modalTitle.textContent = 'Connected Wallet';
-        const address = await signer.getAddress();
-        const balance = await provider!.getBalance(address);
-        const etherBalance = parseFloat(balance.toString()) / 1e18;
-
+        const address = activeWallet.address;
+        // In a real app, you'd get the balance from the provider via the service
+        const balance = '...'; // Placeholder
 
         const abbreviateAddress = (address: string) => {
             if (address.length <= 11) return address;
@@ -160,7 +155,7 @@ async function loadWalletsIntoModal(modalCard: HTMLElement): Promise<void> {
                     </span>
                     <span class="copy-indicator" id="copy-indicator-user">Copied!</span>
                 </div>
-                <span class="wallet-balance">${etherBalance.toFixed(4)} ETH</span>
+                <span class="wallet-balance">${balance} ETH</span>
             </div>
             <button id="disconnect-wallet-btn" class="mt-4 w-full px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700">
                 Disconnect
@@ -187,128 +182,51 @@ async function loadWalletsIntoModal(modalCard: HTMLElement): Promise<void> {
         const disconnectBtn = document.getElementById('disconnect-wallet-btn');
         if (disconnectBtn) {
             disconnectBtn.addEventListener('click', () => {
-                provider = null;
-                signer = null;
-                updateWalletUI();
+                walletService.disconnect();
                 closeWalletsModal();
             });
         }
 
     } else {
-        // --- APPLICATION WALLET VIEW (Original behavior) ---
-        modalTitle.textContent = 'Application Wallets';
-        spinner.style.display = 'flex';
-        const abbreviateAddress = (address: string) => {
-            if (address.length <= 9) return address;
-            return `${address.slice(0, 5)}...${address.slice(-4)}`;
-        };
+        // --- NO WALLET CONNECTED VIEW ---
+        modalTitle.textContent = 'Connect a Wallet';
+        listContainer.innerHTML = `
+            <div class="p-4 text-center">
+                <p class="text-gray-600 mb-4">No wallet is connected. Please connect a wallet to manage your assets.</p>
+                <button id="modal-connect-btn" class="action-btn primary">Connect Wallet</button>
+            </div>
+        `;
+        
+        const connectBtn = document.getElementById('modal-connect-btn');
+        if (connectBtn) {
+            connectBtn.addEventListener('click', async () => {
+                // Reuse the main connect logic and then reload the modal content
+                await walletService.connect();
+                loadWalletsIntoModal(); 
+            });
+        }
 
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
-
-        try {
-            const response = await fetch(`${apiBaseUrl}/api/wallets`);
-            if (!response.ok) {
-                throw new Error(`API error: ${response.status}`);
-            }
-            const wallets = await response.json();
-            
-            if (wallets && wallets.length > 0) {
-                listContainer.innerHTML = wallets.map((w: { name: string, address: string, balance: string }, index: number) => `
-                    <div class="wallet-item">
-                        <span class="wallet-name">${w.name}</span>
-                        <div class="wallet-address-container">
-                            <span 
-                                class="wallet-address" 
-                                title="Click to copy: ${w.address}" 
-                                data-full-address="${w.address}"
-                                data-wallet-id="wallet-address-${index}"
-                            >
-                                ${abbreviateAddress(w.address)}
-                            </span>
-                            <span class="copy-indicator" id="copy-indicator-${index}">Copied!</span>
-                        </div>
-                        <span class="wallet-balance">${w.balance}</span>
-                    </div>
-                `).join('');
-
-                // Add event listeners after rendering
-                wallets.forEach((_w: any, index: number) => {
-                    const addressSpan = listContainer.querySelector(`[data-wallet-id="wallet-address-${index}"]`);
-                    if (addressSpan) {
-                        addressSpan.addEventListener('click', () => {
-                            const fullAddress = addressSpan.getAttribute('data-full-address');
-                            if (fullAddress) {
-                                navigator.clipboard.writeText(fullAddress).then(() => {
-                                    const indicator = document.getElementById(`copy-indicator-${index}`);
-                                    if (indicator) {
-                                        indicator.classList.add('visible');
-                                        setTimeout(() => {
-                                            indicator.classList.remove('visible');
-                                        }, 1500);
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-
-            } else {
-                listContainer.innerHTML = `<p class="p-4 text-center">No application wallets found.</p>`;
-            }
-        } catch (error) {
-            console.error("Failed to load wallets:", error);
-            errorP.textContent = 'Could not load application wallets. Is the server running?';
-            errorP.style.display = 'block';
-        } finally {
-            spinner.style.display = 'none';
+        // Hide the "Add New Wallet" footer when no wallet is connected
+        const footer = document.querySelector('.wallet-modal-footer');
+        if (footer) {
+            (footer as HTMLElement).style.display = 'none';
         }
     }
 }
 
-
 async function openWalletsModal(): Promise<void> {
     const modalContainer = document.getElementById('wallet-modal-container');
     if (!modalContainer) {
-        console.error("Fatal: #wallet-modal-container not found in DOM.");
-        return;
-    }
-    modalContainer.classList.remove('hidden');
-
-    const modalCard = document.getElementById('wallet-modal-card');
-    if (!modalCard) {
-        console.error("Fatal: #wallet-modal-card not found in DOM.");
+        console.error("Wallet modal container not found in the DOM.");
         return;
     }
 
-    // Only fetch and build the modal content once.
-    if (modalCard.children.length === 0) {
-        try {
-            const response = await fetch('/wallet-modal.html');
-            if (!response.ok) {
-                throw new Error(`Failed to fetch modal HTML: ${response.status}`);
-            }
-            const htmlText = await response.text();
+    // Make the modal visible first
+    modalContainer.classList.remove('hidden'); // Legacy
+    modalContainer.classList.add('is-visible');
 
-            // Use DOMParser to safely parse the HTML
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, 'text/html');
-            
-            // Append the parsed nodes from the body of the new document
-            while (doc.body.firstChild) {
-                modalCard.appendChild(doc.body.firstChild);
-            }
-            
-            setupModalEventListeners(modalCard);
-            await loadWalletsIntoModal(modalCard);
-
-        } catch (error) {
-            console.error("Error building wallet modal:", error);
-            modalCard.innerHTML = `<p class="p-4 text-center text-red-500">Could not load modal content.</p>`;
-        }
-    } else {
-        // If modal is already built, just refresh the wallet list.
-        await loadWalletsIntoModal(modalCard);
-    }
+    // Then load its content
+    await loadWalletsIntoModal();
 }
 
 
@@ -985,7 +903,7 @@ export async function initializeApp(): Promise<void> {
         setupEventListeners();
 
         // Check wallet connection status on load
-        updateWalletUI();
+        // updateWalletUI(); // This function is now handled by walletService.ts
 
         console.log("Application initialized successfully.");
     } catch (error) {

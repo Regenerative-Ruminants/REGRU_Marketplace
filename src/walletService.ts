@@ -28,8 +28,69 @@ const modal = createWeb3Modal({
     },
     // Add other chains as needed
   ],
-  projectId
+  projectId,
+  themeMode: 'light',
+  themeVariables: {
+    '--w3m-z-index': 1100,
+    '--w3m-accent': '#28a745'
+  }
 });
+
+// Forcefully override all styles to match the application's neumorphic design.
+const style = document.createElement('style');
+style.textContent = `
+  /* 1. The Overlay */
+  w3m-modal {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+  }
+
+  /* 2. The Main Card (Neumorphic Foundation) */
+  wui-card {
+    /* A. Foundational Material & Color */
+    background-color: #f0f0f0 !important;
+    color: #333 !important;
+
+    /* B. Shape & Border */
+    border-radius: 1.5rem !important;
+    border: 1px solid #e0e0e0 !important;
+
+    /* C. The Neumorphic 3D Effect */
+    box-shadow: 8px 8px 16px #d1d1d1, -8px -8px 16px #ffffff !important;
+
+    /* D. Entry Animation */
+    opacity: 0 !important;
+    animation: modal-fade-scale-in 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) forwards !important;
+  }
+
+  /* 3. Internal Components */
+  w3m-header {
+    background-color: transparent !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    padding: 1rem 1.5rem !important;
+  }
+
+  w3m-header wui-text {
+    font-family: 'Oswald', sans-serif !important;
+    color: #343a40 !important;
+  }
+  
+  w3m-router {
+    padding: 1rem;
+  }
+
+  /* 4. Animation Definition */
+  @keyframes modal-fade-scale-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+`;
+document.head.appendChild(style);
 
 
 // --- Interfaces ---

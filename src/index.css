@@ -1415,6 +1415,28 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
 }
 
 /* === WALLET MODAL STYLES === */
+.wallet-modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    padding: 1rem; /* Add padding for spacing on small screens */
+}
+
+.wallet-modal-container.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .wallet-modal-card {
     background-color: #f0f0f0; /* Light gray background */
     border-radius: 1.5rem;
@@ -1735,4 +1757,29 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     position: relative;
     background-color: transparent;
     border-style: none;
+}
+
+/* === MOBILE NAVIGATION VISIBILITY === */
+/* Hide the mobile bottom nav on desktop screens */
+@media (min-width: 768px) {
+  #mobile-bottom-nav {
+    display: none;
+  }
+}
+
+/* 
+  By default, #mobile-bottom-nav uses Tailwind's "flex" class, 
+  so it will be visible on mobile screens (max-width: 767px) without needing an explicit rule.
+  We just need to add padding to the body to prevent content overlap.
+*/
+@media (max-width: 767px) {
+  body {
+    height: 100vh;
+    overflow: hidden;
+  }
+  #app-main-content {
+    height: 100%;
+    overflow-y: auto;
+    padding-bottom: 70px; /* Prevent content from being hidden by the bottom nav */
+  }
 }

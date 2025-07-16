@@ -10,8 +10,7 @@
 </head>
 <body class="bg-secondary-color">
     <!-- Wallet Modal Structure (initially hidden) -->
-    <div id="wallet-modal-container" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-        <div id="wallet-modal-backdrop" class="fixed inset-0 bg-black/30 backdrop-blur-sm"></div>
+    <div id="wallet-modal-container" class="wallet-modal-container">
         <div id="wallet-modal-card" class="wallet-modal-card">
             <!-- Content will be injected by app.ts -->
         </div>
@@ -130,7 +129,9 @@
         </main>
     </div>
 
-    <!-- Bottom Navigation - MOVED OUTSIDE of the scrollable container -->
+    <script type="module" src="/src/main.ts"></script>
+
+    <!-- Bottom Navigation - Placed as a direct child of <body> for correct viewport positioning -->
     <nav id="mobile-bottom-nav" class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 h-14 flex justify-around items-center text-xs font-medium text-slate-600">
         <button data-nav="browse_all_products" class="nav-btn flex flex-col items-center gap-0.5">
             <i class="fas fa-store text-lg"></i><span>Home</span>
@@ -149,7 +150,7 @@
             <i class="fas fa-wallet text-lg"></i><span>Connect</span>
         </button>
     </nav>
-
+    
     <!-- Native Search Overlay -->
     <div id="regru-search-overlay" class="hidden fixed inset-0 bg-[radial-gradient(circle_at_center,rgba(254,243,199,0.5)_0%,rgba(180,83,9,0.8)_85%)] backdrop-blur-lg z-50 flex items-center justify-center p-4">
         <div class="w-full max-w-2xl mx-auto">
@@ -185,7 +186,5 @@
             <!-- Modal will be injected here by app.ts -->
         </div>
     </div>
-
-    <script type="module" src="/src/main.ts"></script>
 </body>
 </html> 
