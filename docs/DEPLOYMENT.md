@@ -63,4 +63,8 @@ These are configured in the GitHub repository under **Settings > Secrets and var
 -   `DO_DROPLET_USER`: The user for SSH access (e.g., `root`).
 -   `DO_DROPLET_KEY`: The private SSH key for accessing the Droplet.
 -   `DO_REGISTRY_USER` / `DO_REGISTRY_PASSWORD`: Credentials for the DigitalOcean Container Registry.
--   `SECRET_KEY`: The wallet private key used by the backend service for on-chain operations. 
+-   `SECRET_KEY`: The wallet private key used by the backend service for on-chain operations.
+
+### Product Pointer Configuration
+
+A new file `src-backend/config/products.toml` must be present in the Docker image.  The CI pipeline copies this during the `cargo-chef` stage so the backend can resolve live catalogue data at runtime. 

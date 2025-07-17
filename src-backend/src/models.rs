@@ -10,6 +10,7 @@ pub struct ApiProduct {
     pub price: f64,
     pub tags: Vec<String>,
     pub category: String,
+    pub available: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,19 +1,54 @@
 mod api;
 mod models;
+mod transaction_service;
 
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer, middleware};
 use std::sync::Arc;
 use parking_lot::RwLock;
 use chrono::Utc;
+use anyhow::{anyhow, Result};
+use serde_json;
 
 use crate::models::{ApiProduct, ShoppingCart, Wallet};
+use crate::transaction_service::{TransactionService};
+use autonomi_core::wallets::SerializableWallet;
+
+use std::fs;
+use std::process::Command;
 
 // In-memory "database"
 pub struct AppState {
     products: RwLock<Vec<ApiProduct>>,
     shopping_cart: RwLock<ShoppingCart>,
     wallets: RwLock<Vec<Wallet>>,
+}
+
+fn load_pointer_hex() -> String {
+    fs::read_to_string("src-backend/config/products.toml")
+        .ok()
+        .and_then(|content| {
+            content
+                .lines()
+                .find(|l| l.contains("all_products"))
+                .and_then(|l| l.split('=').nth(1))
+                .map(|s| s.trim().trim_matches('"').to_string())
+        })
+        .unwrap_or_else(|| "8f997d304fd69ddd69a40d012251de8ade37c4fc1757ccdabba72003b628721ffec465dbf55c74ed30f2630c59f5147f".to_string())
+}
+
+fn fetch_products_from_pointer(hex_addr: &str) -> Result<Vec<ApiProduct>> {
+    let output = Command::new("antctl")
+        .args(["pointer", "get", hex_addr, "--json"])
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!("antctl pointer get failed with status {}", output.status));
+    }
+
+    let json_str = String::from_utf8(output.stdout)?;
+    let products: Vec<ApiProduct> = serde_json::from_str(&json_str)?;
+    Ok(products)
 }
 
 #[actix_web::main]
@@ -31,6 +66,7 @@ async fn main() -> std::io::Result<()> {
             price: 12.99,
             tags: vec!["beef".to_string(), "burgers".to_string()],
             category: "Meat".to_string(),
+            available: true,
         },
         ApiProduct {
             id: "d290f1ee-6c54-4b01-90e6-d701748f0875".to_string(),
@@ -40,6 +76,7 @@ async fn main() -> std::io::Result<()> {
             price: 8.50,
             tags: vec!["beef".to_string(), "mince".to_string()],
             category: "Meat".to_string(),
+            available: true,
         },
         ApiProduct { 
             id: "prod_new_001".to_string(), name: "The Fauna".to_string(),
@@ -48,6 +85,7 @@ async fn main() -> std::io::Result<()> {
             price: 75.00, 
             tags: vec!["Handmade".to_string(), "Unique".to_string(), "Artisan".to_string()],
             category: "Crafts".to_string(),
+            available: true,
         },
         ApiProduct { 
             id: "prod_new_002".to_string(), name: "Beautiful Washed BFL Curls".to_string(), 
@@ -56,6 +94,7 @@ async fn main() -> std::io::Result<()> {
             price: 25.50, 
             tags: vec!["BFL".to_string(), "Spinning".to_string(), "Felting".to_string(), "Natural Fiber".to_string()],
             category: "Crafts".to_string(),
+            available: true,
         },
         ApiProduct { 
             id: "prod_new_003".to_string(), name: "Whole Beef Shank".to_string(), 
@@ -64,6 +103,7 @@ async fn main() -> std::io::Result<()> {
             price: 18.75, 
             tags: vec!["Grass-fed".to_string(), "Slow-cook".to_string(), "Osso Buco".to_string()],
             category: "Meat".to_string(),
+            available: true,
         },
         ApiProduct { 
             id: "prod_new_004".to_string(), name: "Raw Milk".to_string(), 
@@ -72,6 +112,7 @@ async fn main() -> std::io::Result<()> {
             price: 3.20, 
             tags: vec!["Raw".to_string(), "Unpasteurized".to_string(), "Grass-fed".to_string()],
             category: "Dairy".to_string(),
+            available: true,
         },
         ApiProduct { 
             id: "prod_new_005".to_string(), name: "Grass-Fed Chateaubriand Steak".to_string(), 
@@ -80,6 +121,7 @@ async fn main() -> std::io::Result<()> {
             price: 45.00, 
             tags: vec!["Center-cut".to_string(), "Tenderloin".to_string(), "Sharing Steak".to_string()],
             category: "Meat".to_string(),
+            available: true,
         },
         ApiProduct { 
             id: "prod_new_006".to_string(), name: "Raw Organic A2 Grass-Fed Milk".to_string(), 
@@ -88,6 +130,7 @@ async fn main() -> std::io::Result<()> {
             price: 4.50, 
             tags: vec!["A2 Milk".to_string(), "Organic".to_string(), "Raw".to_string(), "Grass-fed".to_string()],
             category: "Dairy".to_string(),
+            available: true,
         },
         ApiProduct { 
             id: "prod_new_007".to_string(), name: "Stevie Bag in Black".to_string(), 
@@ -96,6 +139,7 @@ async fn main() -> std::io::Result<()> {
             price: 120.00, 
             tags: vec!["Handmade".to_string(), "Leather".to_string(), "Fashion".to_string()],
             category: "Crafts".to_string(),
+            available: true,
         },
         ApiProduct { 
             id: "prod_new_008".to_string(), name: "Jacob Felted Fleece".to_string(), 
@@ -104,17 +148,50 @@ async fn main() -> std::io::Result<()> {
             price: 35.00, 
             tags: vec!["Felted Fleece".to_string(), "Jacob Sheep".to_string(), "Natural".to_string(), "Crafting".to_string()],
             category: "Crafts".to_string(),
+            available: true,
         }
     ];
 
+    // After sample_products defined, mark sold out for products index >=2
+    let mut products_vec = sample_products;
+    products_vec[2].available = false;
+    products_vec[3].available = false;
+    products_vec[4].available = false;
+    products_vec[5].available = false;
+    products_vec[6].available = false;
+    products_vec[7].available = false;
+
+    // Fetch latest products from pointer and merge with sample
+    let pointer_hex = load_pointer_hex();
+    if let Ok(fetched) = fetch_products_from_pointer(&pointer_hex) {
+        for fp in fetched {
+            if let Some(existing) = products_vec.iter_mut().find(|p| p.id == fp.id) {
+                *existing = fp;
+            } else {
+                products_vec.push(fp);
+            }
+        }
+    } else {
+        log::warn!("Failed to fetch products from pointer; proceeding with local seed data");
+    }
+
     let app_state = Arc::new(AppState {
-        products: RwLock::new(sample_products),
+        products: RwLock::new(products_vec),
         shopping_cart: RwLock::new(ShoppingCart {
             items: vec![],
             last_updated: Utc::now(),
         }),
         wallets: RwLock::new(vec![]),
     });
+
+    // Initialize transaction service
+    let app_wallet = SerializableWallet {
+        name: "Marketplace Hot Wallet".into(),
+        address: "0x000000000000000000000000000000000000dEaD".into(),
+        balance: "0".into(),
+    };
+
+    let tx_service = Arc::new(TransactionService::new(app_wallet, &pointer_hex).expect("Failed to init TransactionService"));
 
     let host = std::env::var("APP_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port = std::env::var("APP_PORT").unwrap_or_else(|_| "8000".to_string());
@@ -131,6 +208,7 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .app_data(web::Data::new(app_state.clone()))
+            .app_data(web::Data::new(tx_service.clone()))
             .wrap(cors)
             .wrap(middleware::Logger::default())
             .service(
@@ -141,6 +219,8 @@ async fn main() -> std::io::Result<()> {
                     .service(api::update_cart_item)
                     .service(api::remove_from_cart)
                     .service(api::get_wallets)
+                    .service(api::checkout)
+                    .service(api::health)
             )
             .service(actix_files::Files::new("/", "./dist").index_file("index.html"))
 

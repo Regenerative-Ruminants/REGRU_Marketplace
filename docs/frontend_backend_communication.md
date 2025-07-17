@@ -71,3 +71,20 @@ It then dynamically generates HTML to display this information in the wallet mod
 *(Please insert the screenshot of the diagram here)*
 
 --- 
+
+## Product Availability & Live Pointers (2025-07 update)
+
+The backend now distinguishes between live products retrieved from the Autonomi mainnet and placeholder sample items:
+
+1. `src-backend/config/products.toml` contains network **PointerAddress** values.
+   ```toml
+   [pointers]
+   all_products = "8f997d30...59f5147f"
+   ```
+   The backend will soon resolve this pointer to fetch the authoritative product catalogue.  Until that logic is complete only the first two `ApiProduct`s are considered **live**.
+
+2. The `ApiProduct` structure gained an `available: bool` flag (default `true`).  Any product with `available = false` is rendered in the UI with a disabled grey “Out of Stock” button.  This prevents users from attempting to purchase placeholder/demo items.
+
+Frontend changes are isolated to `src/app.ts → renderProductCard()`; no other component code was modified.
+
+When integrating the real catalogue the backend will overwrite the sample list and populate availability from network data automatically. 

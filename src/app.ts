@@ -13,6 +13,7 @@ interface Product {
     rating: number;
     reviewCount: number;
     tags: string[];
+    available: boolean;
     // For mockup design - will be used in later phases
     mockupImagePlaceholderClass?: string; 
     mockupBadges?: { text: string; class: string; }[];
@@ -579,13 +580,17 @@ function renderProductCard(product: Product): string {
                     <span class="price">£${product.price.toFixed(2)}</span>
                     ${product.category === 'Meat' || product.category === 'Dairy' ? '<span class="price-unit">/ kg</span>' : product.category === 'Produce' && product.name.toLowerCase().includes('dozen') ? '<span class="price-unit">/ dozen</span>' : '<span class="price-unit">/ unit</span>'}
                 </div>
-                <button class="add-to-cart" 
-                        data-product-id="${product.id}" 
-                        data-product-name="${product.name}" 
-                        data-product-price="${product.price}" 
-                        data-product-image="${product.image}">
-                    <i class="fas fa-cart-plus"></i> Add to Cart
-                </button>
+                ${product.available ? `
+                    <button class="add-to-cart" 
+                            data-product-id="${product.id}" 
+                            data-product-name="${product.name}" 
+                            data-product-price="${product.price}" 
+                            data-product-image="${product.image}">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                ` : `
+                    <button class="add-to-cart" disabled>Out of Stock</button>
+                `}
             </div>
         </div>
     `;
@@ -874,6 +879,7 @@ async function fetchAndSetProducts(): Promise<void> {
             animal: 'N/A',
             rating: (Math.random() * (5 - 3.5) + 3.5),
             reviewCount: Math.floor(Math.random() * 200),
+            available: true, // Assuming all products are available for now
         }));
 
         // Initial render after fetching
