@@ -13,6 +13,7 @@ interface Product {
     rating: number;
     reviewCount: number;
     tags: string[];
+    available: boolean;
     // For mockup design - will be used in later phases
     mockupImagePlaceholderClass?: string; 
     mockupBadges?: { text: string; class: string; }[];
@@ -25,6 +26,7 @@ interface ShoppingCartItem {
     price: number;
     quantity: number;
     image: string;
+    seller: string;
 }
 
 // New types for the redesigned sidebar
@@ -579,13 +581,17 @@ function renderProductCard(product: Product): string {
                     <span class="price">£${product.price.toFixed(2)}</span>
                     ${product.category === 'Meat' || product.category === 'Dairy' ? '<span class="price-unit">/ kg</span>' : product.category === 'Produce' && product.name.toLowerCase().includes('dozen') ? '<span class="price-unit">/ dozen</span>' : '<span class="price-unit">/ unit</span>'}
                 </div>
-                <button class="add-to-cart" 
-                        data-product-id="${product.id}" 
-                        data-product-name="${product.name}" 
-                        data-product-price="${product.price}" 
-                        data-product-image="${product.image}">
-                    <i class="fas fa-cart-plus"></i> Add to Cart
-                </button>
+                ${product.available ? `
+                    <button class="add-to-cart" 
+                            data-product-id="${product.id}" 
+                            data-product-name="${product.name}" 
+                            data-product-price="${product.price}" 
+                            data-product-image="${product.image}">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                ` : `
+                    <button class="add-to-cart" disabled>Out of Stock</button>
+                `}
             </div>
         </div>
     `;
@@ -798,13 +804,64 @@ function navigateTo(viewId: string, data?: { title?: string }): void {
 // --- Shopping Cart Functions (Preserved, minor adaptation for new cart count ID) ---
 function addToCart(productId: string, productName: string, productPrice: number, productImage: string): void {
     const existingItem = shoppingCart.find(item => item.id === productId);
+    const product = allProducts.find(p => p.id === productId);
+    const sellerName = product?.seller ?? 'Unknown';
+
     if (existingItem) {
-        existingItem.quantity++;
+        existingItem.quantity += 1;
     } else {
-        shoppingCart.push({ id: productId, name: productName, price: productPrice, quantity: 1, image: productImage });
+        shoppingCart.push({ id: productId, name: productName, price: productPrice, quantity: 1, image: productImage, seller: sellerName });
     }
     updateCartDisplay();
-    console.log(`${productName} added to cart. Cart:`, shoppingCart);
+    // Fun visual feedback – animate product image flying into the cart
+    try {
+        animateAddToCart(productId);
+    } catch (err) {
+        console.warn('Animation failed', err);
+    }
+}
+
+/**
+ * Animates a miniature clone of the product image from its card into the cart button.
+ * Works for both desktop (top-bar cart) and mobile (bottom FAB).
+ */
+function animateAddToCart(productId: string): void {
+    const cardImg = document.querySelector(`.product-card[data-product-id="${productId}"] .product-image img`) as HTMLImageElement | null;
+    if (!cardImg) return;
+
+    const destEl = window.innerWidth < 768
+        ? document.getElementById('cart-fab')
+        : document.getElementById('shopping-cart-button-topbar');
+    if (!destEl) return;
+
+    const startRect = cardImg.getBoundingClientRect();
+    const destRect = destEl.getBoundingClientRect();
+
+    const flyingImg = cardImg.cloneNode(true) as HTMLImageElement;
+    flyingImg.style.position = 'fixed';
+    flyingImg.style.left = `${startRect.left}px`;
+    flyingImg.style.top = `${startRect.top}px`;
+    flyingImg.style.width = `${startRect.width}px`;
+    flyingImg.style.height = `${startRect.height}px`;
+    flyingImg.style.transition = 'transform 0.7s cubic-bezier(0.22,1,0.36,1), opacity 0.7s linear';
+    flyingImg.style.zIndex = '10000';
+    flyingImg.style.pointerEvents = 'none';
+    document.body.appendChild(flyingImg);
+
+    // Trigger layout so transition will run
+    void flyingImg.offsetWidth;
+
+    const deltaX = destRect.left + destRect.width / 2 - (startRect.left + startRect.width / 2);
+    const deltaY = destRect.top + destRect.height / 2 - (startRect.top + startRect.height / 2);
+
+    flyingImg.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.1)`;
+    flyingImg.style.opacity = '0';
+
+    flyingImg.addEventListener('transitionend', () => {
+        flyingImg.remove();
+        destEl.classList.add('cart-pulse');
+        setTimeout(() => destEl.classList.remove('cart-pulse'), 600);
+    }, { once: true });
 }
 
 function removeFromCart(productId: string): void {
@@ -831,6 +888,11 @@ function updateCartDisplay(): void {
     if (shoppingCartCountTopbar) {
         shoppingCartCountTopbar.textContent = totalItems.toString();
         shoppingCartCountTopbar.style.display = totalItems > 0 ? 'inline-block' : 'none';
+    }
+    const cartCountFab = document.getElementById('cart-count-fab');
+    if (cartCountFab) {
+        cartCountFab.textContent = totalItems.toString();
+        cartCountFab.classList.toggle('hidden', totalItems === 0);
     }
 }
 
@@ -874,6 +936,7 @@ async function fetchAndSetProducts(): Promise<void> {
             animal: 'N/A',
             rating: (Math.random() * (5 - 3.5) + 3.5),
             reviewCount: Math.floor(Math.random() * 200),
+            available: true, // Assuming all products are available for now
         }));
 
         // Initial render after fetching
@@ -935,12 +998,136 @@ function setupEventListeners() {
         }
     });
 
-    // Shopping Cart Button
-    if (shoppingCartButtonTopbar) {
-        shoppingCartButtonTopbar.addEventListener('click', () => {
-            alert("Navigate to Shopping Cart page (to be implemented)");
+    const openCartModal = () => {
+        const modalContainer = document.getElementById('cart-modal-container');
+        const modalCard = document.getElementById('cart-modal-card');
+        if (!modalContainer || !modalCard) return;
+
+        // Group cart items by seller so we can show vendor subtotals
+        const grouped = new Map<string, ShoppingCartItem[]>();
+        shoppingCart.forEach(item => {
+            const list = grouped.get(item.seller) ?? [];
+            list.push(item);
+            grouped.set(item.seller, list);
         });
-    }
+
+        const sections: string[] = [];
+        let grandTotal = 0;
+
+        grouped.forEach((items, seller) => {
+            const rows = items.map(i => {
+                const lineTotal = i.price * i.quantity;
+                return `
+                    <tr data-row-id="${i.id}" class="border-b last:border-b-0">
+                        <td class="py-2 pr-4">${i.name}</td>
+                        <td class="py-2 text-center w-12">${i.quantity}</td>
+                        <td class="py-2 text-right w-24">£${lineTotal.toFixed(2)}</td>
+                        <td class="py-2 text-right w-10">
+                            <button data-remove-id="${i.id}" class="text-red-600 hover:text-red-800 font-bold">&times;</button>
+                        </td>
+                    </tr>`;
+            }).join('');
+            const subtotal = items.reduce((sum, it) => sum + it.price * it.quantity, 0);
+            grandTotal += subtotal;
+
+            sections.push(`
+                <section class="mb-6">
+                    <h3 class="font-semibold text-lg mb-3">${seller}</h3>
+                    <table class="w-full text-sm">
+                        <thead>
+                          <tr class="text-left text-xs text-gray-700 uppercase tracking-wider">
+                            <th class="py-1 pr-4">Item</th>
+                            <th class="py-1 text-center w-12">Qty</th>
+                            <th class="py-1 text-right w-24">Total</th>
+                            <th class="w-10"></th>
+                          </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                        <tfoot>
+                          <tr>
+                            <td colspan="2" class="py-2 text-right font-semibold">Vendor subtotal</td>
+                            <td class="py-2 text-right font-semibold">£${subtotal.toFixed(2)}</td>
+                            <td></td>
+                          </tr>
+                        </tfoot>
+                    </table>
+                </section>`);
+        });
+
+        // Build the neumorphic modal structure (header, content, footer) so we reuse wallet-modal styles
+        modalCard.innerHTML = `
+            <div class="wallet-modal-header">
+                <h2 class="wallet-modal-title">Your Cart</h2>
+                <button id="cart-modal-close-btn" class="wallet-modal-close-btn">&times;</button>
+            </div>
+            <div class="wallet-modal-content" id="cart-modal-content">
+                ${sections.join('') || '<p class="text-center py-8 text-gray-500">Your cart is empty.</p>'}
+            </div>
+            <div class="wallet-modal-footer gap-3 flex items-center justify-end">
+                <span class="mr-auto font-semibold text-lg">Grand&nbsp;Total:&nbsp;£${grandTotal.toFixed(2)}</span>
+                <button id="cart-checkout-btn" class="px-4 py-2 bg-emerald-600 text-white rounded-md shadow-lg hover:bg-emerald-700 focus:outline-none disabled:opacity-50" ${shoppingCart.length === 0 ? 'disabled' : ''}>Checkout</button>
+            </div>`;
+
+        // Make modal visible
+        modalContainer.classList.remove('hidden');
+        modalContainer.classList.add('is-visible');
+
+        // ===== Event Listeners =====
+        // Outside click closes modal
+        modalContainer.addEventListener('click', (e) => {
+            if (e.target === modalContainer) {
+                modalContainer.classList.add('hidden');
+                modalContainer.classList.remove('is-visible');
+            }
+        }, { once: true });
+
+        // Close button
+        const closeBtn = document.getElementById('cart-modal-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                modalContainer.classList.add('hidden');
+                modalContainer.classList.remove('is-visible');
+            }, { once: true });
+        }
+
+        // Checkout
+        const checkoutBtn = document.getElementById('cart-checkout-btn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', async () => {
+                try {
+                    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+                    const res = await fetch(`${apiBaseUrl}/api/checkout`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            buyer_wallet: walletService.getActiveWallet()?.address ?? '0x',
+                            items: shoppingCart.map(i => ({ product_id: i.id, quantity: i.quantity }))
+                        })
+                    });
+                    const data = await res.json();
+                    alert(`Transaction submitted: ${data.tx_hash}`);
+                } catch (err) {
+                    alert('Checkout failed');
+                }
+            });
+        }
+
+        // Remove buttons
+        modalCard.querySelectorAll('[data-remove-id]').forEach(btn => {
+            btn.addEventListener('click', (ev) => {
+                const id = (ev.currentTarget as HTMLElement).getAttribute('data-remove-id');
+                if (id) {
+                    removeFromCart(id);
+                    // Refresh modal content after mutation
+                    openCartModal();
+                }
+            });
+        });
+    };
+
+    if (shoppingCartButtonTopbar) shoppingCartButtonTopbar.addEventListener('click', openCartModal);
+    const cartFab = document.getElementById('cart-fab');
+    if (cartFab) cartFab.addEventListener('click', openCartModal);
 
     // Sort Select Listener
     if (sortSelectControl) {

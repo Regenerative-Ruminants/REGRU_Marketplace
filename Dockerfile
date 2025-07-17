@@ -25,6 +25,9 @@ RUN cargo chef cook --release --recipe-path recipe.json
 # ---- Builder Stage: Builds the application ----
 # Starts from the cooker, which has all dependencies pre-built.
 FROM cooker AS builder
+RUN cargo install safeup --locked --version 0.40.0 || true
+RUN safeup install latest || true
+RUN ~/.safe/bin/antctl --version || true
 WORKDIR /app
 # Now copy the entire application source code.
 COPY . .
@@ -35,6 +38,10 @@ RUN cargo build --release --package src-backend
 FROM gcr.io/distroless/cc-debian12
 WORKDIR /app
 COPY --from=builder /app/target/release/src-backend .
+# Autonomi binaries
+COPY --from=builder /root/.safe /root/.safe
+# ensure antctl is available in PATH
+ENV PATH="/root/.safe/bin:${PATH}"
 COPY --from=builder /app/dist ./dist
 COPY ./src-backend/.env.example ./.env
 ENV APP_HOST=0.0.0.0

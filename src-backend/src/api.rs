@@ -1,6 +1,10 @@
 use actix_web::{get, post, put, delete, web, HttpResponse, Responder};
 use std::sync::Arc;
 use chrono::Utc;
+use serde_json::json;
+use serde::{Deserialize, Serialize};
+
+use crate::transaction_service::{TransactionService, CartLine};
 
 use crate::{AppState, models::CartItem};
 
@@ -20,6 +24,37 @@ async fn get_cart(data: web::Data<Arc<AppState>>) -> impl Responder {
 pub async fn get_wallets(data: web::Data<Arc<AppState>>) -> impl Responder {
     let wallets = data.wallets.read();
     HttpResponse::Ok().json(&*wallets)
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CheckoutRequest {
+    pub buyer_wallet: String,
+    pub items: Vec<CartItem>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct CheckoutResponse {
+    pub tx_hash: String,
+}
+
+#[post("/checkout")]
+pub async fn checkout(
+    tx_service: web::Data<Arc<TransactionService>>,
+    body: web::Json<CheckoutRequest>,
+) -> impl Responder {
+    let cart_lines: Vec<CartLine> = body
+        .items
+        .iter()
+        .map(|i| CartLine {
+            product_id: i.product_id.clone(),
+            quantity: i.quantity,
+        })
+        .collect();
+
+    match tx_service.execute_purchase(&cart_lines, &body.buyer_wallet).await {
+        Ok(hash) => HttpResponse::Ok().json(CheckoutResponse { tx_hash: hash }),
+        Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
+    }
 }
 
 #[post("/cart")]
@@ -67,4 +102,9 @@ async fn remove_from_cart(data: web::Data<Arc<AppState>>, path: web::Path<String
     } else {
         HttpResponse::NotFound().body("Item not found in cart")
     }
+} 
+
+#[get("/health")]
+async fn health() -> impl Responder {
+    HttpResponse::Ok().json(json!({"status":"ok"}))
 } 

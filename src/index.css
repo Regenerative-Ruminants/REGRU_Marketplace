@@ -911,7 +911,14 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     }
     
     #mobile-bottom-nav {
-        display: flex; /* This was the missing rule */
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #fafafa; /* light gray so it stands out against white page bg */
+        border-top: 1px solid #d1d5db; /* darker slate-300 */
+        box-shadow: 0 -2px 6px rgba(0,0,0,0.07);
+        z-index: 200; /* ensure above main content */
     }
 
     #mobile-drawer {
@@ -1789,4 +1796,109 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     /* Prevent iOS Safari from zooming in on focus */
     font-size: 16px !important;
   }
+}
+
+#cart-fab {
+    width: 60px;
+    height: 60px;
+    margin-top: 0;
+    background: #f0f0f0;
+    color: #10b981; /* keep green accent for icon only */
+    border: 1px solid #dcdcdc;
+    box-shadow: 6px 6px 12px #d1d1d1, -6px -6px 12px #ffffff;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+#cart-fab:hover {
+    box-shadow: 8px 8px 16px #c8c8c8, -8px -8px 16px #ffffff;
+}
+
+#cart-fab:active {
+    transform: translateY(2px);
+    box-shadow: inset 4px 4px 8px #d1d1d1, inset -4px -4px 8px #ffffff;
+}
+
+#cart-fab .fa-shopping-cart {
+    font-size: 1.25rem;
+}
+
+/* Larger, clearer badge */
+#cart-count-fab {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+}
+
+#cart-count-fab:not(.hidden){
+    display:flex !important;
+}
+
+/* Pulse animation triggered by JS */
+.cart-pulse {
+    animation: cartPulseScale 0.6s ease-in-out;
+}
+
+@keyframes cartPulseScale {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@media (max-width: 767px) {
+  /* Hide scrollbar entirely on mobile */
+  #app-main-content::-webkit-scrollbar {
+    display: none;
+  }
+  #app-main-content {
+    -ms-overflow-style: none; /* IE & Edge */
+    scrollbar-width: none;    /* Firefox */
+  }
+}
+
+/* === BOTTOM NAV NEUMORPHIC ENHANCEMENT === */
+#mobile-bottom-nav {
+    background: #f0f0f0; /* match neumorphic surface */
+    border-top: 1px solid #dcdcdc;
+    box-shadow: 8px 8px 16px #d1d1d1, -8px -8px 16px #ffffff;
+    animation: bottomNavSlideIn 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#mobile-bottom-nav .nav-btn {
+    background: #f0f0f0;
+    border: 1px solid #dcdcdc;
+    border-radius: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    box-shadow: 4px 4px 8px #d1d1d1, -4px -4px 8px #ffffff;
+    transition: all 0.18s ease-in-out;
+}
+
+#mobile-bottom-nav .nav-btn:hover {
+    box-shadow: 6px 6px 12px #c8c8c8, -6px -6px 12px #ffffff;
+}
+
+#mobile-bottom-nav .nav-btn:active {
+    transform: translateY(1px);
+    box-shadow: inset 4px 4px 8px #d1d1d1, inset -4px -4px 8px #ffffff;
+}
+
+/* Slide-in on first render */
+@keyframes bottomNavSlideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* === DESKTOP SCROLLBAR FIX === */
+@media (min-width: 768px) {
+    body {
+        overflow: auto; /* allow regular page scroll */
+    }
+    #app-main-content {
+        overflow: visible; /* use body scroll, avoid nested scrollbar */
+    }
 }

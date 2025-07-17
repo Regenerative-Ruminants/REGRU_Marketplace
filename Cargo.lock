@@ -1053,7 +1053,7 @@ version = "0.2.4"
 source = "git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.5.0#e560b3d47cc76e5075fdaba4cf63d861ebc82ad2"
 dependencies = [
  "ant-logging 0.2.50",
- "ant-protocol 1.0.6",
+ "ant-protocol 1.0.6 (git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.5.0)",
  "atomic-write-file",
  "chrono",
  "clap",
@@ -1073,6 +1073,16 @@ dependencies = [
 name = "ant-build-info"
 version = "0.1.27"
 source = "git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.4.6#dea8fc7f4337d5d07436bc75aaac275df6ddbb9d"
+dependencies = [
+ "chrono",
+ "tracing",
+ "vergen",
+]
+
+[[package]]
+name = "ant-build-info"
+version = "0.1.28"
+source = "git+https://github.com/maidsafe/autonomi?tag=ant-protocol-v1.0.6#53b5e5100697e8f0d342bf03678c29b002d634f7"
 dependencies = [
  "chrono",
  "tracing",
@@ -1113,10 +1123,31 @@ dependencies = [
 [[package]]
 name = "ant-evm"
 version = "0.1.15"
+source = "git+https://github.com/maidsafe/autonomi?tag=ant-protocol-v1.0.6#53b5e5100697e8f0d342bf03678c29b002d634f7"
+dependencies = [
+ "custom_debug",
+ "evmlib 0.4.1 (git+https://github.com/maidsafe/autonomi?tag=ant-protocol-v1.0.6)",
+ "hex",
+ "libp2p",
+ "rand 0.8.5",
+ "ring",
+ "rmp-serde",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tiny-keccak",
+ "tracing",
+ "xor_name",
+]
+
+[[package]]
+name = "ant-evm"
+version = "0.1.15"
 source = "git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.5.0#e560b3d47cc76e5075fdaba4cf63d861ebc82ad2"
 dependencies = [
  "custom_debug",
- "evmlib 0.4.1",
+ "evmlib 0.4.1 (git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.5.0)",
  "hex",
  "libp2p",
  "rand 0.8.5",
@@ -1230,10 +1261,38 @@ dependencies = [
 [[package]]
 name = "ant-protocol"
 version = "1.0.6"
+source = "git+https://github.com/maidsafe/autonomi?tag=ant-protocol-v1.0.6#53b5e5100697e8f0d342bf03678c29b002d634f7"
+dependencies = [
+ "ant-build-info 0.1.28 (git+https://github.com/maidsafe/autonomi?tag=ant-protocol-v1.0.6)",
+ "ant-evm 0.1.15 (git+https://github.com/maidsafe/autonomi?tag=ant-protocol-v1.0.6)",
+ "blsttc",
+ "bytes",
+ "color-eyre",
+ "crdts",
+ "custom_debug",
+ "dirs-next",
+ "hex",
+ "libp2p",
+ "prometheus-client",
+ "rand 0.8.5",
+ "rmp-serde",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror 1.0.69",
+ "tiny-keccak",
+ "tonic-build",
+ "tracing",
+ "xor_name",
+]
+
+[[package]]
+name = "ant-protocol"
+version = "1.0.6"
 source = "git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.5.0#e560b3d47cc76e5075fdaba4cf63d861ebc82ad2"
 dependencies = [
- "ant-build-info 0.1.28",
- "ant-evm 0.1.15",
+ "ant-build-info 0.1.28 (git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.5.0)",
+ "ant-evm 0.1.15 (git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.5.0)",
  "blsttc",
  "bytes",
  "color-eyre",
@@ -1644,8 +1703,8 @@ version = "0.5.0"
 source = "git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.5.0#e560b3d47cc76e5075fdaba4cf63d861ebc82ad2"
 dependencies = [
  "ant-bootstrap 0.2.4",
- "ant-evm 0.1.15",
- "ant-protocol 1.0.6",
+ "ant-evm 0.1.15 (git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.5.0)",
+ "ant-protocol 1.0.6 (git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.5.0)",
  "bip39",
  "blst",
  "blstrs 0.7.1",
@@ -1653,7 +1712,7 @@ dependencies = [
  "bytes",
  "const-hex",
  "custom_debug",
- "evmlib 0.4.1",
+ "evmlib 0.4.1 (git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.5.0)",
  "exponential-backoff",
  "eyre",
  "futures",
@@ -3088,6 +3147,21 @@ dependencies = [
 name = "evmlib"
 version = "0.4.0"
 source = "git+https://github.com/maidsafe/autonomi?tag=autonomi-v0.4.6#dea8fc7f4337d5d07436bc75aaac275df6ddbb9d"
+dependencies = [
+ "alloy",
+ "dirs-next",
+ "rand 0.8.5",
+ "serde",
+ "serde_with",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "evmlib"
+version = "0.4.1"
+source = "git+https://github.com/maidsafe/autonomi?tag=ant-protocol-v1.0.6#53b5e5100697e8f0d342bf03678c29b002d634f7"
 dependencies = [
  "alloy",
  "dirs-next",
@@ -7680,13 +7754,17 @@ dependencies = [
  "actix-cors",
  "actix-files",
  "actix-web",
+ "ant-protocol 1.0.6 (git+https://github.com/maidsafe/autonomi?tag=ant-protocol-v1.0.6)",
+ "anyhow",
  "autonomi-core",
  "chrono",
  "dotenv",
  "env_logger",
+ "hex",
  "log",
  "parking_lot",
  "serde",
+ "serde_json",
  "tokio",
 ]
 
