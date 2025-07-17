@@ -27,6 +27,10 @@ RUN cargo chef cook --release --recipe-path recipe.json
 FROM cooker AS builder
 RUN cargo install safeup --locked --version 0.40.0 || true
 RUN safeup install latest || true
+# Guarantee the directory exists so the final stage COPY never fails
+RUN mkdir -p /root/.safe
+# Ensure bin subdir exists so PATH resolving works
+RUN mkdir -p /root/.safe/bin
 RUN ~/.safe/bin/antctl --version || true
 WORKDIR /app
 # Now copy the entire application source code.
