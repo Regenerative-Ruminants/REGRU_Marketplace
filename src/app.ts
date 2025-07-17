@@ -813,6 +813,55 @@ function addToCart(productId: string, productName: string, productPrice: number,
         shoppingCart.push({ id: productId, name: productName, price: productPrice, quantity: 1, image: productImage, seller: sellerName });
     }
     updateCartDisplay();
+    // Fun visual feedback – animate product image flying into the cart
+    try {
+        animateAddToCart(productId);
+    } catch (err) {
+        console.warn('Animation failed', err);
+    }
+}
+
+/**
+ * Animates a miniature clone of the product image from its card into the cart button.
+ * Works for both desktop (top-bar cart) and mobile (bottom FAB).
+ */
+function animateAddToCart(productId: string): void {
+    const cardImg = document.querySelector(`.product-card[data-product-id="${productId}"] .product-image img`) as HTMLImageElement | null;
+    if (!cardImg) return;
+
+    const destEl = window.innerWidth < 768
+        ? document.getElementById('cart-fab')
+        : document.getElementById('shopping-cart-button-topbar');
+    if (!destEl) return;
+
+    const startRect = cardImg.getBoundingClientRect();
+    const destRect = destEl.getBoundingClientRect();
+
+    const flyingImg = cardImg.cloneNode(true) as HTMLImageElement;
+    flyingImg.style.position = 'fixed';
+    flyingImg.style.left = `${startRect.left}px`;
+    flyingImg.style.top = `${startRect.top}px`;
+    flyingImg.style.width = `${startRect.width}px`;
+    flyingImg.style.height = `${startRect.height}px`;
+    flyingImg.style.transition = 'transform 0.7s cubic-bezier(0.22,1,0.36,1), opacity 0.7s linear';
+    flyingImg.style.zIndex = '10000';
+    flyingImg.style.pointerEvents = 'none';
+    document.body.appendChild(flyingImg);
+
+    // Trigger layout so transition will run
+    void flyingImg.offsetWidth;
+
+    const deltaX = destRect.left + destRect.width / 2 - (startRect.left + startRect.width / 2);
+    const deltaY = destRect.top + destRect.height / 2 - (startRect.top + startRect.height / 2);
+
+    flyingImg.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.1)`;
+    flyingImg.style.opacity = '0';
+
+    flyingImg.addEventListener('transitionend', () => {
+        flyingImg.remove();
+        destEl.classList.add('cart-pulse');
+        setTimeout(() => destEl.classList.remove('cart-pulse'), 600);
+    }, { once: true });
 }
 
 function removeFromCart(productId: string): void {
@@ -843,7 +892,7 @@ function updateCartDisplay(): void {
     const cartCountFab = document.getElementById('cart-count-fab');
     if (cartCountFab) {
         cartCountFab.textContent = totalItems.toString();
-        cartCountFab.style.display = totalItems > 0 ? 'flex' : 'none';
+        cartCountFab.classList.toggle('hidden', totalItems === 0);
     }
 }
 
@@ -954,7 +1003,7 @@ function setupEventListeners() {
         const modalCard = document.getElementById('cart-modal-card');
         if (!modalContainer || !modalCard) return;
 
-        // Build cart content grouped by seller
+        // Group cart items by seller so we can show vendor subtotals
         const grouped = new Map<string, ShoppingCartItem[]>();
         shoppingCart.forEach(item => {
             const list = grouped.get(item.seller) ?? [];
@@ -962,51 +1011,89 @@ function setupEventListeners() {
             grouped.set(item.seller, list);
         });
 
-        const htmlSections: string[] = [];
+        const sections: string[] = [];
+        let grandTotal = 0;
+
         grouped.forEach((items, seller) => {
-            const rows = items.map(i => `
-                <tr data-row-id="${i.id}">
-                    <td class="py-2">${i.name}</td>
-                    <td class="py-2 text-center">${i.quantity}</td>
-                    <td class="py-2 text-right">£${(i.price * i.quantity).toFixed(2)}</td>
-                    <td class="py-2 text-right">
-                        <button data-remove-id="${i.id}" class="text-red-600 hover:text-red-800">&times;</button>
-                    </td>
-                </tr>`).join('');
-            const subtotal = items.reduce((sum, it) => sum + it.price * it.quantity, 0).toFixed(2);
-            htmlSections.push(`
-                <div class="mb-4">
-                    <h3 class="font-semibold text-lg mb-2">${seller}</h3>
+            const rows = items.map(i => {
+                const lineTotal = i.price * i.quantity;
+                return `
+                    <tr data-row-id="${i.id}" class="border-b last:border-b-0">
+                        <td class="py-2 pr-4">${i.name}</td>
+                        <td class="py-2 text-center w-12">${i.quantity}</td>
+                        <td class="py-2 text-right w-24">£${lineTotal.toFixed(2)}</td>
+                        <td class="py-2 text-right w-10">
+                            <button data-remove-id="${i.id}" class="text-red-600 hover:text-red-800 font-bold">&times;</button>
+                        </td>
+                    </tr>`;
+            }).join('');
+            const subtotal = items.reduce((sum, it) => sum + it.price * it.quantity, 0);
+            grandTotal += subtotal;
+
+            sections.push(`
+                <section class="mb-6">
+                    <h3 class="font-semibold text-lg mb-3">${seller}</h3>
                     <table class="w-full text-sm">
-                        <thead><tr><th class="text-left">Item</th><th class="text-center">Qty</th><th class="text-right">Total</th></tr></thead>
+                        <thead>
+                          <tr class="text-left text-xs text-gray-700 uppercase tracking-wider">
+                            <th class="py-1 pr-4">Item</th>
+                            <th class="py-1 text-center w-12">Qty</th>
+                            <th class="py-1 text-right w-24">Total</th>
+                            <th class="w-10"></th>
+                          </tr>
+                        </thead>
                         <tbody>${rows}</tbody>
-                        <tfoot><tr><td colspan="2" class="text-right font-semibold">Vendor subtotal</td><td class="text-right font-semibold">£${subtotal}</td></tr></tfoot>
+                        <tfoot>
+                          <tr>
+                            <td colspan="2" class="py-2 text-right font-semibold">Vendor subtotal</td>
+                            <td class="py-2 text-right font-semibold">£${subtotal.toFixed(2)}</td>
+                            <td></td>
+                          </tr>
+                        </tfoot>
                     </table>
-                </div>`);
+                </section>`);
         });
 
+        // Build the neumorphic modal structure (header, content, footer) so we reuse wallet-modal styles
         modalCard.innerHTML = `
-            <h2 class="text-2xl font-bold mb-4">Your Cart</h2>
-            ${htmlSections.join('') || '<p class="text-center">Your cart is empty.</p>'}
-            <div class="flex justify-end mt-6">
-                <button id="cart-modal-close-btn" class="px-4 py-2 bg-gray-300 rounded-md mr-2">Close</button>
-                <button id="cart-checkout-btn" class="px-4 py-2 bg-emerald-600 text-white rounded-md" ${shoppingCart.length === 0 ? 'disabled' : ''}>Checkout</button>
+            <div class="wallet-modal-header">
+                <h2 class="wallet-modal-title">Your Cart</h2>
+                <button id="cart-modal-close-btn" class="wallet-modal-close-btn">&times;</button>
+            </div>
+            <div class="wallet-modal-content" id="cart-modal-content">
+                ${sections.join('') || '<p class="text-center py-8 text-gray-500">Your cart is empty.</p>'}
+            </div>
+            <div class="wallet-modal-footer gap-3 flex items-center justify-end">
+                <span class="mr-auto font-semibold text-lg">Grand&nbsp;Total:&nbsp;£${grandTotal.toFixed(2)}</span>
+                <button id="cart-checkout-btn" class="px-4 py-2 bg-emerald-600 text-white rounded-md shadow-lg hover:bg-emerald-700 focus:outline-none disabled:opacity-50" ${shoppingCart.length === 0 ? 'disabled' : ''}>Checkout</button>
             </div>`;
 
+        // Make modal visible
         modalContainer.classList.remove('hidden');
         modalContainer.classList.add('is-visible');
 
-        // close
-        const closeBtn = document.getElementById('cart-modal-close-btn');
-        if (closeBtn) closeBtn.addEventListener('click', () => {
-            modalContainer.classList.add('hidden');
-            modalContainer.classList.remove('is-visible');
-        });
+        // ===== Event Listeners =====
+        // Outside click closes modal
+        modalContainer.addEventListener('click', (e) => {
+            if (e.target === modalContainer) {
+                modalContainer.classList.add('hidden');
+                modalContainer.classList.remove('is-visible');
+            }
+        }, { once: true });
 
+        // Close button
+        const closeBtn = document.getElementById('cart-modal-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                modalContainer.classList.add('hidden');
+                modalContainer.classList.remove('is-visible');
+            }, { once: true });
+        }
+
+        // Checkout
         const checkoutBtn = document.getElementById('cart-checkout-btn');
         if (checkoutBtn) {
             checkoutBtn.addEventListener('click', async () => {
-                // call backend
                 try {
                     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
                     const res = await fetch(`${apiBaseUrl}/api/checkout`, {
@@ -1024,13 +1111,15 @@ function setupEventListeners() {
                 }
             });
         }
-        // after inserting modal html, attach remove button listeners
+
+        // Remove buttons
         modalCard.querySelectorAll('[data-remove-id]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = (e.currentTarget as HTMLElement).getAttribute('data-remove-id');
+            btn.addEventListener('click', (ev) => {
+                const id = (ev.currentTarget as HTMLElement).getAttribute('data-remove-id');
                 if (id) {
                     removeFromCart(id);
-                    openCartModal(); // refresh modal content
+                    // Refresh modal content after mutation
+                    openCartModal();
                 }
             });
         });
