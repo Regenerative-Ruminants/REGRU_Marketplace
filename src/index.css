@@ -912,6 +912,8 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     
     #mobile-bottom-nav {
         display: flex; /* This was the missing rule */
+        z-index: 50; /* Keep above other floating elements */
+        box-shadow: 0 -2px 6px rgba(0,0,0,0.05);
     }
 
     #mobile-drawer {
@@ -1789,4 +1791,8 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
     /* Prevent iOS Safari from zooming in on focus */
     font-size: 16px !important;
   }
+}
+
+#cart-fab {
+    z-index: 60; /* above bottom nav */
 }
