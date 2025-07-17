@@ -965,10 +965,13 @@ function setupEventListeners() {
         const htmlSections: string[] = [];
         grouped.forEach((items, seller) => {
             const rows = items.map(i => `
-                <tr>
+                <tr data-row-id="${i.id}">
                     <td class="py-2">${i.name}</td>
                     <td class="py-2 text-center">${i.quantity}</td>
                     <td class="py-2 text-right">£${(i.price * i.quantity).toFixed(2)}</td>
+                    <td class="py-2 text-right">
+                        <button data-remove-id="${i.id}" class="text-red-600 hover:text-red-800">&times;</button>
+                    </td>
                 </tr>`).join('');
             const subtotal = items.reduce((sum, it) => sum + it.price * it.quantity, 0).toFixed(2);
             htmlSections.push(`
@@ -1021,6 +1024,16 @@ function setupEventListeners() {
                 }
             });
         }
+        // after inserting modal html, attach remove button listeners
+        modalCard.querySelectorAll('[data-remove-id]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = (e.currentTarget as HTMLElement).getAttribute('data-remove-id');
+                if (id) {
+                    removeFromCart(id);
+                    openCartModal(); // refresh modal content
+                }
+            });
+        });
     };
 
     if (shoppingCartButtonTopbar) shoppingCartButtonTopbar.addEventListener('click', openCartModal);
