@@ -31,3 +31,20 @@ pub struct Wallet {
     pub address: String,
     pub balance: String,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum OrderStatus {
+    AwaitingPayment,
+    PendingConfirm,
+    Confirmed,
+    Failed,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Order {
+    pub order_id: String,
+    pub cart: Vec<CartItem>,
+    pub price_wei: String,
+    pub tx_hash: Option<String>,
+    pub status: OrderStatus,
+}

@@ -11,8 +11,8 @@ use anyhow::{anyhow, Result};
 use serde_json;
 
 use crate::models::{ApiProduct, ShoppingCart, Wallet};
+use crate::models::Order;
 use crate::transaction_service::{TransactionService};
-use autonomi_core::wallets::SerializableWallet;
 
 use std::fs;
 use std::process::Command;
@@ -22,6 +22,7 @@ pub struct AppState {
     products: RwLock<Vec<ApiProduct>>,
     shopping_cart: RwLock<ShoppingCart>,
     wallets: RwLock<Vec<Wallet>>,
+    orders: RwLock<std::collections::HashMap<String, crate::models::Order>>,
 }
 
 fn load_pointer_hex() -> String {
@@ -182,16 +183,11 @@ async fn main() -> std::io::Result<()> {
             last_updated: Utc::now(),
         }),
         wallets: RwLock::new(vec![]),
+        orders: RwLock::new(std::collections::HashMap::new()),
     });
 
     // Initialize transaction service
-    let app_wallet = SerializableWallet {
-        name: "Marketplace Hot Wallet".into(),
-        address: "0x000000000000000000000000000000000000dEaD".into(),
-        balance: "0".into(),
-    };
-
-    let tx_service = Arc::new(TransactionService::new(app_wallet, &pointer_hex).expect("Failed to init TransactionService"));
+    let tx_service = Arc::new(TransactionService::new(&pointer_hex).expect("Failed to init TransactionService"));
 
     let host = std::env::var("APP_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port = std::env::var("APP_PORT").unwrap_or_else(|_| "8000".to_string());

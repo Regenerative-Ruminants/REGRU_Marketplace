@@ -7,6 +7,10 @@ use serde::{Deserialize, Serialize};
 use crate::transaction_service::{TransactionService, CartLine};
 
 use crate::{AppState, models::CartItem};
+use crate::models::{Order, OrderStatus};
+use tokio::time::{sleep, Duration};
+
+use uuid::Uuid;
 
 #[get("/products")]
 async fn get_products(data: web::Data<Arc<AppState>>) -> impl Responder {
@@ -33,13 +37,18 @@ pub struct CheckoutRequest {
 }
 
 #[derive(Debug, Serialize)]
-pub struct CheckoutResponse {
-    pub tx_hash: String,
+pub struct QuoteResponse {
+    pub order_id: String,
+    pub to: String,
+    pub data: String,
+    pub price_wei: String,
+    pub chain_id: u64,
 }
 
 #[post("/checkout")]
 pub async fn checkout(
     tx_service: web::Data<Arc<TransactionService>>,
+    data: web::Data<Arc<AppState>>,
     body: web::Json<CheckoutRequest>,
 ) -> impl Responder {
     let cart_lines: Vec<CartLine> = body
@@ -51,8 +60,30 @@ pub async fn checkout(
         })
         .collect();
 
-    match tx_service.execute_purchase(&cart_lines, &body.buyer_wallet).await {
-        Ok(hash) => HttpResponse::Ok().json(CheckoutResponse { tx_hash: hash }),
+    match tx_service.quote_total_wei(&cart_lines).await {
+        Ok(price_wei) => {
+            let order_id = Uuid::new_v4().to_string();
+            // persist order in Map
+            {
+                let mut orders = data.orders.write();
+                orders.insert(order_id.clone(), Order {
+                    order_id: order_id.clone(),
+                    cart: body.items.clone(),
+                    price_wei: price_wei.to_string(),
+                    tx_hash: None,
+                    status: OrderStatus::AwaitingPayment,
+                });
+            }
+
+            let resp = QuoteResponse {
+                order_id: order_id,
+                to: "0x188cF0e4020dF6A2B404390D549183FDfDFf70C6".into(),
+                data: "0x".into(),
+                price_wei: price_wei.to_string(),
+                chain_id: 1319,
+            };
+            HttpResponse::Ok().json(resp)
+        }
         Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
     }
 }
@@ -107,4 +138,45 @@ async fn remove_from_cart(data: web::Data<Arc<AppState>>, path: web::Path<String
 #[get("/health")]
 async fn health() -> impl Responder {
     HttpResponse::Ok().json(json!({"status":"ok"}))
+} 
+
+#[derive(Debug, Deserialize)]
+pub struct ConfirmRequest {
+    pub order_id: String,
+    pub tx_hash: String,
+}
+
+#[post("/checkout/confirm")]
+pub async fn confirm_checkout(
+    data: web::Data<Arc<AppState>>,
+    body: web::Json<ConfirmRequest>,
+) -> impl Responder {
+    let mut orders = data.orders.write();
+    if let Some(order) = orders.get_mut(&body.order_id) {
+        order.tx_hash = Some(body.tx_hash.clone());
+        order.status = OrderStatus::PendingConfirm;
+        let state_arc = data.get_ref().clone();
+        spawn_watcher(state_arc, order.order_id.clone(), order.tx_hash.clone().unwrap());
+        HttpResponse::Ok().body("pending_confirm")
+    } else {
+        HttpResponse::NotFound().body("order not found")
+    }
+}
+
+fn spawn_watcher(state: Arc<AppState>, order_id: String, tx_hash: String) {
+    tokio::spawn(async move {
+        let mut attempts = 0;
+        loop {
+            attempts += 1;
+            // TODO: call RPC eth_getTransactionReceipt. For demo we simulate success after 3 attempts
+            if attempts >= 3 {
+                let mut orders = state.orders.write();
+                if let Some(order) = orders.get_mut(&order_id) {
+                    order.status = OrderStatus::Confirmed;
+                }
+                break;
+            }
+            sleep(Duration::from_secs(8)).await;
+        }
+    });
 } 
