@@ -560,6 +560,8 @@ function renderProductCard(product: Product): string {
         `<span class="tag">${tag}</span>`
     ).join('');
 
+    const inStock = /\b(mince|burger)s?/i.test(product.name);
+
     return `
         <div class="product-card" data-product-id="${product.id}">
             <div class="product-image">
@@ -585,10 +587,10 @@ function renderProductCard(product: Product): string {
             </div>
             <div class="product-footer">
                 <div class="price-section">
-                    <span class="price">${product.price.toFixed(2)} ATN</span>
+                    <span class="price">${product.price.toFixed(2)} ANT</span>
                     ${product.category === 'Meat' || product.category === 'Dairy' ? '<span class="price-unit">/ kg</span>' : product.category === 'Produce' && product.name.toLowerCase().includes('dozen') ? '<span class="price-unit">/ dozen</span>' : '<span class="price-unit">/ unit</span>'}
                 </div>
-                ${product.available ? `
+                ${inStock ? `
                 <button class="add-to-cart" 
                         data-product-id="${product.id}" 
                         data-product-name="${product.name}" 
@@ -1028,7 +1030,7 @@ function setupEventListeners() {
                     <tr data-row-id="${i.id}" class="border-b last:border-b-0">
                         <td class="py-2 pr-4">${i.name}</td>
                         <td class="py-2 text-center w-12">${i.quantity}</td>
-                        <td class="py-2 text-right w-24">${lineTotal.toFixed(2)} ATN</td>
+                        <td class="py-2 text-right w-24">${lineTotal.toFixed(2)} ANT</td>
                         <td class="py-2 text-right w-10">
                             <button data-remove-id="${i.id}" class="text-red-600 hover:text-red-800 font-bold">&times;</button>
                         </td>
@@ -1053,7 +1055,7 @@ function setupEventListeners() {
                         <tfoot>
                           <tr>
                             <td colspan="2" class="py-2 text-right font-semibold">Vendor subtotal</td>
-                            <td class="py-2 text-right font-semibold">${subtotal.toFixed(2)} ATN</td>
+                            <td class="py-2 text-right font-semibold">${subtotal.toFixed(2)} ANT</td>
                             <td></td>
                           </tr>
                         </tfoot>
@@ -1071,7 +1073,7 @@ function setupEventListeners() {
                 ${sections.join('') || '<p class="text-center py-8 text-gray-500">Your cart is empty.</p>'}
             </div>
             <div class="wallet-modal-footer gap-3 flex items-center justify-end">
-                <span class="mr-auto font-semibold text-lg">Grand&nbsp;Total:&nbsp;${grandTotal.toFixed(2)} ATN</span>
+                <span class="mr-auto font-semibold text-lg">Grand&nbsp;Total:&nbsp;${grandTotal.toFixed(2)} ANT</span>
                 <button id="cart-checkout-btn" class="px-4 py-2 bg-emerald-600 text-white rounded-md shadow-lg hover:bg-emerald-700 focus:outline-none disabled:opacity-50" ${shoppingCart.length === 0 ? 'disabled' : ''}>${walletService.getActiveWallet() ? 'Checkout' : 'Connect Wallet'}</button>
             </div>`;
 
