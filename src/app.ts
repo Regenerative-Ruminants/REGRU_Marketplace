@@ -1,4 +1,5 @@
 import { walletService } from './walletService'; // IMPORT THE NEW WALLET SERVICE
+import { getAddress } from 'ethers';
 
 // --- Type Definitions (Phase 1 Refactor) ---
 interface Product {
@@ -54,9 +55,14 @@ let shoppingCart: ShoppingCartItem[] = [];
 // --- Wallet Connection Logic ---
 
 async function connectWallet() {
-    // This function is now simplified to call the centralized service.
-    // The service itself will handle UI updates.
-    await walletService.connect();
+    const wallet = await walletService.connect();
+    if (wallet) {
+        const ok = await walletService.ensurePiccadillyNetwork();
+        if (!ok) {
+            // If user declined switching, disconnect so UI resets
+            walletService.disconnect();
+        }
+    }
 }
 
 // updateWalletUI is now handled by walletService.ts and can be removed.
@@ -1108,14 +1114,7 @@ function setupEventListeners() {
                     checkoutBtn.setAttribute('disabled', 'true');
                     checkoutBtn.textContent = 'Processing…';
 
-                    // Ensure correct network
-                    const networkOk = await walletService.ensurePiccadillyNetwork();
-                    if (!networkOk) {
-                        alert('Please switch your wallet to Autonity Piccadilly (chainId 1319) and try again.');
-                        checkoutBtn.textContent = walletService.getActiveWallet() ? 'Checkout' : 'Connect Wallet';
-                        checkoutBtn.removeAttribute('disabled');
-                        return;
-                    }
+                    // At this point walletService.connect() already enforced the required network.
 
                     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
                     // 1. Get quote from backend
@@ -1137,8 +1136,16 @@ function setupEventListeners() {
                     };
 
                     // 2. Send transaction via wallet (ensures network first)
+                    // Ensure destination address is EIP-55 checksum or all-lowercase
+                    const safeChecksum = (addr: string): string => {
+                        try { return getAddress(addr); } catch {}
+                        try { return getAddress(addr.toLowerCase()); } catch {}
+                        return addr.toLowerCase();
+                    };
+                    const dest = safeChecksum(quote.to);
+
                     const txHash = await walletService.sendTransaction({
-                        to: quote.to,
+                        to: dest,
                         data: quote.data,
                         value: quote.price_wei,
                         chainId: quote.chain_id,

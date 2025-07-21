@@ -1902,3 +1902,6 @@ h1, h2, h3, h4, h5, h6, .font-oswald {
         overflow: visible; /* use body scroll, avoid nested scrollbar */
     }
 }
+
+/* prevent flash of desktop connect wallet button */
+#connect-wallet-button { visibility:hidden; }
