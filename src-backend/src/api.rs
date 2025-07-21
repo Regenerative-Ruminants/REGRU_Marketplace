@@ -51,6 +51,24 @@ pub async fn checkout(
     data: web::Data<Arc<AppState>>,
     body: web::Json<CheckoutRequest>,
 ) -> impl Responder {
+    // 1. Validate cart is not empty
+    if body.items.is_empty() {
+        return HttpResponse::BadRequest().body("Cart is empty");
+    }
+
+    // 2. Validate every product ID exists in our catalogue
+    {
+        let products = data.products.read();
+        let missing = body
+            .items
+            .iter()
+            .find(|i| !products.iter().any(|p| p.id == i.product_id));
+
+        if missing.is_some() {
+            return HttpResponse::UnprocessableEntity().body("Unknown product in cart");
+        }
+    }
+
     let cart_lines: Vec<CartLine> = body
         .items
         .iter()
