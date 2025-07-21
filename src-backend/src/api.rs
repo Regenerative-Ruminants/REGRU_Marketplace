@@ -78,63 +78,54 @@ pub async fn checkout(
         })
         .collect();
 
-    match tx_service.quote_total_wei(&cart_lines).await {
-        Ok(price_wei) => {
-            let order_id = Uuid::new_v4().to_string();
-            // persist order in Map
-            {
-                let mut orders = data.orders.write();
-                orders.insert(order_id.clone(), Order {
-                    order_id: order_id.clone(),
-                    cart: body.items.clone(),
-                    price_wei: price_wei.to_string(),
-                    tx_hash: None,
-                    status: OrderStatus::AwaitingPayment,
-                });
-            }
+    // Decide pricing strategy
+    let use_antctl = std::env::var("ANTCTL_ENABLE").unwrap_or_default() == "true";
 
-            let resp = QuoteResponse {
-                order_id: order_id,
-                to: "0x188cF0e4020dF6A2B404390D549183FDfDFf70C6".into(),
-                data: "0x".into(),
-                price_wei: price_wei.to_string(),
-                chain_id: 1319,
-            };
-            HttpResponse::Ok().json(resp)
-        }
-        Err(e) => {
-            // Fallback: compute price using in-memory product list so dev env works without antctl
-            log::warn!("antctl pricing failed: {e:?}. Falling back to local catalogue");
-            let products = data.products.read();
-            let mut total_eth = 0.0_f64;
-            for line in &body.items {
-                if let Some(p) = products.iter().find(|p| p.id == line.product_id) {
-                    total_eth += p.price * line.quantity as f64;
-                }
+    // Helper closure for local calculation
+    let calc_local = || {
+        let products = data.products.read();
+        let mut total_eth = 0.0_f64;
+        for line in &body.items {
+            if let Some(p) = products.iter().find(|p| p.id == line.product_id) {
+                total_eth += p.price * line.quantity as f64;
             }
-            let price_wei = (total_eth * 1e18).round() as u128;
+        }
+        (total_eth * 1e18).round() as u128
+    };
 
-            let order_id = Uuid::new_v4().to_string();
-            {
-                let mut orders = data.orders.write();
-                orders.insert(order_id.clone(), Order {
-                    order_id: order_id.clone(),
-                    cart: body.items.clone(),
-                    price_wei: price_wei.to_string(),
-                    tx_hash: None,
-                    status: OrderStatus::AwaitingPayment,
-                });
+    let price_wei: u128 = if use_antctl {
+        match tx_service.quote_total_wei(&cart_lines).await {
+            Ok(v) => v,
+            Err(e) => {
+                log::warn!("antctl pricing failed: {e:?}. Falling back to local catalogue");
+                calc_local()
             }
-            let resp = QuoteResponse {
-                order_id,
-                to: "0x188cF0e4020dF6A2B404390D549183FDfDFf70C6".into(),
-                data: "0x".into(),
-                price_wei: price_wei.to_string(),
-                chain_id: 1319,
-            };
-            HttpResponse::Ok().json(resp)
         }
+    } else {
+        calc_local()
+    };
+
+    // Persist order
+    let order_id = Uuid::new_v4().to_string();
+    {
+        let mut orders = data.orders.write();
+        orders.insert(order_id.clone(), Order {
+            order_id: order_id.clone(),
+            cart: body.items.clone(),
+            price_wei: price_wei.to_string(),
+            tx_hash: None,
+            status: OrderStatus::AwaitingPayment,
+        });
     }
+
+    let resp = QuoteResponse {
+        order_id,
+        to: "0x188cF0e4020dF6A2B404390D549183FDfDFf70C6".into(),
+        data: "0x".into(),
+        price_wei: price_wei.to_string(),
+        chain_id: 1319,
+    };
+    HttpResponse::Ok().json(resp)
 }
 
 #[post("/cart")]

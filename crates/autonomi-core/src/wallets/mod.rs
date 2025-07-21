@@ -31,10 +31,10 @@ pub fn get_wallets() -> Result<Vec<SerializableWallet>> {
         Ok(secret_key) => {
             if let Ok(network) = network_res {
                 // Happy path: build real wallet
-                let wallet = Wallet::new_from_private_key(network, &secret_key)
-                    .wrap_err("Failed to create wallet from secret key")?;
-                let serializable_wallet = SerializableWallet::from(&wallet);
-                Ok(vec![serializable_wallet])
+            let wallet = Wallet::new_from_private_key(network, &secret_key)
+                .wrap_err("Failed to create wallet from secret key")?;
+            let serializable_wallet = SerializableWallet::from(&wallet);
+            Ok(vec![serializable_wallet])
             } else {
                 // Fallback: offline placeholder wallet (tests/local)
                 let placeholder = SerializableWallet {

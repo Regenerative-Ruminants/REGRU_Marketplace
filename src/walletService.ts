@@ -325,40 +325,42 @@ export const walletService = {
 
     /**
      * Ensure the connected wallet is on Autonity Piccadilly (chainId 1319).
-     * Attempts to switch; if chain is unknown it tries to add it.
+     * Tries to switch first; if the chain isn’t present prompts to add it.
+     * Returns true on success, false on cancel/failure.
      */
     async ensurePiccadillyNetwork(): Promise<boolean> {
         if (!window.ethereum) return false;
-        const desiredChainIdHex = "0x527"; // 1319
+        const desiredChainIdHex = '0x527';           // 1319
         const currentHex = (await window.ethereum.request({ method: 'eth_chainId' })) as string;
         if (currentHex.toLowerCase() === desiredChainIdHex) return true;
 
         try {
+            // 1️⃣ Silent switch if the chain already exists
             await window.ethereum.request({
                 method: 'wallet_switchEthereumChain',
                 params: [{ chainId: desiredChainIdHex }],
             });
             return true;
         } catch (switchErr: any) {
-            // 4902 = unknown chain
+            // 4902 = chain not added yet
             if (switchErr.code === 4902) {
+                alert('MetaMask will now ask to add the Piccadilly (Autonity Testnet) network. Click Approve to continue.');
+                // 2️⃣ Add network with canonical params
                 await window.ethereum.request({
                     method: 'wallet_addEthereumChain',
                     params: [{
                         chainId: desiredChainIdHex,
-                        chainName: 'Autonity Piccadilly',
-                        nativeCurrency: { name: 'ATN', symbol: 'ATN', decimals: 18 },
-                        rpcUrls: ['https://rpc1.piccadilly.autonity.org'],
-                        blockExplorerUrls: ['https://explorer.piccadilly.autonity.org'],
+                        chainName: 'Piccadilly (Autonity Testnet)',
+                        nativeCurrency: { name: 'Autonity', symbol: 'ATN', decimals: 18 },
+                        rpcUrls: ['https://rpc.piccadilly.autonity.org'],
+                        blockExplorerUrls: ['https://explorer.piccadilly.autonity.org']
                     }],
                 });
                 return true;
-            } else {
-                console.error(switchErr);
-                return false;
             }
+            console.error(switchErr);
+            return false;
         }
-        return false;
     },
 };
 
