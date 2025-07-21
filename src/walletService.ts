@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/tauri";
 import { BrowserProvider, JsonRpcSigner } from "ethers";
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers';
+import { AUTONITY_PICCADILLY_TESTNET, ARBITRUM_ONE } from "./networks";
 
 // --- WalletConnect Configuration ---
 
@@ -17,16 +18,30 @@ const metadata = {
 
 // 3. Create modal
 const modal = createWeb3Modal({
-  ethersConfig: defaultConfig({ metadata }),
+  ethersConfig: defaultConfig({ metadata, defaultChainId: AUTONITY_PICCADILLY_TESTNET.chainId }),
   chains: [
     {
-        chainId: 1, // Example: Ethereum Mainnet
+        chainId: ARBITRUM_ONE.chainId,
+        name: ARBITRUM_ONE.name,
+        currency: ARBITRUM_ONE.currency,
+        explorerUrl: ARBITRUM_ONE.explorerUrl,
+        rpcUrl: ARBITRUM_ONE.rpcUrls[0]
+    },
+    {
+        chainId: AUTONITY_PICCADILLY_TESTNET.chainId,
+        name: AUTONITY_PICCADILLY_TESTNET.name,
+        currency: AUTONITY_PICCADILLY_TESTNET.currency,
+        explorerUrl: AUTONITY_PICCADILLY_TESTNET.explorerUrl,
+        rpcUrl: AUTONITY_PICCADILLY_TESTNET.rpcUrls[0]
+    },
+    // Ethereum mainnet is still handy for debugging – keep at end.
+    {
+        chainId: 1,
         name: 'Ethereum',
         currency: 'ETH',
         explorerUrl: 'https://etherscan.io',
-        rpcUrl: 'https://mainnet.infura.io/v3/YOUR_INFURA_ID' // Replace with your RPC URL
-    },
-    // Add other chains as needed
+        rpcUrl: 'https://mainnet.infura.io/v3/YOUR_INFURA_ID'
+    }
   ],
   projectId,
   themeMode: 'light',
@@ -137,6 +152,7 @@ function updateWalletButtonUI() {
         // --- WALLET IS CONNECTED ---
         if (desktopBtn) desktopBtn.classList.add('hidden');
         if (mobileConnectBtn) mobileConnectBtn.classList.add('hidden');
+        if (desktopBtn) desktopBtn.style.visibility = 'visible';
         
         profileBtn.classList.remove('hidden');
         if (profileIcon) profileIcon.className = 'fas fa-link text-lg'; // Change to a "connected" icon
@@ -146,6 +162,7 @@ function updateWalletButtonUI() {
         // --- WALLET IS DISCONNECTED ---
         if (desktopBtn) desktopBtn.classList.remove('hidden');
         if (mobileConnectBtn) mobileConnectBtn.classList.remove('hidden');
+        if (desktopBtn) desktopBtn.style.visibility = 'visible';
 
         // On mobile, hide the "Profile" button and show the dedicated "Connect" button.
         // On desktop, the profile button isn't used for connection, so we just reset it.
@@ -217,6 +234,8 @@ async function connectWalletConnect(): Promise<Wallet | null> {
         if (address) {
             activeWallet = { address };
             availableWallets = [activeWallet]; // WalletConnect modal manages the list of wallets
+            // Ensure correct network for WC sessions (may not support switch, but we check)
+            await walletService.ensurePiccadillyNetwork();
             console.log("Connected via WalletConnect:", activeWallet);
             return activeWallet;
         }
@@ -224,6 +243,172 @@ async function connectWalletConnect(): Promise<Wallet | null> {
     } catch (error) {
         console.error("WalletConnect connection error:", error);
         return null;
+    }
+}
+
+// Utility to wait until the wallet reports the desired chainId
+async function waitForChain(targetHex: string, timeoutMs = 15000): Promise<boolean> {
+    const started = Date.now();
+    while (Date.now() - started < timeoutMs) {
+        const current = await window.ethereum.request({ method: 'eth_chainId' }) as string;
+        if (current.toLowerCase() === targetHex) return true;
+        await new Promise(r => setTimeout(r, 400));
+    }
+    return false;
+}
+// --- Wallet State ---
+
+
+/**
+ * Disconnects the current wallet.
+ */
+function disconnect() {
+    // Also disconnect from WalletConnect if it's active
+    const state = modal.getState();
+    if (state.open) {
+        modal.close();
+    }
+
+    provider = null;
+    signer = null;
+    activeWallet = null;
+    availableWallets = [];
+    updateWalletButtonUI();
+    console.log("Wallet disconnected.");
+}
+
+/**
+ * Sends a transaction using the currently connected wallet signer.
+ * Returns the transaction hash as a string.
+ */
+async function sendTransaction(tx: { to: string; data?: string; value?: string; chainId?: number }): Promise<string> {
+    if (!signer) {
+        throw new Error("Wallet not connected");
+    }
+
+    // Ensure wallet is on the correct network before sending
+    await ensurePiccadillyNetwork();
+
+    const txRequest = {
+        to: tx.to,
+        data: tx.data ?? "0x",
+        value: tx.value ? BigInt(tx.value) : undefined,
+        // Let ethers infer chainId from the signer’s provider to avoid mismatches
+    } as any;
+
+    try {
+        const sentTx = await signer.sendTransaction(txRequest);
+        return sentTx.hash;
+    } catch (err: any) {
+        // If estimation failed due to CALL_EXCEPTION, retry with explicit gasLimit.
+        if (err.code === 'CALL_EXCEPTION' || err.code === 'UNPREDICTABLE_GAS_LIMIT') {
+            console.warn('Gas estimation failed, retrying with manual gasLimit 300000');
+            txRequest.gasLimit = 300000n;
+            const sentTx = await signer.sendTransaction(txRequest);
+            return sentTx.hash;
+        }
+        throw err;
+    }
+}
+
+/** Check if window.ethereum is connected to Piccadilly testnet */
+async function isOnPiccadillyNetwork(): Promise<boolean> {
+    if (!window.ethereum) return false;
+    const chainHex = (await window.ethereum.request({ method: 'eth_chainId' })) as string;
+    return chainHex.toLowerCase() === AUTONITY_PICCADILLY_TESTNET.chainIdHex;
+}
+
+/**
+ * Ensure wallet is on Autonity Piccadilly testnet.
+ */
+async function ensurePiccadillyNetwork(): Promise<boolean> {
+    if (!window.ethereum) return false;
+    const { chainIdHex } = AUTONITY_PICCADILLY_TESTNET;
+    const currentHex = (await window.ethereum.request({ method: 'eth_chainId' })) as string;
+    if (currentHex.toLowerCase() === chainIdHex) return true;
+
+    // Helper to perform switch and wait
+    const attemptSwitch = async (): Promise<boolean> => {
+        try {
+            await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: chainIdHex }],
+            });
+            return await waitForChain(chainIdHex, 20000);
+        } catch (err: any) {
+            return Promise.reject(err);
+        }
+    };
+
+    try {
+        return await attemptSwitch();
+    } catch (switchErr: any) {
+        if (switchErr.code === -32002) {
+            // Request already pending – wait for user decision
+            const waited = await waitForChain(chainIdHex, 20000);
+            return waited;
+        }
+
+        // Unrecognised chain – add then switch
+        if (switchErr.code === 4902) {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: chainIdHex,
+                        chainName: AUTONITY_PICCADILLY_TESTNET.name,
+                        nativeCurrency: { name: 'Auton', symbol: 'ATN', decimals: 18 },
+                        rpcUrls: AUTONITY_PICCADILLY_TESTNET.rpcUrls,
+                        blockExplorerUrls: [AUTONITY_PICCADILLY_TESTNET.explorerUrl]
+                    }],
+                });
+                // MetaMask usually switches automatically after adding; wait for it.
+                const ok = await waitForChain(chainIdHex, 20000);
+                if (ok) return true;
+                // If it didn't switch, prompt once via switch dialog
+                return await attemptSwitch();
+            } catch (addErr) {
+                console.error(addErr);
+            }
+        }
+
+        // Any other error – let chooser decide
+        const choice = await showEnvChoiceModal();
+        if (choice === 'mainnet') return await ensureArbitrumNetwork();
+        return false;
+    }
+}
+
+/** Ensure wallet is on Arbitrum One mainnet. */
+async function ensureArbitrumNetwork(): Promise<boolean> {
+    if (!window.ethereum) return false;
+    const { chainIdHex } = ARBITRUM_ONE;
+    const currentHex = (await window.ethereum.request({ method: 'eth_chainId' })) as string;
+    if (currentHex.toLowerCase() === chainIdHex) return true;
+    try {
+        await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: chainIdHex }],
+        });
+        await waitForChain(chainIdHex);
+        return true;
+    } catch (switchErr: any) {
+        if (switchErr.code === 4902) {
+            await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [{
+                    chainId: chainIdHex,
+                    chainName: ARBITRUM_ONE.name,
+                    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+                    rpcUrls: ARBITRUM_ONE.rpcUrls,
+                    blockExplorerUrls: [ARBITRUM_ONE.explorerUrl]
+                }],
+            });
+            await waitForChain(chainIdHex);
+            return true;
+        }
+        console.error(switchErr);
+        return false;
     }
 }
 
@@ -278,91 +463,89 @@ export const walletService = {
     /**
      * Disconnects the current wallet.
      */
-    disconnect() {
-        // Also disconnect from WalletConnect if it's active
-        const state = modal.getState();
-        if (state.open) {
-            modal.close();
-        }
-
-        provider = null;
-        signer = null;
-        activeWallet = null;
-        availableWallets = [];
-        updateWalletButtonUI();
-        console.log("Wallet disconnected.");
-    },
+    disconnect,
 
     /**
      * Sends a transaction using the currently connected wallet signer.
      * Returns the transaction hash as a string.
      */
-    async sendTransaction(tx: { to: string; data?: string; value?: string; chainId?: number }): Promise<string> {
-        if (!signer) {
-            throw new Error("Wallet not connected");
-        }
+    sendTransaction,
 
-        // Ensure wallet is on the correct network before sending
-        await this.ensurePiccadillyNetwork();
-
-        const txRequest = {
-            to: tx.to,
-            data: tx.data ?? "0x",
-            value: tx.value ? BigInt(tx.value) : undefined,
-            chainId: tx.chainId,
-        } as any;
-
-        const sentTx = await signer.sendTransaction(txRequest);
-        return sentTx.hash;
-    },
-
-    /** Check if window.ethereum is connected to Piccadilly (1319) */
-    async isOnPiccadillyNetwork(): Promise<boolean> {
-        if (!window.ethereum) return false;
-        const chainHex = (await window.ethereum.request({ method: 'eth_chainId' })) as string;
-        return chainHex.toLowerCase() === '0x527';
-    },
+    /** Check if window.ethereum is connected to Piccadilly testnet */
+    isOnPiccadillyNetwork,
 
     /**
-     * Ensure the connected wallet is on Autonity Piccadilly (chainId 1319).
-     * Tries to switch first; if the chain isn’t present prompts to add it.
-     * Returns true on success, false on cancel/failure.
+     * Ensure wallet is on Autonity Piccadilly testnet.
      */
-    async ensurePiccadillyNetwork(): Promise<boolean> {
-        if (!window.ethereum) return false;
-        const desiredChainIdHex = '0x527';           // 1319
-        const currentHex = (await window.ethereum.request({ method: 'eth_chainId' })) as string;
-        if (currentHex.toLowerCase() === desiredChainIdHex) return true;
+    ensurePiccadillyNetwork,
 
-        try {
-            // 1️⃣ Silent switch if the chain already exists
-            await window.ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: desiredChainIdHex }],
-            });
-            return true;
-        } catch (switchErr: any) {
-            // 4902 = chain not added yet
-            if (switchErr.code === 4902) {
-                alert('MetaMask will now ask to add the Piccadilly (Autonity Testnet) network. Click Approve to continue.');
-                // 2️⃣ Add network with canonical params
-                await window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{
-                        chainId: desiredChainIdHex,
-                        chainName: 'Piccadilly (Autonity Testnet)',
-                        nativeCurrency: { name: 'Autonity', symbol: 'ATN', decimals: 18 },
-                        rpcUrls: ['https://rpc.piccadilly.autonity.org'],
-                        blockExplorerUrls: ['https://explorer.piccadilly.autonity.org']
-                    }],
-                });
-                return true;
-            }
-            console.error(switchErr);
-            return false;
-        }
-    },
+    /** Ensure wallet is on Arbitrum One mainnet. */
+    ensureArbitrumNetwork,
 };
+
+/** Simple on-brand modal to ask whether the user wants Testnet or Mainnet (one-click UX). */
+function showEnvChoiceModal(): Promise<'testnet' | 'mainnet' | null> {
+    return new Promise(resolve => {
+        // Avoid duplicating the modal
+        if (document.getElementById('env-choice-modal')) {
+            return resolve(null);
+        }
+        const overlay = document.createElement('div');
+        overlay.id = 'env-choice-modal';
+        overlay.className = 'fixed inset-0 flex items-center justify-center';
+        overlay.style.background = 'rgba(0,0,0,0.5)';
+        overlay.style.backdropFilter = 'blur(6px)';
+        overlay.style.zIndex = '3000';
+
+        const card = document.createElement('div');
+        card.style.background = '#eaeaea';
+        card.style.color = '#333';
+        card.style.borderRadius = '1.5rem';
+        card.style.padding = '2rem';
+        card.style.width = '22rem';
+        card.style.maxWidth = '90vw';
+        card.style.boxShadow = '9px 9px 18px #c8c8c8, -9px -9px 18px #ffffff';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.alignItems = 'center';
+
+        // Subtle entry animation
+        card.animate([
+            { opacity: 0, transform: 'translateY(16px) scale(.95)' },
+            { opacity: 1, transform: 'translateY(0) scale(1)' }
+        ], { duration: 300, easing: 'cubic-bezier(0.23,1,0.32,1)', fill: 'forwards' });
+
+        const title = document.createElement('h2');
+        title.className = 'text-xl font-semibold mb-4 font-display';
+        title.textContent = 'Choose network';
+
+        const subtitle = document.createElement('p');
+        subtitle.className = 'text-sm mb-6 opacity-80';
+        subtitle.textContent = 'Where do you want to run this purchase?';
+
+        const btnTest = document.createElement('button');
+        btnTest.style.cssText = 'width:100%;padding:0.6rem;border-radius:0.75rem;margin-bottom:0.75rem;background:#e0e0e0;transition:background .2s';
+        btnTest.onmouseenter = () => { btnTest.style.background = '#d1d1d1'; };
+        btnTest.onmouseleave = () => { btnTest.style.background = '#e0e0e0'; };
+        btnTest.textContent = 'Testnet (mock ATN)';
+
+        const btnMain = document.createElement('button');
+        btnMain.style.cssText = 'width:100%;padding:0.6rem;border-radius:0.75rem;background:#28a745;color:white;transition:background .2s';
+        btnMain.onmouseenter = () => { btnMain.style.background = '#218838'; };
+        btnMain.onmouseleave = () => { btnMain.style.background = '#28a745'; };
+        btnMain.textContent = 'Mainnet (real ANT)';
+
+        btnTest.onclick = () => { document.body.removeChild(overlay); resolve('testnet'); };
+        btnMain.onclick = () => { document.body.removeChild(overlay); resolve('mainnet'); };
+
+        card.appendChild(title);
+        card.appendChild(subtitle);
+        card.appendChild(btnTest);
+        card.appendChild(btnMain);
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
+    });
+}
 
 // Set initial button state on load
 document.addEventListener('DOMContentLoaded', updateWalletButtonUI);
