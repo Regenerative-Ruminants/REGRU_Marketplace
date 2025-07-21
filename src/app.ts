@@ -1,5 +1,7 @@
 import { walletService } from './walletService'; // IMPORT THE NEW WALLET SERVICE
 import { getAddress } from 'ethers';
+import { Interface } from 'ethers';
+import { DEV_ANT_PICCADILLY, ANT_ARBITRUM } from './tokens';
 
 // --- Type Definitions (Phase 1 Refactor) ---
 interface Product {
@@ -1142,13 +1144,20 @@ function setupEventListeners() {
                         try { return getAddress(addr.toLowerCase()); } catch {}
                         return addr.toLowerCase();
                     };
-                    const dest = safeChecksum(quote.to);
+
+                    const recipient = safeChecksum(quote.to);
+
+                    const chainId = quote.chain_id;
+                    const rawToken = chainId === 65100004 ? DEV_ANT_PICCADILLY : ANT_ARBITRUM;
+                    const token = { ...rawToken, address: getAddress(rawToken.address.toLowerCase()) };
+
+                    const erc20 = new Interface(['function transfer(address to,uint256 value)']);
+                    const dataField = erc20.encodeFunctionData('transfer', [recipient, quote.price_wei]);
 
                     const txHash = await walletService.sendTransaction({
-                        to: dest,
-                        data: quote.data,
-                        value: quote.price_wei,
-                        chainId: quote.chain_id,
+                        to: token.address,
+                        data: dataField,
+                        chainId,
                     });
 
                     // 3. Confirm with backend
