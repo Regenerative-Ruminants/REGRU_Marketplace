@@ -301,6 +301,10 @@ export const walletService = {
         if (!signer) {
             throw new Error("Wallet not connected");
         }
+
+        // Ensure wallet is on the correct network before sending
+        await this.ensurePiccadillyNetwork();
+
         const txRequest = {
             to: tx.to,
             data: tx.data ?? "0x",
@@ -310,6 +314,51 @@ export const walletService = {
 
         const sentTx = await signer.sendTransaction(txRequest);
         return sentTx.hash;
+    },
+
+    /** Check if window.ethereum is connected to Piccadilly (1319) */
+    async isOnPiccadillyNetwork(): Promise<boolean> {
+        if (!window.ethereum) return false;
+        const chainHex = (await window.ethereum.request({ method: 'eth_chainId' })) as string;
+        return chainHex.toLowerCase() === '0x527';
+    },
+
+    /**
+     * Ensure the connected wallet is on Autonity Piccadilly (chainId 1319).
+     * Attempts to switch; if chain is unknown it tries to add it.
+     */
+    async ensurePiccadillyNetwork(): Promise<boolean> {
+        if (!window.ethereum) return false;
+        const desiredChainIdHex = "0x527"; // 1319
+        const currentHex = (await window.ethereum.request({ method: 'eth_chainId' })) as string;
+        if (currentHex.toLowerCase() === desiredChainIdHex) return true;
+
+        try {
+            await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: desiredChainIdHex }],
+            });
+            return true;
+        } catch (switchErr: any) {
+            // 4902 = unknown chain
+            if (switchErr.code === 4902) {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: desiredChainIdHex,
+                        chainName: 'Autonity Piccadilly',
+                        nativeCurrency: { name: 'ATN', symbol: 'ATN', decimals: 18 },
+                        rpcUrls: ['https://rpc1.piccadilly.autonity.org'],
+                        blockExplorerUrls: ['https://explorer.piccadilly.autonity.org'],
+                    }],
+                });
+                return true;
+            } else {
+                console.error(switchErr);
+                return false;
+            }
+        }
+        return false;
     },
 };
 
