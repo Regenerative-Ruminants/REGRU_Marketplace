@@ -323,60 +323,48 @@ async function isOnPiccadillyNetwork(): Promise<boolean> {
  */
 async function ensurePiccadillyNetwork(): Promise<boolean> {
     if (!window.ethereum) return false;
-    const { chainIdHex } = AUTONITY_PICCADILLY_TESTNET;
-    const currentHex = (await window.ethereum.request({ method: 'eth_chainId' })) as string;
-    if (currentHex.toLowerCase() === chainIdHex) return true;
 
-    // Helper to perform switch and wait
-    const attemptSwitch = async (): Promise<boolean> => {
+    const OFFICIAL = AUTONITY_PICCADILLY_TESTNET.chainIdHex; // 0x03e158e4
+    const LEGACY   = '0x527'; // historical Piccadilly
+
+    const current = (await window.ethereum.request({ method: 'eth_chainId' })) as string;
+    if (current.toLowerCase() === OFFICIAL) return true;
+
+    const switchTo = async (hex: string): Promise<boolean> => {
         try {
-            await window.ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: chainIdHex }],
-            });
-            return await waitForChain(chainIdHex, 20000);
-        } catch (err: any) {
-            return Promise.reject(err);
+            await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex }] });
+            return await waitForChain(hex, 20000);
+        } catch (e) {
+            return false;
         }
     };
 
-    try {
-        return await attemptSwitch();
-    } catch (switchErr: any) {
-        if (switchErr.code === -32002) {
-            // Request already pending – wait for user decision
-            const waited = await waitForChain(chainIdHex, 20000);
-            return waited;
-        }
+    // 1️⃣ Attempt official ID first
+    if (await switchTo(OFFICIAL)) return true;
 
-        // Unrecognised chain – add then switch
-        if (switchErr.code === 4902) {
-            try {
-                await window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{
-                        chainId: chainIdHex,
-                        chainName: AUTONITY_PICCADILLY_TESTNET.name,
-                        nativeCurrency: { name: 'Auton', symbol: 'ATN', decimals: 18 },
-                        rpcUrls: AUTONITY_PICCADILLY_TESTNET.rpcUrls,
-                        blockExplorerUrls: [AUTONITY_PICCADILLY_TESTNET.explorerUrl]
-                    }],
-                });
-                // MetaMask usually switches automatically after adding; wait for it.
-                const ok = await waitForChain(chainIdHex, 20000);
-                if (ok) return true;
-                // If it didn't switch, prompt once via switch dialog
-                return await attemptSwitch();
-            } catch (addErr) {
-                console.error(addErr);
-            }
-        }
-
-        // Any other error – let chooser decide
-        const choice = await showEnvChoiceModal();
-        if (choice === 'mainnet') return await ensureArbitrumNetwork();
-        return false;
+    // 2️⃣ Attempt legacy ID
+    if (await switchTo(LEGACY)) {
+        // Prompt MetaMask to update the network with canonical params (updates symbol to ATN)
+        try {
+            await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [{
+                    chainId: OFFICIAL,
+                    chainName: AUTONITY_PICCADILLY_TESTNET.name,
+                    nativeCurrency: { name: 'Auton', symbol: 'ATN', decimals: 18 },
+                    rpcUrls: AUTONITY_PICCADILLY_TESTNET.rpcUrls,
+                    blockExplorerUrls: [AUTONITY_PICCADILLY_TESTNET.explorerUrl]
+                }]
+            });
+            await switchTo(OFFICIAL);
+        } catch {/* user may cancel; stay on legacy */}
+        return true;
     }
+
+    // 3️⃣ Fallback – ask user via chooser
+    const choice = await showEnvChoiceModal();
+    if (choice === 'mainnet') return await ensureArbitrumNetwork();
+    return false;
 }
 
 /** Ensure wallet is on Arbitrum One mainnet. */
@@ -527,7 +515,7 @@ function showEnvChoiceModal(): Promise<'testnet' | 'mainnet' | null> {
         btnTest.style.cssText = 'width:100%;padding:0.6rem;border-radius:0.75rem;margin-bottom:0.75rem;background:#e0e0e0;transition:background .2s';
         btnTest.onmouseenter = () => { btnTest.style.background = '#d1d1d1'; };
         btnTest.onmouseleave = () => { btnTest.style.background = '#e0e0e0'; };
-        btnTest.textContent = 'Testnet (mock ATN)';
+        btnTest.textContent = 'Testnet (mock tANT)';
 
         const btnMain = document.createElement('button');
         btnMain.style.cssText = 'width:100%;padding:0.6rem;border-radius:0.75rem;background:#28a745;color:white;transition:background .2s';
