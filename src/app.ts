@@ -582,13 +582,13 @@ function renderProductCard(product: Product): string {
                     ${product.category === 'Meat' || product.category === 'Dairy' ? '<span class="price-unit">/ kg</span>' : product.category === 'Produce' && product.name.toLowerCase().includes('dozen') ? '<span class="price-unit">/ dozen</span>' : '<span class="price-unit">/ unit</span>'}
                 </div>
                 ${product.available ? `
-                    <button class="add-to-cart" 
-                            data-product-id="${product.id}" 
-                            data-product-name="${product.name}" 
-                            data-product-price="${product.price}" 
-                            data-product-image="${product.image}">
-                        <i class="fas fa-cart-plus"></i> Add to Cart
-                    </button>
+                <button class="add-to-cart" 
+                        data-product-id="${product.id}" 
+                        data-product-name="${product.name}" 
+                        data-product-price="${product.price}" 
+                        data-product-image="${product.image}">
+                    <i class="fas fa-cart-plus"></i> Add to Cart
+                </button>
                 ` : `
                     <button class="add-to-cart" disabled>Out of Stock</button>
                 `}
@@ -1095,8 +1095,12 @@ function setupEventListeners() {
         if (checkoutBtn) {
             checkoutBtn.addEventListener('click', async () => {
                 try {
+                    checkoutBtn.setAttribute('disabled', 'true');
+                    checkoutBtn.textContent = 'Processing…';
+
                     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
-                    const res = await fetch(`${apiBaseUrl}/api/checkout`, {
+                    // 1. Get quote from backend
+                    const quoteRes = await fetch(`${apiBaseUrl}/api/checkout`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -1104,10 +1108,42 @@ function setupEventListeners() {
                             items: shoppingCart.map(i => ({ product_id: i.id, quantity: i.quantity }))
                         })
                     });
-                    const data = await res.json();
-                    alert(`Transaction submitted: ${data.tx_hash}`);
+                    if (!quoteRes.ok) throw new Error(`Quote failed: ${quoteRes.status}`);
+                    const quote = await quoteRes.json() as {
+                        order_id: string;
+                        to: string;
+                        data: string;
+                        price_wei: string;
+                        chain_id: number;
+                    };
+
+                    // 2. Send transaction via wallet
+                    const txHash = await walletService.sendTransaction({
+                        to: quote.to,
+                        data: quote.data,
+                        value: quote.price_wei,
+                        chainId: quote.chain_id,
+                    });
+
+                    // 3. Confirm with backend
+                    const confirmRes = await fetch(`${apiBaseUrl}/api/checkout/confirm`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ order_id: quote.order_id, tx_hash: txHash })
+                    });
+                    if (!confirmRes.ok) throw new Error(`Confirm failed: ${confirmRes.status}`);
+
+                    checkoutBtn.textContent = 'Payment Pending…';
+                    // For demo, watcher auto-confirms. Show success after slight delay
+                    setTimeout(() => {
+                        checkoutBtn.textContent = 'Success ✔';
+                    }, 25000);
                 } catch (err) {
-                    alert('Checkout failed');
+                    console.error(err);
+                    checkoutBtn.textContent = 'Checkout Failed';
+                    alert('Checkout failed: ' + (err as Error).message);
+                } finally {
+                    checkoutBtn.removeAttribute('disabled');
                 }
             });
         }
@@ -1121,7 +1157,7 @@ function setupEventListeners() {
                     // Refresh modal content after mutation
                     openCartModal();
                 }
-            });
+        });
         });
     };
 

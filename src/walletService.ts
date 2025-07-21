@@ -291,7 +291,26 @@ export const walletService = {
         availableWallets = [];
         updateWalletButtonUI();
         console.log("Wallet disconnected.");
-    }
+    },
+
+    /**
+     * Sends a transaction using the currently connected wallet signer.
+     * Returns the transaction hash as a string.
+     */
+    async sendTransaction(tx: { to: string; data?: string; value?: string; chainId?: number }): Promise<string> {
+        if (!signer) {
+            throw new Error("Wallet not connected");
+        }
+        const txRequest = {
+            to: tx.to,
+            data: tx.data ?? "0x",
+            value: tx.value ? BigInt(tx.value) : undefined,
+            chainId: tx.chainId,
+        } as any;
+
+        const sentTx = await signer.sendTransaction(txRequest);
+        return sentTx.hash;
+    },
 };
 
 // Set initial button state on load
