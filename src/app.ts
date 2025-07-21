@@ -57,7 +57,6 @@ async function connectWallet() {
     // This function is now simplified to call the centralized service.
     // The service itself will handle UI updates.
     await walletService.connect();
-    openWalletsModal(); // Open modal to show connection status or allow connection.
 }
 
 // updateWalletUI is now handled by walletService.ts and can be removed.
@@ -578,17 +577,17 @@ function renderProductCard(product: Product): string {
             </div>
             <div class="product-footer">
                 <div class="price-section">
-                    <span class="price">£${product.price.toFixed(2)}</span>
+                    <span class="price">${product.price.toFixed(2)} ATN</span>
                     ${product.category === 'Meat' || product.category === 'Dairy' ? '<span class="price-unit">/ kg</span>' : product.category === 'Produce' && product.name.toLowerCase().includes('dozen') ? '<span class="price-unit">/ dozen</span>' : '<span class="price-unit">/ unit</span>'}
                 </div>
                 ${product.available ? `
-                    <button class="add-to-cart" 
-                            data-product-id="${product.id}" 
-                            data-product-name="${product.name}" 
-                            data-product-price="${product.price}" 
-                            data-product-image="${product.image}">
-                        <i class="fas fa-cart-plus"></i> Add to Cart
-                    </button>
+                <button class="add-to-cart" 
+                        data-product-id="${product.id}" 
+                        data-product-name="${product.name}" 
+                        data-product-price="${product.price}" 
+                        data-product-image="${product.image}">
+                    <i class="fas fa-cart-plus"></i> Add to Cart
+                </button>
                 ` : `
                     <button class="add-to-cart" disabled>Out of Stock</button>
                 `}
@@ -1021,7 +1020,7 @@ function setupEventListeners() {
                     <tr data-row-id="${i.id}" class="border-b last:border-b-0">
                         <td class="py-2 pr-4">${i.name}</td>
                         <td class="py-2 text-center w-12">${i.quantity}</td>
-                        <td class="py-2 text-right w-24">£${lineTotal.toFixed(2)}</td>
+                        <td class="py-2 text-right w-24">${lineTotal.toFixed(2)} ATN</td>
                         <td class="py-2 text-right w-10">
                             <button data-remove-id="${i.id}" class="text-red-600 hover:text-red-800 font-bold">&times;</button>
                         </td>
@@ -1046,7 +1045,7 @@ function setupEventListeners() {
                         <tfoot>
                           <tr>
                             <td colspan="2" class="py-2 text-right font-semibold">Vendor subtotal</td>
-                            <td class="py-2 text-right font-semibold">£${subtotal.toFixed(2)}</td>
+                            <td class="py-2 text-right font-semibold">${subtotal.toFixed(2)} ATN</td>
                             <td></td>
                           </tr>
                         </tfoot>
@@ -1064,8 +1063,8 @@ function setupEventListeners() {
                 ${sections.join('') || '<p class="text-center py-8 text-gray-500">Your cart is empty.</p>'}
             </div>
             <div class="wallet-modal-footer gap-3 flex items-center justify-end">
-                <span class="mr-auto font-semibold text-lg">Grand&nbsp;Total:&nbsp;£${grandTotal.toFixed(2)}</span>
-                <button id="cart-checkout-btn" class="px-4 py-2 bg-emerald-600 text-white rounded-md shadow-lg hover:bg-emerald-700 focus:outline-none disabled:opacity-50" ${shoppingCart.length === 0 ? 'disabled' : ''}>Checkout</button>
+                <span class="mr-auto font-semibold text-lg">Grand&nbsp;Total:&nbsp;${grandTotal.toFixed(2)} ATN</span>
+                <button id="cart-checkout-btn" class="px-4 py-2 bg-emerald-600 text-white rounded-md shadow-lg hover:bg-emerald-700 focus:outline-none disabled:opacity-50" ${shoppingCart.length === 0 ? 'disabled' : ''}>${walletService.getActiveWallet() ? 'Checkout' : 'Connect Wallet'}</button>
             </div>`;
 
         // Make modal visible
@@ -1093,10 +1092,34 @@ function setupEventListeners() {
         // Checkout
         const checkoutBtn = document.getElementById('cart-checkout-btn');
         if (checkoutBtn) {
+            // Button remains enabled; click will open wallet modal when needed
             checkoutBtn.addEventListener('click', async () => {
+                if (!walletService.getActiveWallet()) {
+                    // Trigger wallet connection flow
+                    await connectWallet();
+                    // After modal, if wallet still not connected, abort
+                    if (!walletService.getActiveWallet()) {
+                        checkoutBtn.textContent = 'Connect Wallet';
+                        checkoutBtn.removeAttribute('disabled');
+                        return;
+                    }
+                }
                 try {
+                    checkoutBtn.setAttribute('disabled', 'true');
+                    checkoutBtn.textContent = 'Processing…';
+
+                    // Ensure correct network
+                    const networkOk = await walletService.ensurePiccadillyNetwork();
+                    if (!networkOk) {
+                        alert('Please switch your wallet to Autonity Piccadilly (chainId 1319) and try again.');
+                        checkoutBtn.textContent = walletService.getActiveWallet() ? 'Checkout' : 'Connect Wallet';
+                        checkoutBtn.removeAttribute('disabled');
+                        return;
+                    }
+
                     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
-                    const res = await fetch(`${apiBaseUrl}/api/checkout`, {
+                    // 1. Get quote from backend
+                    const quoteRes = await fetch(`${apiBaseUrl}/api/checkout`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -1104,10 +1127,42 @@ function setupEventListeners() {
                             items: shoppingCart.map(i => ({ product_id: i.id, quantity: i.quantity }))
                         })
                     });
-                    const data = await res.json();
-                    alert(`Transaction submitted: ${data.tx_hash}`);
+                    if (!quoteRes.ok) throw new Error(`Quote failed: ${quoteRes.status}`);
+                    const quote = await quoteRes.json() as {
+                        order_id: string;
+                        to: string;
+                        data: string;
+                        price_wei: string;
+                        chain_id: number;
+                    };
+
+                    // 2. Send transaction via wallet (ensures network first)
+                    const txHash = await walletService.sendTransaction({
+                        to: quote.to,
+                        data: quote.data,
+                        value: quote.price_wei,
+                        chainId: quote.chain_id,
+                    });
+
+                    // 3. Confirm with backend
+                    const confirmRes = await fetch(`${apiBaseUrl}/api/checkout/confirm`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ order_id: quote.order_id, tx_hash: txHash })
+                    });
+                    if (!confirmRes.ok) throw new Error(`Confirm failed: ${confirmRes.status}`);
+
+                    checkoutBtn.textContent = 'Payment Pending…';
+                    // For demo, watcher auto-confirms. Show success after slight delay
+                    setTimeout(() => {
+                        checkoutBtn.textContent = 'Success ✔';
+                    }, 25000);
                 } catch (err) {
-                    alert('Checkout failed');
+                    console.error(err);
+                    checkoutBtn.textContent = 'Checkout Failed';
+                    alert('Checkout failed: ' + (err as Error).message);
+                } finally {
+                    checkoutBtn.removeAttribute('disabled');
                 }
             });
         }
@@ -1121,7 +1176,7 @@ function setupEventListeners() {
                     // Refresh modal content after mutation
                     openCartModal();
                 }
-            });
+        });
         });
     };
 

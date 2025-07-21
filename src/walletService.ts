@@ -291,7 +291,77 @@ export const walletService = {
         availableWallets = [];
         updateWalletButtonUI();
         console.log("Wallet disconnected.");
-    }
+    },
+
+    /**
+     * Sends a transaction using the currently connected wallet signer.
+     * Returns the transaction hash as a string.
+     */
+    async sendTransaction(tx: { to: string; data?: string; value?: string; chainId?: number }): Promise<string> {
+        if (!signer) {
+            throw new Error("Wallet not connected");
+        }
+
+        // Ensure wallet is on the correct network before sending
+        await this.ensurePiccadillyNetwork();
+
+        const txRequest = {
+            to: tx.to,
+            data: tx.data ?? "0x",
+            value: tx.value ? BigInt(tx.value) : undefined,
+            chainId: tx.chainId,
+        } as any;
+
+        const sentTx = await signer.sendTransaction(txRequest);
+        return sentTx.hash;
+    },
+
+    /** Check if window.ethereum is connected to Piccadilly (1319) */
+    async isOnPiccadillyNetwork(): Promise<boolean> {
+        if (!window.ethereum) return false;
+        const chainHex = (await window.ethereum.request({ method: 'eth_chainId' })) as string;
+        return chainHex.toLowerCase() === '0x527';
+    },
+
+    /**
+     * Ensure the connected wallet is on Autonity Piccadilly (chainId 1319).
+     * Tries to switch first; if the chain isn’t present prompts to add it.
+     * Returns true on success, false on cancel/failure.
+     */
+    async ensurePiccadillyNetwork(): Promise<boolean> {
+        if (!window.ethereum) return false;
+        const desiredChainIdHex = '0x527';           // 1319
+        const currentHex = (await window.ethereum.request({ method: 'eth_chainId' })) as string;
+        if (currentHex.toLowerCase() === desiredChainIdHex) return true;
+
+        try {
+            // 1️⃣ Silent switch if the chain already exists
+            await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: desiredChainIdHex }],
+            });
+            return true;
+        } catch (switchErr: any) {
+            // 4902 = chain not added yet
+            if (switchErr.code === 4902) {
+                alert('MetaMask will now ask to add the Piccadilly (Autonity Testnet) network. Click Approve to continue.');
+                // 2️⃣ Add network with canonical params
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: desiredChainIdHex,
+                        chainName: 'Piccadilly (Autonity Testnet)',
+                        nativeCurrency: { name: 'Autonity', symbol: 'ATN', decimals: 18 },
+                        rpcUrls: ['https://rpc.piccadilly.autonity.org'],
+                        blockExplorerUrls: ['https://explorer.piccadilly.autonity.org']
+                    }],
+                });
+                return true;
+            }
+            console.error(switchErr);
+            return false;
+        }
+    },
 };
 
 // Set initial button state on load
