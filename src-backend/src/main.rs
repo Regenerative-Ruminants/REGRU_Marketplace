@@ -216,6 +216,7 @@ async fn main() -> std::io::Result<()> {
                     .service(api::remove_from_cart)
                     .service(api::get_wallets)
                     .service(api::checkout)
+                    .service(api::confirm_checkout)
                     .service(api::health)
             )
             .service(actix_files::Files::new("/", "./dist").index_file("index.html"))

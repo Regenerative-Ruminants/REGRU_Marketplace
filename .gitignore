@@ -36,3 +36,5 @@ src-tauri/tauri.conf.json # Often machine-specific or generated, can be versione
 
 # Ignore the temporary repository directory
 temp_repo/ 
+# CLI release binaries
+/bin/ 
