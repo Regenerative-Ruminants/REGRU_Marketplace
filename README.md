@@ -147,6 +147,17 @@ To run the application locally, you will need to run the frontend and backend se
     ```
     The frontend will be available at `http://localhost:1420`. The Vite development server is configured with a proxy, so any requests to `/api` will be automatically forwarded to the backend server running on port 8000.
 
+## Order details & email
+Backend now persists delivery info in SQLite and optionally emails receipts via SendGrid.
+
+Set the following additional environment variables when running `src-backend`:
+```
+ORDER_DB_PATH=./orders.db               # or any writable path
+SENDGRID_API_KEY=...                    # mail send key
+SENDGRID_SENDER=orders@yourdomain.com
+```
+Refer to `docs/BACKEND_ORDER_FLOW.md` for full API details.
+
 ## 3. Deployment & Infrastructure
 
 The application is deployed automatically to a DigitalOcean Droplet via a GitHub Actions CI/CD pipeline.
