@@ -1,4 +1,4 @@
-use actix_web::{get, post, put, delete, web, HttpResponse, Responder};
+use actix_web::{get, post, put, delete, web, HttpResponse, Responder, HttpRequest};
 use std::sync::Arc;
 use chrono::Utc;
 use serde_json::json;
@@ -11,6 +11,7 @@ use crate::models::{Order, OrderStatus};
 use tokio::time::{sleep, Duration};
 
 use uuid::Uuid;
+use crate::db::{upsert_details, get_details};
 
 #[get("/products")]
 async fn get_products(data: web::Data<Arc<AppState>>) -> impl Responder {
@@ -219,4 +220,75 @@ fn spawn_watcher(state: Arc<AppState>, order_id: String, tx_hash: String) {
             sleep(Duration::from_secs(8)).await;
         }
     });
+} 
+
+#[derive(Debug, Deserialize)]
+pub struct OrderDetailsRequest {
+    pub email: String,
+    pub name: String,
+    pub address: String,
+}
+
+#[post("/order/{order_id}/details")]
+pub async fn add_order_details(
+    req: HttpRequest,
+    data: web::Data<Arc<AppState>>,
+    path: web::Path<String>,
+    body: web::Json<OrderDetailsRequest>,
+) -> impl Responder {
+    let order_id = path.into_inner();
+    // ensure order exists
+    {
+        let orders = data.orders.read();
+        if !orders.contains_key(&order_id) {
+            return HttpResponse::NotFound().body("order not found");
+        }
+    }
+    let db_path = std::env::var("ORDER_DB_PATH").unwrap_or_else(|_| "./orders.db".into());
+    if let Err(e) = upsert_details(&db_path, &order_id, &body.email, &body.name, &body.address) {
+        log::error!("DB error: {e}");
+        return HttpResponse::InternalServerError().body("db error");
+    }
+    // send email (best-effort)
+    if let (Ok(api_key), Ok(sender)) = (
+        std::env::var("SENDGRID_API_KEY"),
+        std::env::var("SENDGRID_SENDER"),
+    ) {
+        tokio::spawn(send_receipt_email(api_key, sender, order_id.clone(), body.email.clone()));
+    }
+    HttpResponse::Ok().body("saved")
+}
+
+#[get("/order/{order_id}")]
+pub async fn get_order_full(
+    data: web::Data<Arc<AppState>>,
+    path: web::Path<String>,
+) -> impl Responder {
+    let order_id = path.into_inner();
+    let db_path = std::env::var("ORDER_DB_PATH").unwrap_or_else(|_| "./orders.db".into());
+    let details = get_details(&db_path, &order_id).ok().flatten();
+    let orders = data.orders.read();
+    if let Some(order) = orders.get(&order_id) {
+        HttpResponse::Ok().json(json!({"order": order, "details": details}))
+    } else {
+        HttpResponse::NotFound().body("order not found")
+    }
+}
+
+async fn send_receipt_email(api_key: String, sender: String, order_id: String, recipient: String) {
+    let client = reqwest::Client::new();
+    let body = json!({
+        "personalizations": [{ "to": [{"email": recipient}], "subject": "Your REGRU receipt" }],
+        "from": {"email": sender},
+        "content": [{
+            "type": "text/plain",
+            "value": format!("Thank you for your purchase! Your order id is {order_id}.")
+        }]
+    });
+    let _ = client
+        .post("https://api.sendgrid.com/v3/mail/send")
+        .bearer_auth(api_key)
+        .json(&body)
+        .send()
+        .await;
 } 

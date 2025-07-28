@@ -1,0 +1,10 @@
+[
+  {
+    "uuid": "a5bde979-c6ac-4df2-af35-5831615f97fe",
+    "name": "Product 1",
+    "description": "Product 1 description",
+    "price": { "currency": "ANT", "amount": 30 },
+    "image_address": "02c18b8fdff82f4cb405ff43eab4a494a8a4092d7647c1ebfaffdb90cf5c1e98",
+    "tags": ["Tag 1"]
+  }
+] 

@@ -1,6 +1,7 @@
 mod api;
 mod models;
 mod transaction_service;
+mod db;
 
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer, middleware};
@@ -195,6 +196,9 @@ async fn main() -> std::io::Result<()> {
 
     log::info!("Starting server at http://{}", addr);
 
+    let db_path = std::env::var("ORDER_DB_PATH").unwrap_or_else(|_| "./orders.db".into());
+    db::init_db(&db_path).expect("DB init failed");
+
     HttpServer::new(move || {
         let cors = Cors::default()
             .allowed_origin("http://localhost:1420")
@@ -218,6 +222,8 @@ async fn main() -> std::io::Result<()> {
                     .service(api::checkout)
                     .service(api::confirm_checkout)
                     .service(api::health)
+                    .service(api::add_order_details)
+                    .service(api::get_order_full)
             )
             .service(actix_files::Files::new("/", "./dist").index_file("index.html"))
 

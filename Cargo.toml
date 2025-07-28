@@ -4,6 +4,7 @@ members = [
     "src-backend",
     "src-tauri",
     ".cargo/bin",
+    "cli",
 ]
 
 resolver = "2" # Specifies to use the version 2 feature resolver

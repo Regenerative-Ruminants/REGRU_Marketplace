@@ -38,3 +38,6 @@ src-tauri/tauri.conf.json # Often machine-specific or generated, can be versione
 temp_repo/ 
 # CLI release binaries
 /bin/ 
+
+# SQLite runtime DB
+/orders.db 
