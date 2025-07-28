@@ -2,16 +2,18 @@ param(
   [string]$Api = "http://127.0.0.1:8000"
 )
 
+Set-Location $PSScriptRoot
+
 Write-Host "Posting checkout …"
-$quote = curl.exe -s -X POST "$Api/api/checkout" -H "Content-Type: application/json" --data-binary "@checkout.json" | ConvertFrom-Json
+$body = Get-Content ./checkout.json -Raw
+$quote = Invoke-RestMethod -Method Post -Uri "$Api/api/checkout" -ContentType 'application/json' -Body $body
 $quote | Format-List
+if (-not $quote.order_id) { Write-Error 'quote failed'; exit 1 }
 
-if (-not $quote.order_id) { Write-Error "quote failed"; exit 1 }
-
-$oid = $quote.order_id
-Write-Host "Posting details for order $oid …"
-$detUrl = "$Api/api/order/$oid/details"
-curl.exe -s -X POST $detUrl -H "Content-Type: application/json" --data-binary "@details.json"
+$orderId = $quote.order_id
+Write-Host "Posting details for order $orderId …"
+$detailsBody = (Get-Content ./details.json -Raw).Replace('<ORDER_ID>', $orderId)
+Invoke-RestMethod -Method Post -Uri "$Api/api/order/$orderId/details" -ContentType 'application/json' -Body $detailsBody | Write-Host
 
 Write-Host "Fetching full order …"
-curl.exe -s "$Api/api/order/$oid" | ConvertFrom-Json | Format-List 
+Invoke-RestMethod -Uri "$Api/api/order/$orderId" | ConvertTo-Json -Depth 6 | Write-Host 
