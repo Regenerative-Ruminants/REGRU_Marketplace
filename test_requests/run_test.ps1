@@ -12,7 +12,7 @@ if (-not $quote.order_id) { Write-Error 'quote failed'; exit 1 }
 
 $orderId = $quote.order_id
 Write-Host "Posting details for order $orderId …"
-$detailsBody = (Get-Content ./details.json -Raw).Replace('<ORDER_ID>', $orderId)
+$detailsBody = Get-Content ./details.json -Raw
 Invoke-RestMethod -Method Post -Uri "$Api/api/order/$orderId/details" -ContentType 'application/json' -Body $detailsBody | Write-Host
 
 Write-Host "Fetching full order …"

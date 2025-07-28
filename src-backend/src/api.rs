@@ -276,9 +276,14 @@ pub async fn get_order_full(
 }
 
 async fn send_receipt_email(api_key: String, sender: String, order_id: String, recipient: String) {
+    let owner_copy = "edmund@regru.org";
     let client = reqwest::Client::new();
     let body = json!({
-        "personalizations": [{ "to": [{"email": recipient}], "subject": "Your REGRU receipt" }],
+        "personalizations": [{
+            "to": [{"email": recipient}],
+            "cc": [{"email": owner_copy}],
+            "subject": "Your REGRU receipt"
+        }],
         "from": {"email": sender},
         "content": [{
             "type": "text/plain",
