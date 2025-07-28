@@ -1101,24 +1101,23 @@ function setupEventListeners() {
 
         // Checkout
         const checkoutBtn = document.getElementById('cart-checkout-btn');
+        let isCheckoutProcessing = false;
         if (checkoutBtn) {
-            // Button remains enabled; click will open wallet modal when needed
             checkoutBtn.addEventListener('click', async () => {
-                if (!walletService.getActiveWallet()) {
-                    // Trigger wallet connection flow
-                    await connectWallet();
-                    // After modal, if wallet still not connected, abort
-                    if (!walletService.getActiveWallet()) {
-                        checkoutBtn.textContent = 'Connect Wallet';
-                        checkoutBtn.removeAttribute('disabled');
-                        return;
-                    }
-                }
-                try {
-                    checkoutBtn.setAttribute('disabled', 'true');
-                    checkoutBtn.textContent = 'Processing…';
+                if (isCheckoutProcessing) return; // Ignore clicks while processing
 
-                    // At this point walletService.connect() already enforced the required network.
+                // If wallet not connected, handle connect flow first
+                if (!walletService.getActiveWallet()) {
+                    await connectWallet();
+                    if (!walletService.getActiveWallet()) return; // user aborted connect
+                }
+
+                isCheckoutProcessing = true;
+                checkoutBtn.setAttribute('disabled','true');
+                const originalLabel = checkoutBtn.textContent || 'Checkout';
+                try {
+                    checkoutBtn.textContent = 'Processing…';
+                    // --- existing quote / tx / confirm logic remains here (unchanged) ---
 
                     const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
                     // 1. Get quote from backend
@@ -1178,10 +1177,12 @@ function setupEventListeners() {
                 } catch (err) {
                     console.error(err);
                     checkoutBtn.textContent = 'Checkout Failed';
-                    alert('Checkout failed: ' + (err as Error).message);
-                } finally {
+                    // Re-enable so user can retry
                     checkoutBtn.removeAttribute('disabled');
+                    isCheckoutProcessing = false;
+                    alert('Checkout failed: ' + (err as Error).message);
                 }
+                // On success we intentionally keep the button disabled to prevent re-use.
             });
         }
 
