@@ -1114,7 +1114,6 @@ function setupEventListeners() {
 
                 isCheckoutProcessing = true;
                 checkoutBtn.setAttribute('disabled','true');
-                const originalLabel = checkoutBtn.textContent || 'Checkout';
                 try {
                     checkoutBtn.textContent = 'Processing…';
                     // --- existing quote / tx / confirm logic remains here (unchanged) ---
