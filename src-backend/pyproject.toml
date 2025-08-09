@@ -1,0 +1,19 @@
+[project]
+name = "src-backend"
+version = "0.1.0"
+description = "REGRU Marketplace API"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django>=5.2.5",
+    "psycopg2-binary>=2.9.10",
+    "pydantic-settings>=2.10.1",
+    "uvicorn>=0.35.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "ruff>=0.12.9",
+    "ty>=0.0.1a18",
+]

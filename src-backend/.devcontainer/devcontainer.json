@@ -1,0 +1,13 @@
+{
+  "name": "uv & Postgresql & Autonomi",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "remoteUser": "developer",
+  "forwardPorts": [8000],
+  "customizations": {
+    "jetbrains": {
+      "backend": "PyCharm"
+    }
+  }
+}
