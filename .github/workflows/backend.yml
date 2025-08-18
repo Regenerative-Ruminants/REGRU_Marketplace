@@ -1,0 +1,19 @@
+name: Backend Workflow
+
+on:
+  push:
+    paths:
+      - "src-backend/**"
+    branches:
+      # run on any branch, excludes running for tags
+      - '**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
