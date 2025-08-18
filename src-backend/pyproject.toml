@@ -13,7 +13,70 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "mypy>=1.17.1",
     "pytest>=8.4.1",
     "ruff>=0.12.9",
-    "ty>=0.0.1a18",
 ]
+
+
+[tool.ruff]
+target-version = "py311"
+ignore = []
+line-length = 88
+
+#
+# Linting config
+[tool.ruff.lint]
+
+select = [
+    "E", # pycodestyle
+    "F", # Pyflakes
+    "W", # pycodestyle warnings
+    "I", # isort
+    "COM812",  # missing-trailing-comma (flake8-commas)
+    "COM818",  # trailing-comma-on-bare-tuple (flake8-commas)
+    "ARG",  # flake8-unused-arguments
+    "C90", # mccabe (complexity analyser)
+]
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+typing-modules = [
+    "pydantic.typing",
+]
+
+[tool.ruff.lint.flake8-unused-arguments]
+ignore-variadic-names = true
+
+[tool.ruff.lint.isort]
+no-lines-before = ["local-folder"]
+known-third-party = [
+    "redis",
+    "kinesis",
+    "airflow",
+    "fastapi",
+]
+known-first-party = [
+    "pp",
+    "ppds",
+    "ppdspy",
+    "test",
+]
+# default, explicit as the false option would conflict with the ruff formatter comma
+split-on-trailing-comma = true
+combine-as-imports = true
+force-wrap-aliases = true
+
+#
+# Formatting config
+[tool.ruff.format]
+quote-style = "double"
+# don't auto-fold args onto a single line (if they would fit based on line length) if
+# a trailing comma is already there. Unfortunately, ruff doesn't allow us to enforce
+# one arg per line, so this is the second best thing
+skip-magic-trailing-comma = false
+
+# Mypy config
+[tool.mypy]
+disallow_untyped_defs = true
+ignore_missing_imports = true

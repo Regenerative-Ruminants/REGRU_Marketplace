@@ -1,0 +1,9 @@
+services:
+  unit-tests:
+    build:
+      context: .
+      target: test
+    volumes:
+      - ./regru-api:/app/regru-api
+      - ./test:/app/test
+    command: ["pytest"]

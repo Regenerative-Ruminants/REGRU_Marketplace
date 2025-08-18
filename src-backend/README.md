@@ -23,6 +23,8 @@ ant wallet balance
 ### Tooling
 - uv
 - docker
+- devcontainer (CLI)
+- just
 
 
 ### Migrate Database
@@ -55,7 +57,7 @@ Pydantic settings - see `AppConfiguration`
 
 # Application Tech Stack
 
-- Django ASGI application (daphne server)
+- Django ASGI application (uvicorn server)
 - Postgresql
 - Autonomi
 

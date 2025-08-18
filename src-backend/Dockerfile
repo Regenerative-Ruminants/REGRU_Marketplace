@@ -9,18 +9,29 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+EXPOSE 8000
+
 COPY pyproject.toml .
 COPY uv.lock .
-
-RUN uv sync
-
-# Copy the project into the image
-COPY . .
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PATH=/root/.local/bin:$PATH
 
-EXPOSE 8000
+FROM base AS test
+
+RUN uv sync --frozen --no-cache
+
+# Copy the project into the image
+COPY . .
+
+CMD ["pytest"]
+
+FROM base AS prod
+
+RUN uv sync --frozen --no-cache --no-dev
+
+# Copy the project into the image
+COPY . .
 
 WORKDIR /app/regru-api
 

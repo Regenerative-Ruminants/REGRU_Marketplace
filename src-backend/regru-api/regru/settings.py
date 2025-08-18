@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+
 from .configuration import AppConfiguration
 
-config = AppConfiguration()
+config = AppConfiguration()  # type: ignore[call-arg]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +29,7 @@ SECRET_KEY = config.secret_key.get_secret_value()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config.environment == "local"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS: list[str] = []
 
 
 # Application definition
@@ -82,7 +83,7 @@ DATABASES = {
         "PASSWORD": config.database.password.get_secret_value(),
         "HOST": config.database.host,
         "PORT": config.database.port,
-    }
+    },
 }
 
 
@@ -91,7 +92,9 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+        ),
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",

@@ -5,4 +5,4 @@ GIT_REV=$(git rev-parse --short=8 HEAD)
 BUILD_VERSION="$APP_VERSION-$GIT_REV"
 echo "Building version: $BUILD_VERSION"
 
-docker build -t "regru-api:$BUILD_VERSION" .
+docker build --target prod -t "regru-api:$BUILD_VERSION" .

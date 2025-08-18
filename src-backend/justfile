@@ -1,0 +1,32 @@
+default:
+  @just --list
+
+# Build the test container
+build:
+    docker compose -f compose.unit-tests.yml build
+
+# (Re)build and run ruff
+lint-check: build
+    docker compose -f compose.unit-tests.yml run --rm unit-tests ruff check /app/ --no-fix
+    docker compose -f compose.unit-tests.yml run --rm unit-tests ruff format /app/ --check
+    docker compose -f compose.unit-tests.yml run --rm unit-tests mypy /app/
+
+# (Re)build and run ruff automatic fixes (run formatter twice, before and after linter)
+lint-fix: build
+    docker compose -f compose.unit-tests.yml run --rm unit-tests ruff format /app/
+    docker compose -f compose.unit-tests.yml run --rm unit-tests ruff check /app/ --fix
+    @echo "Re-running the formatter..."
+    docker compose -f compose.unit-tests.yml run --rm unit-tests ruff format /app/
+
+# (Re)build and run unit tests
+unit-tests: build
+    docker compose -f compose.unit-tests.yml run --rm unit-tests
+
+integration-tests:
+    @echo "Not yet implemented"
+
+# Run unit tests, integration tests, and linting
+all-tests:
+    just unit-tests
+    just integration-tests
+    just lint-check
