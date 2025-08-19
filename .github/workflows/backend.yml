@@ -17,3 +17,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - uses: extractions/setup-just@v3
+
+      - name: Build container
+        run: just build
+
+      - name: Run lint
+        run: just lint-check
+
+      - name: Unit tests
+        run: just unit-tests
