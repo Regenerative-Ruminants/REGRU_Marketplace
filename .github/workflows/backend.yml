@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "src-backend/**"
+      - ".github/workflows/backend.yml"
     branches:
       # run on any branch, excludes running for tags
       - '**'
