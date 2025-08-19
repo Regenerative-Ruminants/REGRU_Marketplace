@@ -1,3 +1,4 @@
+# List all recipes
 default:
   @just --list
 
@@ -6,12 +7,14 @@ build:
     docker compose -f compose.unit-tests.yml build
 
 # (Re)build and run ruff
+[group('test')]
 lint-check: build
     docker compose -f compose.unit-tests.yml run --rm unit-tests ruff check /app/ --no-fix
     docker compose -f compose.unit-tests.yml run --rm unit-tests ruff format /app/ --check
     docker compose -f compose.unit-tests.yml run --rm unit-tests mypy /app/
 
 # (Re)build and run ruff automatic fixes (run formatter twice, before and after linter)
+[group('test')]
 lint-fix: build
     docker compose -f compose.unit-tests.yml run --rm unit-tests ruff format /app/
     docker compose -f compose.unit-tests.yml run --rm unit-tests ruff check /app/ --fix
@@ -19,13 +22,17 @@ lint-fix: build
     docker compose -f compose.unit-tests.yml run --rm unit-tests ruff format /app/
 
 # (Re)build and run unit tests
+[group('test')]
 unit-tests: build
     docker compose -f compose.unit-tests.yml run --rm unit-tests
 
+# (Re)build and run integration tests
+[group('test')]
 integration-tests:
     @echo "Not yet implemented"
 
 # Run unit tests, integration tests, and linting
+[group('test')]
 all-tests:
     just unit-tests
     just integration-tests

@@ -13,25 +13,31 @@ The dev container comes with the Autonomi CLI installed, and is pre-configured t
 ant wallet balance
 ```
 
+### Host dev requirements
+- uv
+- docker
+- just
+
 ### Quick Start
+
+`just` is the project command runner.
+
+The default command will list all available commands:
+
+```bash
+just
+
+
+```
 
 - Use IDE to start the project dev container
 - Connect to the dev container via IDE integrated terminal.
 - Run: `uv sync`
 
-
-### Tooling
-- uv
-- docker
-- devcontainer (CLI)
-- just
-
-
 ### Migrate Database
 - `cd regru-api`
 - `uv run manage.py makemigrations`
 - `uv run manage.py migrate`
-
 
 ### Run Development Server
 - `cd regru-api`
