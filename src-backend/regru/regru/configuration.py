@@ -18,6 +18,7 @@ class AppConfiguration(BaseSettings):
         case_sensitive=False,
         env_nested_delimiter="__",
         arbitrary_types_allowed=True,
+        env_prefix="REGRU__",
     )
 
     environment: str

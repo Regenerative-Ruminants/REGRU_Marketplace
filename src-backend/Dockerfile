@@ -33,6 +33,6 @@ RUN uv sync --frozen --no-cache --no-dev
 # Copy the project into the image
 COPY . .
 
-WORKDIR /app/regru-api
+WORKDIR /app/regru
 
 CMD ["uvicorn", "regru.asgi:application", "--host", "0.0.0.0"]

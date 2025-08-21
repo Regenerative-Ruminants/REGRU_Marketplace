@@ -4,6 +4,6 @@ services:
       context: .
       target: test
     volumes:
-      - ./regru-api:/app/regru-api
+      - ./regru:/app/regru
       - ./test:/app/test
     command: ["pytest"]
