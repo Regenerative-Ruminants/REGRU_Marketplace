@@ -14,7 +14,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "mypy>=1.17.1",
-    "pytest>=8.4.1",
+    "pytest-django>=4.11.1",
     "ruff>=0.12.9",
 ]
 
@@ -80,3 +80,9 @@ skip-magic-trailing-comma = false
 [tool.mypy]
 disallow_untyped_defs = true
 ignore_missing_imports = true
+
+# pyproject.toml
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE="regru.settings"
+# -- recommended but optional:
+python_files = ["test_*.py", "*_test.py", "testing/python/*.py"]

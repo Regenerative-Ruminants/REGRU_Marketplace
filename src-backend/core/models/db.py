@@ -12,8 +12,7 @@ class TimestampedModel(models.Model):
 
 
 class Product(TimestampedModel):
-    # The id field as a UUIDField, serving as the primary key
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     name = models.CharField(max_length=255)
 
     def __str__(self) -> str:

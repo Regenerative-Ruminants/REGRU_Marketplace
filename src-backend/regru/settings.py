@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
-from .configuration import AppConfiguration
+from regru.configuration import AppConfiguration
 
 config = AppConfiguration()  # type: ignore[call-arg]
 

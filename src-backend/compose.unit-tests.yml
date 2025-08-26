@@ -5,5 +5,5 @@ services:
       target: test
     volumes:
       - ./regru:/app/regru
-      - ./test:/app/test
+      - ./core:/app/core
     command: ["pytest"]
