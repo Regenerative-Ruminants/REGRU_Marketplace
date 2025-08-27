@@ -18,6 +18,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create .env file
+        run: |
+          echo "REGRU__ENVIRONMENT=\"${{ secrets.REGRU__ENVIRONMENT }}\"" >> .env
+          echo "REGRU__SECRET_KEY=\"${{ secrets.REGRU__SECRET_KEY }}\"" >> .env
+          echo "REGRU__DATABASE__ENGINE=\"${{ secrets.REGRU__DATABASE__ENGINE }}\"" >> .env
+          echo "REGRU__DATABASE__NAME=\"${{ secrets.REGRU__DATABASE__NAME }}\"" >> .env
+          echo "REGRU__DATABASE__USER=\"${{ secrets.REGRU__DATABASE__USER }}\"" >> .env
+          echo "REGRU__DATABASE__PASSWORD=\"${{ secrets.REGRU__DATABASE__PASSWORD }}\"" >> .env
+          echo "REGRU__DATABASE__HOST=\"${{ secrets.REGRU__DATABASE__HOST }}\"" >> .env
+          echo "REGRU__DATABASE__PORT=\"${{ secrets.REGRU__DATABASE__PORT }}\"" >> .env
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
