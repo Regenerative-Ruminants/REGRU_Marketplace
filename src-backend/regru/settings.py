@@ -29,7 +29,7 @@ SECRET_KEY = config.secret_key.get_secret_value()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config.environment == "local"
 
-ALLOWED_HOSTS: list[str] = []
+ALLOWED_HOSTS: list[str] = ["0.0.0.0", "localhost", "127.0.0.1"]
 
 
 # Application definition
