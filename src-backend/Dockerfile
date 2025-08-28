@@ -1,5 +1,6 @@
 # Use the official Python runtime image
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS base
+ARG PYTHON_VERSION=3.13
+FROM ghcr.io/astral-sh/uv:python${PYTHON_VERSION}-bookworm-slim AS base
 
 # Set environment variables
 # Prevents Python from writing pyc files to disk
@@ -10,6 +11,9 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 EXPOSE 8000
+
+ARG HOST_UID=1000
+RUN useradd -s /bin/bash -m user --uid ${HOST_UID}
 
 COPY pyproject.toml .
 COPY uv.lock .
@@ -24,6 +28,8 @@ RUN uv sync --frozen --no-cache
 # Copy the project into the image
 COPY . .
 
+USER user
+
 CMD ["pytest"]
 
 FROM base AS prod
@@ -32,7 +38,6 @@ RUN uv sync --frozen --no-cache --no-dev
 
 # Copy the project into the image
 COPY . .
+RUN chmod 0555 run.sh
 
-WORKDIR /app
-
-CMD ["uvicorn", "regru.asgi:application", "--host", "0.0.0.0"]
+USER user
