@@ -1,6 +1,9 @@
 # Regenerative Marketplace • Rust / Tauri / Autonomi
 
-Desktop-first, mobile-friendly marketplace for regenerative-farm products.  
+**Website:** https://regru.org
+
+Regenerative farming – Traceability
+
 All catalogues, orders, media and receipts live on **Autonomi**; writes are paid in **ANT**.
 
 ---
