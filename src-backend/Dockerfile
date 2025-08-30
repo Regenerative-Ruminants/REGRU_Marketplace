@@ -28,6 +28,7 @@ RUN uv sync --frozen --no-cache
 # Copy the project into the image
 COPY . .
 
+ENV RUFF_CACHE_DIR=/home/user/.ruff_cache
 USER user
 
 CMD ["pytest"]

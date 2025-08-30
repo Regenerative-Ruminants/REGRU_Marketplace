@@ -6,4 +6,4 @@ services:
     volumes:
       - ./regru:/app/regru
       - ./core:/app/core
-    command: ["pytest"]
+    command: ["pytest", "--disable-warnings", "-ra", "-vv"]

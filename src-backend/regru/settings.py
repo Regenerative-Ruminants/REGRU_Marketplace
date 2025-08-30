@@ -36,6 +36,7 @@ ALLOWED_HOSTS: list[str] = ["0.0.0.0", "localhost", "127.0.0.1"]
 
 INSTALLED_APPS = [
     "core",
+    "ninja",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
