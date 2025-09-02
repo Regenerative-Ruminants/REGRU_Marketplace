@@ -5,16 +5,19 @@ description = "REGRU Marketplace API"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "autonomi-client>=0.5.3",
     "django>=5.2.5",
     "django-ninja>=1.4.3",
     "psycopg2-binary>=2.9.10",
     "pydantic-settings>=2.10.1",
+    "ruff>=0.12.11",
     "uvicorn>=0.35.0",
 ]
 
 [dependency-groups]
 dev = [
     "mypy>=1.17.1",
+    "pytest>=8.4.1",
     "pytest-django>=4.11.1",
     "ruff>=0.12.9",
 ]
